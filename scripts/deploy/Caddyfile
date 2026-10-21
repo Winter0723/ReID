@@ -1,0 +1,11 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$STAFF_DOMAIN} {
+	reverse_proxy staff-web:80
+}
+
+{$VISITOR_DOMAIN} {
+	reverse_proxy visitor-web:80
+}

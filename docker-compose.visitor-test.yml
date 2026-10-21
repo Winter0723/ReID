@@ -1,0 +1,32 @@
+# Always use the dedicated project name via scripts/start-visitor-test.ps1.
+name: myreid-visitor-test
+services:
+  maintenance:
+    env_file: !override
+      - .env.visitor-test
+    build:
+      args:
+        INSTALL_SCENIC_TRACKING: "1"
+  backend:
+    env_file: !override
+      - .env.visitor-test
+    build:
+      args:
+        INSTALL_SCENIC_TRACKING: "1"
+    ports: !override
+      - "127.0.0.1:22889:2889"
+  worker:
+    env_file: !override
+      - .env.visitor-test
+    build:
+      args:
+        INSTALL_SCENIC_TRACKING: "1"
+  visitor-coordinator:
+    env_file: !override
+      - .env.visitor-test
+    build:
+      args:
+        INSTALL_SCENIC_TRACKING: "1"
+  visitor-web:
+    ports: !override
+      - "127.0.0.1:25174:80"

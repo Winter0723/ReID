@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: myreid-postgres
+    environment:
+      POSTGRES_USER: myreid
+      POSTGRES_PASSWORD: myreid
+      POSTGRES_DB: myreid
+      SCENIC_POSTGRES_DB: myreid_scenic
+    ports:
+      - "5432:5432"
+    volumes:
+      - myreid_postgres_data:/var/lib/postgresql/data
+      - ./FastAPIBackend/docker/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myreid -d myreid"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7
+    container_name: myreid-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  myreid_postgres_data:

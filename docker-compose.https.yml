@@ -1,0 +1,25 @@
+# Optional public HTTPS entry point; requires real DNS names and inbound 80/443.
+services:
+  gateway:
+    image: caddy:2-alpine
+    environment:
+      STAFF_DOMAIN: ${STAFF_DOMAIN:?Set STAFF_DOMAIN to the staff DNS name}
+      VISITOR_DOMAIN: ${VISITOR_DOMAIN:?Set VISITOR_DOMAIN to the visitor DNS name}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL for certificate notices}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./scripts/deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      staff-web:
+        condition: service_started
+      visitor-web:
+        condition: service_started
+    restart: unless-stopped
+volumes:
+  caddy_data:
+  caddy_config:

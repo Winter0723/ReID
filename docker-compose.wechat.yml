@@ -1,0 +1,14 @@
+# Optional only AFTER implementing and verifying docs/WECHAT_PAYMENT_INTEGRATION.md.
+# Manual payment deployments do not need these files.
+services:
+  backend:
+    secrets:
+      - source: wechat_merchant_private_key
+        target: wechat_merchant_private_key.pem
+      - source: wechat_platform_public_key
+        target: wechat_platform_public_key.pem
+secrets:
+  wechat_merchant_private_key:
+    file: ${WECHAT_PAY_MERCHANT_PRIVATE_KEY_FILE:-./secrets/wechat_merchant_private_key.pem}
+  wechat_platform_public_key:
+    file: ${WECHAT_PAY_PLATFORM_PUBLIC_KEY_FILE:-./secrets/wechat_platform_public_key.pem}

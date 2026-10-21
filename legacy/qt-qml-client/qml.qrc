@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>components/AccountTab.qml</file>
+        <file>components/AppButton.qml</file>
+        <file>components/AppContent.qml</file>
+        <file>components/AppDialog.qml</file>
+        <file>components/AppHeader.qml</file>
+        <file>components/AppProgressBar.qml</file>
+        <file>components/AppSidebar.qml</file>
+        <file>components/DataRow.qml</file>
+        <file>components/EmptyState.qml</file>
+        <file>components/InputArea.qml</file>
+        <file>components/InputField.qml</file>
+        <file>components/MediaRow.qml</file>
+        <file>components/MenuAction.qml</file>
+        <file>components/MetricTile.qml</file>
+        <file>components/PageTitle.qml</file>
+        <file>components/ProfileRow.qml</file>
+        <file>components/SegmentButton.qml</file>
+        <file>components/SidebarItem.qml</file>
+        <file>components/StatusPill.qml</file>
+        <file>components/TableHeader.qml</file>
+        <file>components/Launcher.qml</file>
+        <file>components/ScenicApp.qml</file>
+    </qresource>
+</RCC>

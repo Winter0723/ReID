@@ -1,0 +1,1874 @@
+[
+  {
+    "path": ".dockerignore",
+    "sha256": "3e13d5513f3f26e3b95d7e5d8e0bb3e11b5d04919de3eaf7f2519056cae62089"
+  },
+  {
+    "path": ".editorconfig",
+    "sha256": "50ef263305a989328b8077aa80ac9a45df2c83ff9de87817f5ff55bff5d5c215"
+  },
+  {
+    "path": ".env.dev.example",
+    "sha256": "a1a3cbd9a3e4f41d5b86faf92f620c69be1ad6a03ffe0ea841b90ce75ce7177b"
+  },
+  {
+    "path": ".env.docker-local.example",
+    "sha256": "ca140c4f4bc1ba8a0da796166bebfa75c2025acb053cdf68cefa0fea9af694e7"
+  },
+  {
+    "path": ".env.example",
+    "sha256": "3ebda6cfed4019f787664c9e6f4f28c32a6d2dfb6412ee98dcea69ebf4bb7b8d"
+  },
+  {
+    "path": ".env.local.example",
+    "sha256": "abc1165b00c53567942956f8f146915ef6530bed57f1f92bb3bc92bd81c7aa93"
+  },
+  {
+    "path": ".env.prod.example",
+    "sha256": "7d297e36f8fe088c08b52b94ff0a75a9a0ba9949083980d8c86621989f511f22"
+  },
+  {
+    "path": ".env.sqlite.example",
+    "sha256": "6ede365866bc5cc6dd1e6366d640a2f9d02dc8b8958eba9d7100717f8c0c8422"
+  },
+  {
+    "path": ".env.staging.example",
+    "sha256": "c8a6819599a4d133431d5f7c1b9cb60ad852812fe4779d7c17cea3b8c55fc457"
+  },
+  {
+    "path": ".env.visitor-test.example",
+    "sha256": "572dd740cdd1b111c1e0a153330ff19cb96acc465417766bc2240dc22ef0795a"
+  },
+  {
+    "path": ".gitattributes",
+    "sha256": "1d5d71dcc6ccd28ab46a335349ecc74742ca4b81f4fcad212f8d134f70f1f13e"
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "530c4c8bb1a9661a01e16b043c94145865e7cab5226c6b911bf66db55accc0a4"
+  },
+  {
+    "path": ".github/workflows/security.yml",
+    "sha256": "0bf59a3ef161034dda09a74aed3671f46935e885cb75739de28bd701fc2bf926"
+  },
+  {
+    "path": ".gitignore",
+    "sha256": "6cbe08a1c2966e0a2804fec85eb48d749862897a749e3a5a00668ce5614e7f12"
+  },
+  {
+    "path": "CONTRIBUTING.md",
+    "sha256": "e850bf1a045ba8709a2ae6c7fd4cf8c892dc0fa1a0c563eabed055ff8cbda8af"
+  },
+  {
+    "path": "FastAPIBackend/Dockerfile",
+    "sha256": "90a1c807c5c9140c36f8ed60c08b0b44de3563d08d0855713057908e5aee62c7"
+  },
+  {
+    "path": "FastAPIBackend/Dockerfile.cuda",
+    "sha256": "2bb0dcf955cd8525c8c5b295b31854a8839787322174d750e0baece7e7338605"
+  },
+  {
+    "path": "FastAPIBackend/alembic.ini",
+    "sha256": "a69c385d21c359d4a3dcc9b75b70c3c551dc96d38891f228e0ff48d8f3c10cd0"
+  },
+  {
+    "path": "FastAPIBackend/alembic.scenic.ini",
+    "sha256": "7a82460431b5a355169e65f407535b07184a0c4d8cf220a1535c853462b4fa56"
+  },
+  {
+    "path": "FastAPIBackend/app/__init__.py",
+    "sha256": "2833788597a8ebb7b26cf85020170479d346b5b904f87430feb33fef935e3a15"
+  },
+  {
+    "path": "FastAPIBackend/app/api/__init__.py",
+    "sha256": "af20a683ea58e5397ca081a4fc9f0248818731159402ab19651bae01d266eb10"
+  },
+  {
+    "path": "FastAPIBackend/app/api/app_factory.py",
+    "sha256": "53d2c3ca7e9327ea2ce79938952fbae1dccb485f38f5f867f3c445bef508c826"
+  },
+  {
+    "path": "FastAPIBackend/app/api/auth_dependencies.py",
+    "sha256": "fc0c349bb9648c99e1e09aa8ec2f5b4c7c0c82222a515fbe7a222289c0f1a5ec"
+  },
+  {
+    "path": "FastAPIBackend/app/api/common.py",
+    "sha256": "966e09cf656c89612ca36666735bd845230992e7411f57127505f243542a8250"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/admin.py",
+    "sha256": "d39470fb6b727f22471ffc7c327ba08a1e855324c2d8962bce1cbc90211673af"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/auth.py",
+    "sha256": "7e4322369e79ffb39b1b647e4c029e7bcf0110c765ef5776221b015f891d18ed"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/health.py",
+    "sha256": "e3746ea420eecbb24731f69053f4e3ee545e879588cf7330b841fa759bc0f3a0"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/projects.py",
+    "sha256": "a3f3a1353f69d4916e45aaea6ad9754bffa3e0bc512147d1b025f4fb0a4837bc"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/realtime.py",
+    "sha256": "398e5086b886f3c3c3f0ee5b2d5c4e583f210c0de5dc06dd757af8d878a493c7"
+  },
+  {
+    "path": "FastAPIBackend/app/api/routes/search.py",
+    "sha256": "53613aad06ed3f11e79ae9e3a531887d907e0cf51320bc6b083fe1b223b5bd87"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/__init__.py",
+    "sha256": "4e68d518a449e6d464443622d66bd9b809aae3a35452a8158171e305a5d76763"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/auth_routes.py",
+    "sha256": "c2c6fa34ff0e1f9090d0809b6b4164aa7e5e5430ef479d40d7d6e2089f5478fb"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/camera_routes.py",
+    "sha256": "b6dff03f0210636a74a1c6566a833b6b340360a4d0af675c087375331e07bf4d"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/editing_routes.py",
+    "sha256": "31448f2233e3724db1c3a274de5066b166c319545aa97aeae75ebeaa2503adb9"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/order_routes.py",
+    "sha256": "be5c88f63b18cb3d96667a0f6f582d9368a4e9fec0957ffb2ca96a187640f05b"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/project_routes.py",
+    "sha256": "bf7b6b7d559d55d6551e52e35f64fce9d2c4a3c45faa7cbeb8cc3abd1d2e3b9e"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/service_adapters.py",
+    "sha256": "f71a770328032054b12710e86398f655d57d62e3bb54ffb24702c67b4832ccff"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/system_routes.py",
+    "sha256": "0d5baf286c320a09882e2533e9df288a7623773392a6927584df87b49f19116d"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/tourist_routes.py",
+    "sha256": "190221befafdd9de54dde422d429e79502d9f5198a31a14b960133b2ac95259c"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/visitor_routes.py",
+    "sha256": "9cb47bcf6323b1594207de5a7f8cba4edf68e49c7589884343eff6a448d10302"
+  },
+  {
+    "path": "FastAPIBackend/app/api/scenic/vlog_routes.py",
+    "sha256": "01cbae1c8387667d9a7a573172a770df54e7afd1bc0c203d732e508340d99244"
+  },
+  {
+    "path": "FastAPIBackend/app/core/__init__.py",
+    "sha256": "67dd75b956a16ba12ba588e6959add0268aa87ed0dad2d51c142876dec9e9512"
+  },
+  {
+    "path": "FastAPIBackend/app/core/config.py",
+    "sha256": "36fc0f9562c3bc610e474e2172079d3bc0bdd17ea7c137802651424cbabe5374"
+  },
+  {
+    "path": "FastAPIBackend/app/core/observability.py",
+    "sha256": "6a949e5bdec2c4bb7d23b3393e079ca1be5f7dc4a5e4f6a577e2ccc005cd62d6"
+  },
+  {
+    "path": "FastAPIBackend/app/core/security.py",
+    "sha256": "c4e09b566d086f2b0021584a306274c9e387b87a4f615ba9e217d2847afcb1f9"
+  },
+  {
+    "path": "FastAPIBackend/app/db/__init__.py",
+    "sha256": "d4b68cbf48ae7d2b5d82615f91a70ba4760c2c722836095ee06a7e81a2610cd1"
+  },
+  {
+    "path": "FastAPIBackend/app/db/orm_mixins.py",
+    "sha256": "e913e467ed8481110717b465465e7d0ed3c829716b6a13bfcd01812c3595d294"
+  },
+  {
+    "path": "FastAPIBackend/app/db/runtime.py",
+    "sha256": "e47503ffe852209164a040bf885f0762eaf8c4278e96bdd8485e7ef981df5fc3"
+  },
+  {
+    "path": "FastAPIBackend/app/db/visitor_models.py",
+    "sha256": "42e3fc5a7b8a069bbf137cb2ac5dcac00390df418866fe0cfa61612cf377e986"
+  },
+  {
+    "path": "FastAPIBackend/app/repositories/__init__.py",
+    "sha256": "5f5ab32de4b307e7b202e82dd2dda5efdc2ec8b2056b59d2cd9345e385d254db"
+  },
+  {
+    "path": "FastAPIBackend/app/scenic_editing_schemas.py",
+    "sha256": "ae5e53014c4117f48005dda24cc160e438f0a5b7136e2bb599b66f9f15816244"
+  },
+  {
+    "path": "FastAPIBackend/app/schemas.py",
+    "sha256": "716dc14ade383a57d04c64937a2c8564e7fa8494c10a4cc9ff9b84bc2f0e9019"
+  },
+  {
+    "path": "FastAPIBackend/app/services/__init__.py",
+    "sha256": "b32325323964fd413faee8c15fae31082c395632292d99f4480e42763f7c6096"
+  },
+  {
+    "path": "FastAPIBackend/app/services/api_docs_contract.py",
+    "sha256": "868fd0affef8c58d08500b432ae6e2aaaf017684386043f4d770613b4a84824a"
+  },
+  {
+    "path": "FastAPIBackend/app/services/asset_delivery.py",
+    "sha256": "8381ffe4bbca97314d6293ae0870be6899875859f539cea53c542b6a453fbe05"
+  },
+  {
+    "path": "FastAPIBackend/app/services/audit_service.py",
+    "sha256": "7f7e17de403b64a8cc76647af5924bf22d5ebca2d349221191f7aa033613cac6"
+  },
+  {
+    "path": "FastAPIBackend/app/services/auth_service.py",
+    "sha256": "5cb6ae7b0b58a3cdaa5d0520e0cca9e69dd05f046664cf47a303175542022fae"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_bridge.py",
+    "sha256": "d6faeff632c8a4f9e57243c9b7f098cc23c3eaf38dff1840f3e23b3487936e81"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_hotplug.py",
+    "sha256": "287e2e84fa1d735e86b86c493d0de59254c368c759c3016bebb3794927828543"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_lifecycle.py",
+    "sha256": "d82e98bfad76b75153f942bd4f0cd592eaa45c3710e43ce457cc63c445c6df2a"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_policy.py",
+    "sha256": "47624a04cc3b016765cd9c3f07bea5649f1f2aaf2a2ef07d007871bca29adbbc"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_preview.py",
+    "sha256": "0d75f2c0e5dae25621a30e309f6d7812562ec36da88e0a169d9b60c97299f4a9"
+  },
+  {
+    "path": "FastAPIBackend/app/services/camera_stream.py",
+    "sha256": "73e0009557a247412df22d6723398f4fdc631a81db45b2ea27c51db64d70fdac"
+  },
+  {
+    "path": "FastAPIBackend/app/services/central_camera_service.py",
+    "sha256": "ff3c3909c73a671c9d9b7107c08a3e65276f20779e852beeea4bbad1947c3c1f"
+  },
+  {
+    "path": "FastAPIBackend/app/services/database_migrations.py",
+    "sha256": "6e40b4ac42d5841ebe2e72836069943d26cb2e664ef269e63d1ea4ede09d5631"
+  },
+  {
+    "path": "FastAPIBackend/app/services/email_service.py",
+    "sha256": "e9d2920dbc37842e83442958d35374853a70fb6183a527a74afc0ca26f05bfbd"
+  },
+  {
+    "path": "FastAPIBackend/app/services/ffmpeg.py",
+    "sha256": "05cd222b5ff6c726b070624962332d151ef1bf560cf2045ea3dc2a6f67b54064"
+  },
+  {
+    "path": "FastAPIBackend/app/services/job_manager.py",
+    "sha256": "c61cb3e8bb8d4e9ce91e4fc9ed478520c8d18a75bf145cc2635c82ead7d30826"
+  },
+  {
+    "path": "FastAPIBackend/app/services/legacy_service.py",
+    "sha256": "f967837df64838c41976ccddb1ff3f63be2e1aa67dc7295b7071f500d6c9b419"
+  },
+  {
+    "path": "FastAPIBackend/app/services/media_service.py",
+    "sha256": "218cc0e416b7081d30d8555fcd8a84819dae65d7c58df8692eebf1bac8dc2baf"
+  },
+  {
+    "path": "FastAPIBackend/app/services/model_precision.py",
+    "sha256": "2d90332cd96824d530d84f83d1e6ad87d2c1fe9e4afd905a51d9535a2ca6b0a8"
+  },
+  {
+    "path": "FastAPIBackend/app/services/model_runtime.py",
+    "sha256": "edfdd568182e53970fc346e79771a68b994b45433f1e387433a7c8481efcfc1d"
+  },
+  {
+    "path": "FastAPIBackend/app/services/observability_service.py",
+    "sha256": "525ae9186bb545715e21c77f6c9ec9c6d3d745ceac03eb4f78f2d951cd720462"
+  },
+  {
+    "path": "FastAPIBackend/app/services/payments.py",
+    "sha256": "8b13d126c38e7275904a7103e5b1a101b1d0158a49658128351d0d7a2bed3d88"
+  },
+  {
+    "path": "FastAPIBackend/app/services/permission_service.py",
+    "sha256": "bce4bbcbfc8d0467019d1062eef35ac187278a304c6c5009659e3f523289b604"
+  },
+  {
+    "path": "FastAPIBackend/app/services/persistence_service.py",
+    "sha256": "72899b84007266e54f9e185fb0a77548e9f06db067ddbb54e902e92bf7b04762"
+  },
+  {
+    "path": "FastAPIBackend/app/services/person_tracking.py",
+    "sha256": "7c3f9dc958ddda1135d1062acf4f90bdc1319a683e3f888ed85b2fef3fabffb1"
+  },
+  {
+    "path": "FastAPIBackend/app/services/rate_limit.py",
+    "sha256": "b016feb0426f5cf0a4a608e0392a16c50875e9e7a7684cb77e8e60c2c6cae1c6"
+  },
+  {
+    "path": "FastAPIBackend/app/services/realtime.py",
+    "sha256": "f7c3ec654593af99003551884f677793810051e9d5e388f6d19bb330c8ef5c9b"
+  },
+  {
+    "path": "FastAPIBackend/app/services/redaction.py",
+    "sha256": "cddc4b6a285f4f5b82755a9023dec637604c1249582748e3642bc06dc36a6d65"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_editing.py",
+    "sha256": "678d9b2e4fa4d74ef6d973c2d93e5a76a7cb17960e77d808c515de6ca19dc5cd"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_operations.py",
+    "sha256": "8ab1fe606ee379e09942f203bf77fee998bb6135eee38e972a83bc62fd7547f2"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_render.py",
+    "sha256": "f013119a6d5847e30df8b4c1f285ca4f5a475063e7fa4e2e5cbec50bfd2b5fcf"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_search.py",
+    "sha256": "04e5d7d339fe6e6e6ba7518e2bd6a2752778f55e1cc2c19be1243209a3d1f429"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_snapshot.py",
+    "sha256": "7cd4c45574749c1eac368520c3e56e97107c9d6c217fe9b5696ec02c87702980"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_templates.py",
+    "sha256": "b5483a50c199b4e2270753b4f11b2934181b42828255f2a8982d41ed5a6b1a91"
+  },
+  {
+    "path": "FastAPIBackend/app/services/scenic_tracking.py",
+    "sha256": "8ad1c73d01847b9696c18de364e6d4e7d4fa27dc8ba9348e398ec188fc986e51"
+  },
+  {
+    "path": "FastAPIBackend/app/services/schema_service.py",
+    "sha256": "47e3a9929eed5ad01950ee158b412a20ecac705341e6c75800ce69eecd343023"
+  },
+  {
+    "path": "FastAPIBackend/app/services/search_service.py",
+    "sha256": "825d0237d001fb85b2f47d534224163e579dc83a9d99e45e86c5b6c5a27761f6"
+  },
+  {
+    "path": "FastAPIBackend/app/services/storage.py",
+    "sha256": "c1c33caddaf8bac080ac53dc5f1d83ab5d87c49c57c4f2fecf20256e12458b9d"
+  },
+  {
+    "path": "FastAPIBackend/app/services/task_recovery.py",
+    "sha256": "e2a51b69cca37811f32342ec3487732fda48186f9546193c914bff094a2910b9"
+  },
+  {
+    "path": "FastAPIBackend/app/services/task_service.py",
+    "sha256": "78df05ca2d8fc86df731825e8d6c9f8f3ed346b32d283653d67a99443f5d5d88"
+  },
+  {
+    "path": "FastAPIBackend/app/services/time_utils.py",
+    "sha256": "5228c7e6d8fa2c7c7841fb39db7e3c6b18a923f6c72377fa26bed4b64cbac1e7"
+  },
+  {
+    "path": "FastAPIBackend/app/services/vector_store.py",
+    "sha256": "8e82646fc9941bd9714e2ead60c6d8bd36052802182f7c068fd96dce5a30065e"
+  },
+  {
+    "path": "FastAPIBackend/app/services/visitor_auth.py",
+    "sha256": "6dfbfbfc50424260872ca23ada352cb80c9deabf53dc43df72d5274a4d34e2fb"
+  },
+  {
+    "path": "FastAPIBackend/app/services/visitor_configuration.py",
+    "sha256": "c1373acbc6eeead81de11764e6c52228fc2e1371fb77d09c0abfaea05fec3aad"
+  },
+  {
+    "path": "FastAPIBackend/app/services/visitor_production.py",
+    "sha256": "86c623f8dfbddcb19030dc347d587897d79d78ad8d1fee8cea4abe47ab22267e"
+  },
+  {
+    "path": "FastAPIBackend/app/services/visitor_testing.py",
+    "sha256": "b9cb8b3beb4484d93cf96355e8456cca362402686a98cc3b209c00d3339392a3"
+  },
+  {
+    "path": "FastAPIBackend/app/workers/__init__.py",
+    "sha256": "834b428868640948915bacc11edaefa3b9474e1ef3a2b97a3297ee7602e572b9"
+  },
+  {
+    "path": "FastAPIBackend/app/workers/maintenance.py",
+    "sha256": "525003d9300075ae897c5818f96324c3ad966972a5069b5ba412e47622a3dfa9"
+  },
+  {
+    "path": "FastAPIBackend/app/workers/scenic_editing.py",
+    "sha256": "6bad3a42fef997249c474502e5bb6778004a71991108ba29541434bd10e0fa2b"
+  },
+  {
+    "path": "FastAPIBackend/app/workers/tasks.py",
+    "sha256": "1ea0b0219d26e4d307d42062b495c2d8f1b52c657fdf5a486f7aa06ce3e807d5"
+  },
+  {
+    "path": "FastAPIBackend/app/workers/visitor.py",
+    "sha256": "5534a3e3572e4d0d3da033737c56e4b04f697d501a6aafea92909d1b4487ff10"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/LICENSE_SOURCES.md",
+    "sha256": "42090d97b796df8051db0343a8a92172e489e71b42aea356680316c216e8aefa"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/README.md",
+    "sha256": "8380775f99bc23834622e0392f6d0b2cdbf20a5d77abfff052bf8ee99a1c54af"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/catalog.json",
+    "sha256": "53f65a02acf278b4b9436809fcbe3dea69b524f9b05d06a0578cb9a5bedcba2f"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/cc0-v1/oga_happy_beat.mp3",
+    "sha256": "f2776b52b6924cce63b6d8416c8baa6019b3a2bea26f6a95689730e5ddaf1912"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/cc0-v1/oga_happy_moments.mp3",
+    "sha256": "c8009cc29e15483274c5021c13adc41530d59547559fa4aa4a7b27cad6f93f51"
+  },
+  {
+    "path": "FastAPIBackend/assets/scenic_music/cc0-v1/oga_revelation.mp3",
+    "sha256": "b6111a64fa948e76b01d08fc5de53177885a8d8db0dea65330946760892feb43"
+  },
+  {
+    "path": "FastAPIBackend/database.py",
+    "sha256": "57c62ac407e59b75857945daf7769be77298b6f85a23b0ee6340f644a4cf0429"
+  },
+  {
+    "path": "FastAPIBackend/docker/entrypoint.sh",
+    "sha256": "313acda4c3d7b4baedde86c20d8c58611c4079ae6581197ac4aa48d55183f96f"
+  },
+  {
+    "path": "FastAPIBackend/docker/init-databases.sh",
+    "sha256": "c493931578e7413cbef415129dff99d1127c826f53abe8b612d06f792fda571a"
+  },
+  {
+    "path": "FastAPIBackend/main.py",
+    "sha256": "e7c1cf775cf046fad4b9aede7e46f3f621e44ee60286a9837128d46687e16c75"
+  },
+  {
+    "path": "FastAPIBackend/migrations/README",
+    "sha256": "0e121a7123ac3f1c1c7283de39b32738ac731ab80709cd47a527e46e9da50e48"
+  },
+  {
+    "path": "FastAPIBackend/migrations/env.py",
+    "sha256": "bd20aa636f04d49016679f4b0f9ca5f485f8d62334e9e0bad240d91ed2f8f142"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260519110003_create_enterprise_schema.py",
+    "sha256": "585afcb4fa1f5f24c814559204524d9eae336c8be4e856240a909d7d641f4db0"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260519123000_add_object_storage_metadata.py",
+    "sha256": "24858603cec62c64af1e7d90105b0938a60ab43a12f5d69b1b7bdb1beacfb86d"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260519190000_add_rbac_members_refresh_tokens.py",
+    "sha256": "58ca544f4d0bc7a879ba7fe6caadeb0d20395fabe901a3061b4aede3373f88ca"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260520090000_add_user_profile_fields.py",
+    "sha256": "6a6dd94bd2ef1cdc6a85e138d65592d3036c0900304b5ace27c9c484befa5b3d"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260521100000_add_camera_project_fields.py",
+    "sha256": "030fc19d33b897e92ea796db06705d4c8858781177a68623b6d9ba5734a4155e"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260521110000_add_email_login_codes.py",
+    "sha256": "b0d5b6eb750f65c7e2fcc7d4d33296702ba1df991b4ee878068e5a503e85ebc4"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260521123000_add_search_enhancement_fields.py",
+    "sha256": "977496af26ccc834becbd74e692d26bf67f2e5aff431e9396383b55b6d3ef102"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260525100000_add_scenic_vlog_business_tables.py",
+    "sha256": "00967d06caee9fab5d5a9f75dc8413cee8ca3616cb3c90d99e14c177819672fe"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260604120000_add_wechat_payment_fields.py",
+    "sha256": "51a0c6a4e4b1b0e3d13f24a3285fad04e2dbdb6740918f7e759a01c2f3d72718"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/20260710170000_add_active_media_dedup_index.py",
+    "sha256": "f67fd45d6b75b17aed56f02cfae3e032ca4118ebee6a945dcd20e171d5e53827"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/core/20260829100000_core_schema_head.py",
+    "sha256": "e33c1c2aa6e5e588dae0887c61ae9abc0b6b93f0611a31d4b65a07ab83e59931"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/core/20261012100000_media_size_bigint.py",
+    "sha256": "1b6c375fe655bb86944274f7d198ae8dad0cff5146fc706a333493add3291b37"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20260829100000_scenic_schema_head.py",
+    "sha256": "2ebaa69b7282a1552f29b8d053921cecb4988f64886a86dab79b1396693adaac"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20260907120000_scenic_editing.py",
+    "sha256": "149d5284970e544e62143e04d42bb930c49a64fdebce2371a1d1771475f635f5"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20260914120000_scenic_receipt.py",
+    "sha256": "221e2a8639334f41759ab29a2cc8d4e60fe141881df3a3437cdfda6da700dd8c"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20260929100000_visitor.py",
+    "sha256": "c574ea87018a5d791da116b27c9fb4b06fe2988940a72fb218ce0b9ff97e5803"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20261012100000_media_size_bigint.py",
+    "sha256": "d9f3e9e39212b733e2d87a4d89c0b32f920185669ccfbb7d4484af96dce83e3e"
+  },
+  {
+    "path": "FastAPIBackend/migrations/versions/scenic/20261016090000_visitor_verification.py",
+    "sha256": "4186dadfebd9ee96fc8cff3019afbbe446d1a6aa0c609aa065621557828370ed"
+  },
+  {
+    "path": "FastAPIBackend/requirements-editing.in",
+    "sha256": "5c2b0958e67bc8f218f768291e479e246cd948f63d05a5a5c8eaccbf3bdf3ace"
+  },
+  {
+    "path": "FastAPIBackend/requirements-editing.txt",
+    "sha256": "941340dc977fd2d835cc4241a04669868a90b2c7863821aaf5ff8ccf9145eb37"
+  },
+  {
+    "path": "FastAPIBackend/requirements.in",
+    "sha256": "4bed726365b548cb7ff0443fee917417b6af97dd0bbe5b39c70eb107113b38ab"
+  },
+  {
+    "path": "FastAPIBackend/requirements.txt",
+    "sha256": "50a88f415ceaa24bd3e27a2ce81cb174d937d9f29bad2767c5b37f39ec6c4c68"
+  },
+  {
+    "path": "FastAPIBackend/scenic_database.py",
+    "sha256": "0ab8214c733cbb8a03805acbf61ef8471bc364b6077add0189c3a6db375baecf"
+  },
+  {
+    "path": "FastAPIBackend/tests/conftest.py",
+    "sha256": "ab2f58cc286729d79829eecb714d5a60b1e2d1eb76bdb90b8d886711eb98e2b6"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_api_docs_contract.py",
+    "sha256": "6e728bbf2fc2f2e0e74e2e198e44c2dd36d93a58ab38e93a0b91734ad6573960"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_api_integration.py",
+    "sha256": "6fbe0c7a9c0ceef16d5acab3a71ca6d49348de1e466ea2d01f5dbf0ef27cae5b"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_asset_delivery.py",
+    "sha256": "8ce3e22266cd6df7561e849b2a2481d4fb30cae17a5f86ce7f9ee9efed0a9d4c"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_camera_bridge.py",
+    "sha256": "dd2d300bff310914eea4d2ed2a78d46025fca29eef2609b1ee5c2d0a3f2ae590"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_camera_hotplug.py",
+    "sha256": "a3db2c1d740c7b7dbc86a8f73e3286e5cb1a5168a8f4f0158cb3fa75f1d90108"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_camera_lifecycle.py",
+    "sha256": "7cbf0a2235535df509237f37f7c6ff8ccdbfde457c87419baf2ec8c965af211c"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_camera_live_stream.py",
+    "sha256": "41843fff57d6733e6630bbc5b83d454462ee15792069b4e09775886c8b9e1575"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_core_camera_preview.py",
+    "sha256": "648132853f3e3fa5dcf45052818df2a33d7bbe5fe482581f9a1eecd3a951240b"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_frontend_contract.py",
+    "sha256": "6b3d29fa752560c1753c444e945a310ce3169759de825078cbd50840729bdd01"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_migration_logging.py",
+    "sha256": "d56a2ff8e42f6f79926bbb06b6a56e28fa989e4efd3be9a6390b7f363c29773a"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_migrations.py",
+    "sha256": "a67b66ce60eb0737b987f7aef022cc3ed5c5ddda4825bd3d06bb1d1725a01c5c"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_model_precision.py",
+    "sha256": "ab0a1c35528714aaf262d08ca5c5620fbc76948b7dcef17541fbe5c351dc446b"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_observability_regressions.py",
+    "sha256": "e5f17791c52f248dee1068b93953c45a87a134eaa7917b3a1c35213ed95e0376"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_open_source_hardening.py",
+    "sha256": "99b3ff156cc7c6aaa78dea70e7c3cef4c59ea9caf3d52239b7144cbb7232f027"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_p2_architecture.py",
+    "sha256": "fdee59f9fe5c569726fe77df1023ddd595c12e64c2ec782a25661c312eaade7a"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_realtime.py",
+    "sha256": "e5ae9cce6a58525cd172f27119fcd50fc9eed33d2ad767a9614414777eaf1b9c"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_realtime_camera_recovery.py",
+    "sha256": "be7d7487a77809d575c0410a4b0c7a48e4e4d5015e8cc3a41028ace0e987d6d7"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_camera_environment.py",
+    "sha256": "73462342e34739f4112238482c534a6b5f18e1e4c8cfac15a87b54e78fe78956"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_camera_preview.py",
+    "sha256": "9ac94100da5284cb0291ac284547a4c5c57530107fb83721556065e2a4d3cb7b"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_editing.py",
+    "sha256": "43c79651ca7c7eaace42dbd4397025bd0d56b6a91fb603aa9901d03a6c7e97fb"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_editing_api.py",
+    "sha256": "48a7567d23b1286504852fd0a836b43cbeff011f1394991abd4db7d995eedc0d"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_editing_e2e.py",
+    "sha256": "df91edca07216d44555c1b368c7dedff4054d7037b7c89dece44a369aa026547"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_editing_lock_recovery.py",
+    "sha256": "132c0467f652bd602ebf745e684b5c8650d5f3c999951e86c1b7a4d950b56004"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_editing_regressions.py",
+    "sha256": "fb12007ae43039b8684e6047bbc52715f8edbf305f023c173f8197336024bd86"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_music_api.py",
+    "sha256": "046042da1ed0d67fe503d653aa96edfbe6a5b25ebe4984136c6482bfcc382b4a"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_operations.py",
+    "sha256": "037f93d614c74e1953fd555063cb51362098523a7b26562d467381d662dfd5ab"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_planner_safety.py",
+    "sha256": "838aac7a2f87aa8776990e99c7676e62c2d1de891fe0f2dd12dc961966c19cf1"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_query_efficiency.py",
+    "sha256": "4ddc2fda2b8010380fa8d5be36d39f188519312007ce2cf02a948aed201bb335"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_render.py",
+    "sha256": "c7698a8476d543018986df03e6a14987825a6ea2d6d64c1ea6a75a83c2c8c3f7"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_render_reliability.py",
+    "sha256": "eec7dace60028ee13575ef6e374e441687e25e58b8b07966e2c02bcdab5075bf"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_search_window.py",
+    "sha256": "4fea7d9b3ee14cc7e24e4996a54f8b044af9fde68616b6f425a12e0803e0b5de"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_vlog_flow.py",
+    "sha256": "891892e7403ff9587aee0892a03542a579af9d8a4bd075b9ea7e1720a4ef81f9"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_scenic_worker_reliability.py",
+    "sha256": "9588b6cddab20270e6de5750f66376c3f98627f66dc538869fbb99a5f3b861a9"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_security_regressions.py",
+    "sha256": "d1f8318e76f6ef98595063b5afd57675aefc95c5c771ec9aced3fb3379eb7cc0"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_task_processing.py",
+    "sha256": "e078b571a61eab0feff134413511f206c83ac732f6315f15b68bf9e1a33167d7"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_unit_core.py",
+    "sha256": "e80ce9ed3e5f83b75251fef8db50c80b238f82cb25e2f5a3b00f6eb106240a26"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_utf8_storage.py",
+    "sha256": "35f37911d96cefeeae9f578f1ec7865b4bca5d9b0b0d19db4a4dee36dca30b7d"
+  },
+  {
+    "path": "FastAPIBackend/tests/test_visitor.py",
+    "sha256": "1d177244b37d2ca31d0cc20799be0bca47d670008de39ad9d2f6d668e394f72f"
+  },
+  {
+    "path": "LICENSE",
+    "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
+  },
+  {
+    "path": "NOTICE.md",
+    "sha256": "7bd253ef76a7da1d8152dd54c59e96a184d894e61189a37eaf11df6875deac11"
+  },
+  {
+    "path": "README.md",
+    "sha256": "cc0a2dff7366c59e3c08668f54990705a242dbe4b29ff8e774d6eaa95a0be809"
+  },
+  {
+    "path": "SECURITY.md",
+    "sha256": "e9f4c870851ff50a33c2ed1a0d6d96fc1947e4d667b49753c538f60aae3baba5"
+  },
+  {
+    "path": "TauriFrontend/.gitignore",
+    "sha256": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8"
+  },
+  {
+    "path": "TauriFrontend/Dockerfile",
+    "sha256": "ecc107e2490eac978f62c0ed2c47c02480fec2945ff5c10bee4ed4328d419a5a"
+  },
+  {
+    "path": "TauriFrontend/README.md",
+    "sha256": "f2bc36437fe9d72673cb649b5eb0fc69de000bc56a40f902395859e95f15c712"
+  },
+  {
+    "path": "TauriFrontend/e2e/camera-lifecycle.spec.ts",
+    "sha256": "79d2f54cb00a8f5d6fd62d61f5ff5a1312c9f0c2c1300b4cf2f33dd7108d72c0"
+  },
+  {
+    "path": "TauriFrontend/e2e/login-enter.spec.ts",
+    "sha256": "ebb701279d1c6563a2ae0fb9306436c2312ecda82c3a2154afec9e5eec1ae8d5"
+  },
+  {
+    "path": "TauriFrontend/e2e/production-feedback.spec.ts",
+    "sha256": "6e4cc6d588fbb8353b30c8104bc887b895b9b906f26933f5ba8cefa74f1e0c1a"
+  },
+  {
+    "path": "TauriFrontend/e2e/realtime.spec.ts",
+    "sha256": "abcff13873123a8c53845743c2284d38eac101f60221b8ed25c0fa8ad449ac3f"
+  },
+  {
+    "path": "TauriFrontend/e2e/redesign.spec.ts",
+    "sha256": "984887ec558be47b6736118b6baa27bfbe52c82e07477841c97e16b8dfadf1c3"
+  },
+  {
+    "path": "TauriFrontend/e2e/scenic-editing.spec.ts",
+    "sha256": "160d16d0f5d5f97793801d4f27c74b69091752f53a12ba203f03785e62143b43"
+  },
+  {
+    "path": "TauriFrontend/e2e/scenic-music.spec.ts",
+    "sha256": "f98dcdcfa5394c7fbb08e021376248c50749959b561cf7f6f6aa97a7d8d74dfb"
+  },
+  {
+    "path": "TauriFrontend/e2e/scenic-worklists.spec.ts",
+    "sha256": "f0fd56522252898c59c0fc274687846a9705435763455334db188b1c948d33bc"
+  },
+  {
+    "path": "TauriFrontend/e2e/workbench.spec.ts",
+    "sha256": "60d5f89d070af9cabedb7c7f43a390749ed1b0ba33ce7602e5632b17eb1bedfe"
+  },
+  {
+    "path": "TauriFrontend/index.html",
+    "sha256": "94d8b11b24b35bf65f3f1ee3637ea0c952a83d6d54a09342fdd86c573b3d119b"
+  },
+  {
+    "path": "TauriFrontend/nginx.conf",
+    "sha256": "604389e44d7bfe2d5f5927d4869b38da02ba10085858bd5c60920aadc7ba530c"
+  },
+  {
+    "path": "TauriFrontend/package-lock.json",
+    "sha256": "9dff1b86c14e9f78cbf23e6dc06f4686e4b0eca9e712bb8ee622e66b0a1818c5"
+  },
+  {
+    "path": "TauriFrontend/package.json",
+    "sha256": "9f3e975e81de944e07b16ccdc7eac2f4817d8c6cc6b3132ba271d6073340ea81"
+  },
+  {
+    "path": "TauriFrontend/playwright.config.ts",
+    "sha256": "7fa212b26d294c2ae8df619180a6d6c6eef5a320267ce7c4ee4ff5370320fbb6"
+  },
+  {
+    "path": "TauriFrontend/scripts/configure-tauri-origin.mjs",
+    "sha256": "ce472af0fe38c315f4411ddc623db550bc46512c89988b9c739962aa24b56a17"
+  },
+  {
+    "path": "TauriFrontend/scripts/local-api.mjs",
+    "sha256": "9ba639719bf382ab46a3b84ed6b674211c1b844631625f1c806c22b4441f9433"
+  },
+  {
+    "path": "TauriFrontend/scripts/run-tauri.mjs",
+    "sha256": "a6487b99edf38f18a33ed5cda4d408c532ebf9b9b275dc9a72d10ed6e0b91f23"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/.gitignore",
+    "sha256": "88707cda7ba4226eda3ffa91d8284f1a0d12b827f06fb9bc48425cc0d4af04af"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/Cargo.lock",
+    "sha256": "a432a63d70d38a127c78dcdaa4e15c03cc06dbb414eca5eff4fd288a281373f3"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/Cargo.toml",
+    "sha256": "80cab13c2af10e42a595643960c5a8afafa1133196885e25517ae470749748d2"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/app-icon.svg",
+    "sha256": "af881cb45257be2c59a707e8b6f4f335d4262cf5695c07ae9da48082af3f1494"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/build.rs",
+    "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/capabilities/default.json",
+    "sha256": "1f2aa31a906c9ef4030de0e88cd1f0ff83112e09392900c641ce0b14fec689d9"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/128x128.png",
+    "sha256": "8847a5492f1bebaaae7bb71358d3adeae95c9521381a1723e09c393b497eae6a"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/128x128@2x.png",
+    "sha256": "613b75a394e1a18aa13b4b8e92babf2bc4cf3548f3ec1c6807ca30c780eaf202"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/32x32.png",
+    "sha256": "7644b1a73320b7f5fb51324d72cc40f7f4828e4dbf540247ee6bb28953263be9"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/64x64.png",
+    "sha256": "67454785185b5b4d2e6781581f3141ffe098def20c335466d90dd233cd23d951"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square107x107Logo.png",
+    "sha256": "02bb1654c62493718ea2b7b5df10b53ae618409e75ee910d35374e4e56c3f311"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square142x142Logo.png",
+    "sha256": "1f26edd8d7f082f440e5700d9f201cd2ea008b15a47869a2a69691def2783d15"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square150x150Logo.png",
+    "sha256": "f9e764b0ff927c69d307b7ed1b6cea9046f1bc5984daeebce9c7961009e59e04"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square284x284Logo.png",
+    "sha256": "5c747f15f416e07454ca2977741bbae5fa1f04d570958268d37d3eef3fbe211f"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square30x30Logo.png",
+    "sha256": "7d3ffdf3f1d94614fea2ea5661637c9037978a935492c845bc13a80032816d89"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square310x310Logo.png",
+    "sha256": "36f4913db8bff12ac6f2c00ffb9226640a05573e7990ffc5a615e9c8ee348b8a"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square44x44Logo.png",
+    "sha256": "95b0db67e7c05f39779a9ca13ff359d09c0e3be8f0b35cbf2c60b78575eae919"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square71x71Logo.png",
+    "sha256": "a2055dadeaf8f4efd2d4725ad73b10d359c9e8b0fe75678a4cd07db76508db66"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/Square89x89Logo.png",
+    "sha256": "1d283b3a92e9475ebf54e0643513a0423e7284a5c06c86916d1bf507ade298cc"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/StoreLogo.png",
+    "sha256": "f0a2f007e0171ce62463de361eb825787ef7faa8d0595eba62f64d513547a0d2"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/icon.icns",
+    "sha256": "6ae66c8c0613459062149d8c004c6d93e791a48309c1e7deb8026438595abace"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/icon.ico",
+    "sha256": "b93eceb91d5b59c2a573a10af90a7fe0fa8ac2c0f75c8a8584ed65fe74798309"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/icons/icon.png",
+    "sha256": "e5f0aa98f4dc81ac1e082df13c64fb937acd5b719c42408dff9be1400bb1568a"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/src/lib.rs",
+    "sha256": "983c47467804a942cd23dbad985624444797264d9ac901d0cec5c85e0b56c820"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/src/main.rs",
+    "sha256": "e956f2d4d0c7b23cd27ca4967c83a51738d41d67c6b6ed587c72d4cf6db87de7"
+  },
+  {
+    "path": "TauriFrontend/src-tauri/tauri.conf.json",
+    "sha256": "16433f31efedeb5c106d1dc7fe8f27196d5a7196bb6c317327c68be82768c873"
+  },
+  {
+    "path": "TauriFrontend/src/App.p1.test.ts",
+    "sha256": "ec44963b63bb8274ee6cedb586b1be5a7c39838f26b01f5cc43192866f5c6a2e"
+  },
+  {
+    "path": "TauriFrontend/src/App.vue",
+    "sha256": "353d7dc06436c5f4c874fdfbafb1cff7059e0ef73edd43454184220e324ebd2d"
+  },
+  {
+    "path": "TauriFrontend/src/components/LiveCameraPreview.test.ts",
+    "sha256": "cad5885a878d01e5907a94e079f31738bebdca97b1d79efede1d748543ea6d12"
+  },
+  {
+    "path": "TauriFrontend/src/components/LiveCameraPreview.vue",
+    "sha256": "aff3e0748e3933e66de9c4c958495b1b135994e0f7f8a3a4900b4674a1a70751"
+  },
+  {
+    "path": "TauriFrontend/src/components/MediaPreviewDialog.test.ts",
+    "sha256": "10c87bae25326887e5a0529ab1dcadd54e25a44421357ec248e8eb3b5cbb08c1"
+  },
+  {
+    "path": "TauriFrontend/src/components/MediaPreviewDialog.vue",
+    "sha256": "591136dc66191855c1fcd28ffcc10cedaf835ba4535a6f4ddd7e5ff46f81f249"
+  },
+  {
+    "path": "TauriFrontend/src/components/ScenicApp.vue",
+    "sha256": "80c0a21ddba9b55d3b65fbe3fcf02cb3a7d53fe809887ae068792e8d67e2b881"
+  },
+  {
+    "path": "TauriFrontend/src/components/ScenicPaymentPanel.test.ts",
+    "sha256": "7140e6802e0e4b3c9e8f3525bda9cc3f6a2a1f08d2d8f4f76cb6622c66d2188b"
+  },
+  {
+    "path": "TauriFrontend/src/components/ScenicPaymentPanel.vue",
+    "sha256": "7b01902ec226e046b5f9b63dddfc80a089c089aca9d6a6c9ba531f163cce4936"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreAccountDialog.vue",
+    "sha256": "3270592f09c1d87f203b310b1a7e0ec9d781aa07a85b45cf0566f9121929cc6c"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreAuditView.vue",
+    "sha256": "37bce9f69fad53f77ac3c97bdb14455d4868b88306442cb618fde668dffad549"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreHistoryView.vue",
+    "sha256": "e57ac3eac5a951ab1e09ebb0f617aabd42788eddc3797645477cecc3ad19882f"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreProjectDialog.vue",
+    "sha256": "42e3aa150e963e228fe842833a06ac065a95b4ebe19e489ce9b2349bdc5fcdcd"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreRealtimeView.vue",
+    "sha256": "493e96a68efc0350ab276c42c0dc2f0bd3a5e36656a9c1030f3fde92ab1cb23d"
+  },
+  {
+    "path": "TauriFrontend/src/components/core/CoreSearchResultsView.vue",
+    "sha256": "32a7a4567f74af15d542f51d9b3e760b6898b79c8ea9e74b37160119b1777c27"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicAccountDialog.vue",
+    "sha256": "4b27166b36591407b68ad7d430d3c0b96ecd1789b97a0cd69652ec8ee1fbc625"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicAuditView.vue",
+    "sha256": "dc2934970a89e9f8f8bc743d040b04b75e02062b50789f6d91cb31d3d9cd15f8"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicDialogs.test.ts",
+    "sha256": "8eec330c50df15f1a06cbba7b839cec9f49c2aba2c9a7c403a441da07d40be5b"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicDraftComparison.vue",
+    "sha256": "23393f680c1d28015ead37fd8a0c9e5133328bcdb893da2ea3da7382ce96ff23"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicHistoryView.vue",
+    "sha256": "50b83bd05ddb694c46e83e65d2eb18aa5d72820d8f88e8ab1512baa7a366a334"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicListPager.vue",
+    "sha256": "242af2758826801d23848a845e0d5dca1d8d92384aa2587ed30d934356c0b46c"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicMatchingView.vue",
+    "sha256": "4b569753c38aa4329e2a784f7e8947dd5d597f072d7e961dd941139eb0ab1217"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicMediaMetadata.vue",
+    "sha256": "d591f2de6515040864d60f1a6dde5e42a6a367d9322e79b0745c632930ba9eb5"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicMonitorView.vue",
+    "sha256": "511f60d2af373229ee24f211c8f78b972507e92c7a41cc9950c4a3b2b95d7be1"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicMusicPicker.test.ts",
+    "sha256": "b7a7978eaa2cc9700ed10e2ac092aff49e487ae9c1c8f2b9b818c06e74ffe4ef"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicMusicPicker.vue",
+    "sha256": "48540a785601d02ee59718a125916185741806c27301ea6c4ae7589ddcabb54b"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicProjectView.vue",
+    "sha256": "3f2d337fdf8a28090c6ff57e2d9c4533fda9bf617785160991d84e02eeaf7c95"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicRecordFilters.vue",
+    "sha256": "edf70a5fc7776ff4aaef9ea6ddbf1a0eba401fec7d5583de17c667dc2c5d1d4c"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicReferenceSelector.vue",
+    "sha256": "020cf397846e9d7e9dc7c6fcad21f8edf00c53cbb47844b7fe9a772cdc7168d3"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicRegistrationView.vue",
+    "sha256": "72dde10411cd3fdca3979af5c2bdb03b7da4dbedacb48cbcc84119d50e5f492b"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicTouristFilters.vue",
+    "sha256": "f4cf3c4a4d1d7de0d0c8069cb35987d2c1489d75b784fb5f9aed853fd57fc860"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicViews.test.ts",
+    "sha256": "e07ec2fbc29fc1ebf249f9f216291a4b57960f2f23b8bdbf445534074ccc73ec"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicVisitorServiceView.vue",
+    "sha256": "91d52e38ccd752b64df12b2b2cab5e0130ae6f7213ad68a412036ada99e15720"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicVlogEditor.test.ts",
+    "sha256": "ecc35f375b41c106076948a07eeb26595430d0219088b4b76784da3742a83697"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicVlogEditor.vue",
+    "sha256": "58f7030b27960792bd39bcee3a1d493b8812007d7d64346c9f0322d614ce99d9"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/ScenicVlogView.vue",
+    "sha256": "69daf4ccabb6e7c06386daf32399268540881df1334b1a0eb3dc9f3ab609e242"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/listFilters.test.ts",
+    "sha256": "98125d90ea5ae6c1c545438c336e22ec6c49914ce1ae79383457983c1aa13f9b"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/listFilters.ts",
+    "sha256": "1f5de1fb7186f1a3fd2bd6ce9838fe07f1858f91c78af843d60a67a42b366da8"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/useScenicLibraryStatus.ts",
+    "sha256": "c67ad6a8f452e302bb195f7e5692df98995c0529c1e685c790edb39daadb21d9"
+  },
+  {
+    "path": "TauriFrontend/src/components/scenic/viewHelpers.ts",
+    "sha256": "b191b6fd7db875aa89edba0ce04ad18a857b1248aebccaf8252c509ac2e1465a"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/auth.ts",
+    "sha256": "9997e68fcd8f2574e6dde59788937945b0679a933abff4ddf9b89608a4d9d6fe"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/http.test.ts",
+    "sha256": "6c183acef0a5d15fa9fd560765edf1c5abd3560cf19afc3526b3d941296a100a"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/http.ts",
+    "sha256": "0d64beca3ddee2b694d5d2c458ef5155d9036c002ffdc175ee6f85407893d997"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/media.ts",
+    "sha256": "da0598396e92115c33573e1c94fe01922c6e19956c12d88a05b40081d31a7c46"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/projects.ts",
+    "sha256": "4135f43f68247b33627650e13a5915ba7d79f4b8a3ffdab513de601432d9ad1e"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/realtime.ts",
+    "sha256": "7b744a833a4542a7ab93c48c44d772297ebfe4d5ba493e0597a62560caa12a82"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/scenic.ts",
+    "sha256": "934299bede05f3575741c14577e1346a801b15a86d1e7765d44cac6872c44463"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/scenicEditing.ts",
+    "sha256": "243e6045b428865c376f3ff9f5f3799396c9025982edd009f2fe829564a8c9fd"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/search.ts",
+    "sha256": "7130db8369bb15560b46e0330453e68e53fab782261f8779e3c4790a59cee889"
+  },
+  {
+    "path": "TauriFrontend/src/lib/api/system.ts",
+    "sha256": "894632df466558e8113b888fae8d627e92a25488384e09ac22f553259b0dfbfc"
+  },
+  {
+    "path": "TauriFrontend/src/lib/dialogFocus.ts",
+    "sha256": "7b3262bca3ef4d5a03b0bfc3bf43101531aaa46e336c49c82fc1c347f4012818"
+  },
+  {
+    "path": "TauriFrontend/src/lib/latestRequest.ts",
+    "sha256": "bc4ec55c24ff2b336b9bccab08f9bf3e2ce7403e6591a323f4015dbc7e939ed3"
+  },
+  {
+    "path": "TauriFrontend/src/lib/scenicDraftComparison.test.ts",
+    "sha256": "472c4dc30aebb75bcb7dadeddd625ed9afc6a987ba22c6c9c9cb019a94ca32d8"
+  },
+  {
+    "path": "TauriFrontend/src/lib/scenicDraftComparison.ts",
+    "sha256": "399d3b7473b02adca2f74e9d0c65fac2612f3147a83a7501bfc2ba990599a974"
+  },
+  {
+    "path": "TauriFrontend/src/lib/videoPreview.ts",
+    "sha256": "118f2e7f5ad39da8d3a0173b0fe7011460eb829e7d51b816b9cf72a0d2543eff"
+  },
+  {
+    "path": "TauriFrontend/src/main.ts",
+    "sha256": "5577bcd846b0e2543978ec5a0447a85bfde9f422b095f20fe414dd464d9a56a9"
+  },
+  {
+    "path": "TauriFrontend/src/stores/auth.ts",
+    "sha256": "5badf64c614b536d55d88f04c6dcdbf49c671385eb50379af69e8255009ceaf3"
+  },
+  {
+    "path": "TauriFrontend/src/stores/core.ts",
+    "sha256": "c88ae7e5765eae114454fb376229862ee659390397b820714ddb1abe11401a41"
+  },
+  {
+    "path": "TauriFrontend/src/stores/coreCameraPreview.test.ts",
+    "sha256": "f9fe43610f1198aa2b8bb2c0d9cfb5b16272a6e3756e93f5a2102bec906cb3fe"
+  },
+  {
+    "path": "TauriFrontend/src/stores/domainStores.test.ts",
+    "sha256": "895761f08cdf9f869e650fa3d75cf9b02c3669a53ca9c96d0dacedb8cecaf643"
+  },
+  {
+    "path": "TauriFrontend/src/stores/realtime.test.ts",
+    "sha256": "4982cbf61df68cc2ac8cc61b812b68320c503c2ef97dec8ad2cec638f62925d8"
+  },
+  {
+    "path": "TauriFrontend/src/stores/realtime.ts",
+    "sha256": "8a1460062ca494dcaa587fcb63f0c8a3394c7a16068907b3088537077f9ca0ae"
+  },
+  {
+    "path": "TauriFrontend/src/stores/scenic.ts",
+    "sha256": "6aa3629f3768d28856d8f35ab8682e8646111d3e32762fdaac6a084f76acaf0d"
+  },
+  {
+    "path": "TauriFrontend/src/stores/scenicCameraPreview.test.ts",
+    "sha256": "0057c74717ce7788a51964fc098c821a491da7133feee7af821f9448d9f52a62"
+  },
+  {
+    "path": "TauriFrontend/src/stores/scenicLists.test.ts",
+    "sha256": "08181ee4464008d743d54209cca8c6da21a61920c732fe8fbbbc98c070ee20c6"
+  },
+  {
+    "path": "TauriFrontend/src/stores/system.ts",
+    "sha256": "55898489a1531ea4466292a46f811447c8022548ac8408c135422c412d73e6dd"
+  },
+  {
+    "path": "TauriFrontend/src/stores/types.ts",
+    "sha256": "5f53c38c636aa81f10f09ac83123440ff8249c5b61c68e2378d4f3a0c1ae6fe0"
+  },
+  {
+    "path": "TauriFrontend/src/stores/workbench.ts",
+    "sha256": "ce3fb6956dccc514601639e3b3aa16e347d82a403ab35576e106c78df68f107a"
+  },
+  {
+    "path": "TauriFrontend/src/styles.css",
+    "sha256": "c3d0d1a631abb2895dae36ac8296d9b182cfbac9ce21d6faff2be3bf3abf09a7"
+  },
+  {
+    "path": "TauriFrontend/src/vite-env.d.ts",
+    "sha256": "2ac2024736f0d21997e99c1968cf08c712de51108598b2362453641046a15c72"
+  },
+  {
+    "path": "TauriFrontend/src/workspace-theme.css",
+    "sha256": "6f28a42491cb9f1b1895e8828f63379891bc3c5b932368381becb2f12347f0d1"
+  },
+  {
+    "path": "TauriFrontend/tsconfig.json",
+    "sha256": "5def3e58bb9bea3cf2805c958e2300f40be80d49f3ecf49b489b1c22b67ecad6"
+  },
+  {
+    "path": "TauriFrontend/tsconfig.node.json",
+    "sha256": "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd"
+  },
+  {
+    "path": "TauriFrontend/vite.config.ts",
+    "sha256": "c9ce4213726f3b458ecf6fe5f3f1b01b017e38643a978a6f15a838e9c6dc178f"
+  },
+  {
+    "path": "TauriFrontend/vitest.config.ts",
+    "sha256": "121f37533a59a7e802b1601b18148acd67bb7c5d7f6bfc26c223ddf2561e83d1"
+  },
+  {
+    "path": "VisitorFrontend/.dockerignore",
+    "sha256": "236c5a49e0b294291399deb704c61c144e75eb30cea725c5fd7f7f1e0d87e92b"
+  },
+  {
+    "path": "VisitorFrontend/.env.example",
+    "sha256": "aed07e3947dd813865e7ba418b429afeecd26f5d5575a05fc28af03ac566f729"
+  },
+  {
+    "path": "VisitorFrontend/Dockerfile",
+    "sha256": "9647e2d2fb00271dd1992d4adaff20247ca11f31df3a3a6fe1e54413d0da50a0"
+  },
+  {
+    "path": "VisitorFrontend/README.md",
+    "sha256": "b5755287eaec6eaae91f51315d32c9f042b540fd23fac063658ff244bdd1cace"
+  },
+  {
+    "path": "VisitorFrontend/e2e/browser-login.spec.ts",
+    "sha256": "e398f0f8c7bb4b2cecc804868eca383a1346833a80ca42d252b7c2e02fe8349a"
+  },
+  {
+    "path": "VisitorFrontend/e2e/fixtures/preview.mp4",
+    "sha256": "fbada00d020cd34a68a07fdd5f14aaae6ba1e6856dd0532a2d11fd2ca1986553"
+  },
+  {
+    "path": "VisitorFrontend/e2e/selfservice.spec.ts",
+    "sha256": "49f4824a156b4ccf8c174c1ed435b87bb9b691c26b9f68c482999dec4605dc92"
+  },
+  {
+    "path": "VisitorFrontend/e2e/visitor.spec.ts",
+    "sha256": "083580cb26847477db4306a259eeb633e2e81df229caed0a2acc0fdd09bae62e"
+  },
+  {
+    "path": "VisitorFrontend/index.html",
+    "sha256": "54e7e50680d392a010e9ddfe9ff7d7d992e539872977dfdb4cf41fe5e98de927"
+  },
+  {
+    "path": "VisitorFrontend/nginx.conf",
+    "sha256": "9ff593065e49903d692c38c0b14fdc8b526fabf0b6526b19710cae16dd8e01aa"
+  },
+  {
+    "path": "VisitorFrontend/package-lock.json",
+    "sha256": "d603dfb763d42c91961ce760719fd1c20f142dfde927b8a3bc14bc422f96d9ce"
+  },
+  {
+    "path": "VisitorFrontend/package.json",
+    "sha256": "a915ae2001d5f2968c82c92664524e083389300d3b6229b4277a90743ce5def9"
+  },
+  {
+    "path": "VisitorFrontend/playwright.config.ts",
+    "sha256": "ec42848d7c51ef5afefe752307abd7e38ad5cadc100136011965aaff3175e515"
+  },
+  {
+    "path": "VisitorFrontend/public/images/mountains.svg",
+    "sha256": "9b5a39a869f030ad8675b34d170a03aad6fcfb84caed37a05608ae8b31cf19d2"
+  },
+  {
+    "path": "VisitorFrontend/src/app/App.vue",
+    "sha256": "0de818996e9ff8d28f19117305abc341ca54011fe0f5db56d321a60abf44c698"
+  },
+  {
+    "path": "VisitorFrontend/src/app/router.ts",
+    "sha256": "a8aa327460793dae3b6ff24e950a57e43ac448c943972545db9290491d263c42"
+  },
+  {
+    "path": "VisitorFrontend/src/features/auth/session.ts",
+    "sha256": "fda6ae80c3542f0f974a054511d0f03305b99461b96d69a78aaf66345b8d08d3"
+  },
+  {
+    "path": "VisitorFrontend/src/features/orders/wechat.test.ts",
+    "sha256": "3cedb24e9c98493ba3b4ab226d09bd7fba86f4fc4f2d648ce6f81c312ab8ba42"
+  },
+  {
+    "path": "VisitorFrontend/src/features/orders/wechat.ts",
+    "sha256": "d0990942a07ce70b10b8c0c781cb8c04bc3aa541da63bb512303513d1615f31b"
+  },
+  {
+    "path": "VisitorFrontend/src/features/registration/Register.vue",
+    "sha256": "2198ccd3e448555041ef1a2f5f42a0eee6d0603f020fd61fef16bf0d25fa5cf2"
+  },
+  {
+    "path": "VisitorFrontend/src/features/registration/Welcome.vue",
+    "sha256": "b431ff619df9eba200c0caf60fa4dd8fc65446d91b4928cfe7ff2c5ad79af098"
+  },
+  {
+    "path": "VisitorFrontend/src/features/videos/Visit.vue",
+    "sha256": "c0035c3c8db3393257d0508b9b9539f784185f5f0d1f4ea740f605fcec55d3e0"
+  },
+  {
+    "path": "VisitorFrontend/src/features/videos/VisitorEditor.vue",
+    "sha256": "2e26afdcf9a1b8b9ff4912c698574c923b020f9e2ee368a6ee5a59e7859b123c"
+  },
+  {
+    "path": "VisitorFrontend/src/features/visits/Visits.vue",
+    "sha256": "51876cc7e7bc707967076a3ef202a75a99cb2155c5a0116f86680e680d5ec94a"
+  },
+  {
+    "path": "VisitorFrontend/src/main.ts",
+    "sha256": "112f616a2243447a414de338ab0477c6f678da90d86a0acdf91f7212007067b1"
+  },
+  {
+    "path": "VisitorFrontend/src/shared/api.ts",
+    "sha256": "12960e207ac5c91354042ba18439c103297a5fc2418bcb56b84c50025016745e"
+  },
+  {
+    "path": "VisitorFrontend/src/shared/style.css",
+    "sha256": "b2be859bb84f10861dc02e821d2d9090f77fafc8451a7ca7f4382f615b740c78"
+  },
+  {
+    "path": "VisitorFrontend/tsconfig.json",
+    "sha256": "6049f6cf791f14e6582fce8eea770eebce9f688b5d804946460757b510c2713a"
+  },
+  {
+    "path": "VisitorFrontend/vite.config.ts",
+    "sha256": "aa3dfd39c9b5c484c7f741cd4ab044552420ba1efa227d7f2e943937e5b7e61d"
+  },
+  {
+    "path": "VisitorFrontend/vitest.config.ts",
+    "sha256": "ef37271d6e36a38ac90641cb406afb1ef6e919047e5b09d08b3e0c5108a8ebc8"
+  },
+  {
+    "path": "camera_gateway/README.md",
+    "sha256": "c3fe407294c902a08730039cce473bfe13c289fb4a9ebb8f3fd5f7c832fc2f70"
+  },
+  {
+    "path": "camera_gateway/__init__.py",
+    "sha256": "2babb6528ef7209742296aeabd50a31fe46c391e20506e1b38f3f7b7508b7301"
+  },
+  {
+    "path": "camera_gateway/__main__.py",
+    "sha256": "5c32634d74a37303906b22735ee0895196b3576e28a5f965ae8c115c7f329863"
+  },
+  {
+    "path": "camera_gateway/config.py",
+    "sha256": "3ea017ee2b46baaee4e6fc36565cf64607642424d76ada6493019cb0083a86bd"
+  },
+  {
+    "path": "camera_gateway/discovery.py",
+    "sha256": "6a8285acd21217bfb1e62ce36a5eea1641094cfb4ccb6a8d5764ce7babaf0e54"
+  },
+  {
+    "path": "camera_gateway/runtime.py",
+    "sha256": "3bc537fbe11bf9ba8ac7623c5f22bca3af7b686a70a96ebdf5e89f54d5ef9f34"
+  },
+  {
+    "path": "camera_gateway/sources.example.json",
+    "sha256": "21837071f78d4b00fb4d760f469ce23418691d8e3e7ea4c7847b10893cad7649"
+  },
+  {
+    "path": "docker-compose.camera-gateway.yml",
+    "sha256": "6cef792a7e9344a799cec47cfdcf4155996aec274fc5bfddac3ed0f1520f19dd"
+  },
+  {
+    "path": "docker-compose.dev.yml",
+    "sha256": "bc7ce8207f31722a1ed57ded75eb2d81986aaea5dd58f81e7be96a60bf1bff87"
+  },
+  {
+    "path": "docker-compose.e2e.yml",
+    "sha256": "b5316b775f1885e3f93b0a8d529312e54a9dd90cd643c705b546765a5cf00ddf"
+  },
+  {
+    "path": "docker-compose.https.yml",
+    "sha256": "4957dd97dcf6c33386f1c61682128fdccda37fd06021b0e8bb08030902da8dcc"
+  },
+  {
+    "path": "docker-compose.local-production.yml",
+    "sha256": "3fc81270cee63300a029f7fbdd1b60bade5bfca93e0e8906332a2f684848630c"
+  },
+  {
+    "path": "docker-compose.postgres.yml",
+    "sha256": "8ee70f29129814a9627b66ca3efd05b9ced7d4dbd75266e19fdde7eaa90e83a8"
+  },
+  {
+    "path": "docker-compose.prod.yml",
+    "sha256": "9329787b0b9fed9c5623cbf95e56affe5de3ee73af9c3dda861875678667a1f2"
+  },
+  {
+    "path": "docker-compose.staging.yml",
+    "sha256": "9ae4eda2a39245b4ce88de543b35795f2a51e81ef45524ab8cb6d80dbda71be2"
+  },
+  {
+    "path": "docker-compose.visitor-test.yml",
+    "sha256": "28a7b6dbc0b7477f4bdcd5184dcbd8c43c84a4f128fb0dff5e9b64449482223c"
+  },
+  {
+    "path": "docker-compose.wechat.yml",
+    "sha256": "8283bac3745a3c8dfeb9879d9d231069fc997ebe2d48e8e08baabc4be1fa8d5d"
+  },
+  {
+    "path": "docker-compose.yml",
+    "sha256": "22a54164babf95359f881f18b965ec8b108018b91e1361d80736d1f0ed4eff57"
+  },
+  {
+    "path": "docs/API.md",
+    "sha256": "f6c612672c84a524afa4aed03f7c59f42e8b504e8fbdb410fa9553d691be40f6"
+  },
+  {
+    "path": "docs/ASSET_PROVENANCE.md",
+    "sha256": "1acd52e4441090dfe457aa76a47b04daa2c7b907c177b75ae1c7da8a85684c96"
+  },
+  {
+    "path": "docs/BACKUP_RESTORE.md",
+    "sha256": "8f292feffd17a98b7f844da9d9d28ff9db3735263b5596c494bcc4b769df7233"
+  },
+  {
+    "path": "docs/CONFIGURATION.md",
+    "sha256": "58dd91b887e2465574e5c17b814b4df9a2af9ff55884e2ef0a328ec04729f1a8"
+  },
+  {
+    "path": "docs/CONFIGURATION_REFERENCE.md",
+    "sha256": "662cdbe939555935a9f884ae16daec26d222cc45e54c7dd8b67e3f3fc3b259ac"
+  },
+  {
+    "path": "docs/DATABASE_SPLIT_RUNBOOK.md",
+    "sha256": "da1c8d4a1d0a4f2a3cccabea2b0cccd6356cad9eb660975b71339d1c4d24cd04"
+  },
+  {
+    "path": "docs/DATA_RETENTION.md",
+    "sha256": "2ad841af91433494885e64e18b346f4f287dc64ab49b079b6c8108db98e88833"
+  },
+  {
+    "path": "docs/DEPLOYMENT.md",
+    "sha256": "f2840ae0de8f7159825cc3ec7b2b4665af2a8727a9939bd6a0ffabf921376409"
+  },
+  {
+    "path": "docs/DEVELOPMENT.md",
+    "sha256": "ed145474b352beb66ab370f725a3d55da4bd60b5ec839644d807188f8b77b338"
+  },
+  {
+    "path": "docs/NEW_MACHINE_DEPLOYMENT.md",
+    "sha256": "21516d22aab173c3ff4caa1f005ade6e45d68aaa914cb77db34bcdd22ac4be6e"
+  },
+  {
+    "path": "docs/OPEN_SOURCE_RELEASE.md",
+    "sha256": "a540322121dac9466e11883b3fe7f95849f54fe209414533242aba2147312982"
+  },
+  {
+    "path": "docs/PROJECT_GUIDE.md",
+    "sha256": "4547570a5207e72ea44cd3e38360eadf92615277b4c4ae40a69f028c5a9704c3"
+  },
+  {
+    "path": "docs/README.md",
+    "sha256": "fb05dd7e73149b06fd6d314ddd89e1c43653f5ca5e018c8bdbe4c541652ca2bb"
+  },
+  {
+    "path": "docs/SCENIC_EDITING.md",
+    "sha256": "18b670ffc2eb4bafe5706cef6212bd3b137e6514a68be9c4b0c94fe957e598bd"
+  },
+  {
+    "path": "docs/UI_COPY_CLEANUP.md",
+    "sha256": "5514104436ffc3c8430dc7a45f84ba7b0cc31edca900d43c59e720ca498afa16"
+  },
+  {
+    "path": "docs/VISITOR_H5.md",
+    "sha256": "0f1e8820e8706d4f9675d65fad04809c53bb71cc1e99fd0f05c772712d7bac02"
+  },
+  {
+    "path": "docs/VISITOR_MANUAL_TEST.md",
+    "sha256": "82e0b06f1f76714a10d3baee64108f89a0e72d60ef5bd024e891bcca6a92f674"
+  },
+  {
+    "path": "docs/WECHAT_PAYMENT_INTEGRATION.md",
+    "sha256": "cc377ea718aa073cc65fb9e234a2701b315ff0d011b333ebfc71ad86e0309c07"
+  },
+  {
+    "path": "docs/camera-gateway.md",
+    "sha256": "8b85878154117d8d9b3a9313e53a9e520fd259699db892267dc441882921dad2"
+  },
+  {
+    "path": "docs/camera-performance.md",
+    "sha256": "706a5ef11864353e158277d62cd85212316696616857112b82b5e11cc7155020"
+  },
+  {
+    "path": "docs/camera-retention.md",
+    "sha256": "a2d8014e6d626dde7ecd6915b417757f0bfc8ef289d5a575614689b8b112722b"
+  },
+  {
+    "path": "docs/docker-storage-cleanup.md",
+    "sha256": "20d669a9b6cbb120b240d280e0156fb43a0bd99186dc4fb32ef91056eb3065d7"
+  },
+  {
+    "path": "docs/local-production.md",
+    "sha256": "28822c267453f356a4e4407aae7d826216ee03fb24a4f960d0cc0517abe3e53a"
+  },
+  {
+    "path": "docs/production-fixes.md",
+    "sha256": "e4514c9bffe91a0806375db309f19aed0b9cc0bb039ebc6542dace6405c78210"
+  },
+  {
+    "path": "docs/realtime-recognition.md",
+    "sha256": "9ae5e6608238416bf2dc3d63cdcb2fd60080d2a2e9ae6062d06442aa4146374b"
+  },
+  {
+    "path": "docs/realtime-validation.md",
+    "sha256": "9d5bb19fcd39d655f927a1f418779b66543729f02462b76f3460e981f6ff1fb9"
+  },
+  {
+    "path": "docs/windows-camera-bridge.md",
+    "sha256": "26bd38aa63be29d0f02d4dbe93d900ea363c72ff9001b6b9af355336e09dcf64"
+  },
+  {
+    "path": "legacy/README.md",
+    "sha256": "cbd27c1b4feb8b82947ad1f732b328c76f4ccfe1b9484751519ae1286d2ba461"
+  },
+  {
+    "path": "legacy/api/README.md",
+    "sha256": "5116377d832159993622d14cc52e31c11caad5eaa8f9544cce573e8dfeb2f2f6"
+  },
+  {
+    "path": "legacy/api/pre_v1.py",
+    "sha256": "d9f00fc370496cceecc6108ccc24da7cc8451bbfde124b46e422afe55ce6fcb6"
+  },
+  {
+    "path": "legacy/qt-qml-client/ARCHIVED.md",
+    "sha256": "25b12e811269ef8d43d0cb286df31d4eb6b6b127fe0f0e1f1f66941979ccca05"
+  },
+  {
+    "path": "legacy/qt-qml-client/CMakeLists.txt",
+    "sha256": "93e53fea56dcba77fd254202f51a86acc5eb7f36c91f88d97e66292ff77d31cb"
+  },
+  {
+    "path": "legacy/qt-qml-client/SearchClient.cpp",
+    "sha256": "728ed8dc3a49b10b8346aa90afa84bddea6d208b839fc2cf3753332dadf33855"
+  },
+  {
+    "path": "legacy/qt-qml-client/SearchClient.h",
+    "sha256": "5bb385400e9014b8d662443943e117ca6fdd1e80075f749af65bed215e2caf54"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AccountTab.qml",
+    "sha256": "6bc90ed06712d534b4af267b20b5ad235a4528ad579a079f23b70f68bba39931"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppButton.qml",
+    "sha256": "91a14fd5c9602469267836446abd0dabb393422fc658a143cb92d45ad4e5b10d"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppContent.qml",
+    "sha256": "317f5e59b82938ec04d2d978c660a56f8554d72aae4f9120ffedf18c03b9b5ec"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppDialog.qml",
+    "sha256": "6018422526be035742a17feb404387bce438d525766b8d1ef4667a2927ef05db"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppHeader.qml",
+    "sha256": "cfc87257701ff10e423a192c7db080f864a3da09eee3bcf53d3ee155d6eae9da"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppProgressBar.qml",
+    "sha256": "4188cea626f3cdef6057b1f9683eb2953d5e5bc4e8dd83cb453e88d7836c55cf"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/AppSidebar.qml",
+    "sha256": "8e91c9f4dbc9f5917dd4908d4d0d4bcd8a6f03dac81fd892f92954e107a7e244"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/DataRow.qml",
+    "sha256": "960e7d4102f17226e8d07db7ef279ffea41eb0d7343ba8062b947cfcc02029cf"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/EmptyState.qml",
+    "sha256": "0b0258321ca03226cc41d15747fb7870a24035d9d1aaa0857b22a89541650c44"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/InputArea.qml",
+    "sha256": "01de8abe0cc9a50a4dc6715e77882a5922b5a6abacd9a70dcc1777b40cd5c59e"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/InputField.qml",
+    "sha256": "3aaf01ee0988eaf81bf2ade8aa729ef997b007cd54b10360bbe8fb784cfdd6ed"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/Launcher.qml",
+    "sha256": "8353e6626cf2948518492d3ac4b9a7704ca642fc90b346a8a9a6815e7bcfdecf"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/MediaRow.qml",
+    "sha256": "72937e1a035b3e7c6c4a6ac77ec5b70ccd8943ff02921b011afd40ee31ebf53c"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/MenuAction.qml",
+    "sha256": "fc2336a830637b5e5a1ab33a4824d6cdd2735524906726d613f11265b7cb35d2"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/MetricTile.qml",
+    "sha256": "1f4438c7f82e6179422ae69183ff62fb11033e0e6f80c9b60d35ed6f0c7bffee"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/PageTitle.qml",
+    "sha256": "138495c7d50760d480762cb88a1c65a7c6cec624a2756b578ffd8c40cc5dabf3"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/ProfileRow.qml",
+    "sha256": "b84853213d27ef0350212d169411e8155d207012d1ce1a7bc39fda86b7387389"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/ScenicApp.qml",
+    "sha256": "bb1b1876cd43048bd7b62b2a95683b4cf465087a783667607d915caf436217a9"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/SegmentButton.qml",
+    "sha256": "5c09864eeadcbf3981f9ff8e5807fb8e517d409dd1c77a22e4ec9e75cae3a857"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/SidebarItem.qml",
+    "sha256": "964920a33587988cb9554cb47f2be3d084356bf7eada4235d166b421211cb093"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/StatusPill.qml",
+    "sha256": "1acc613083f72a7926f54ba29ce78162f3fcb8de7ff6592c6493209d1425d41d"
+  },
+  {
+    "path": "legacy/qt-qml-client/components/TableHeader.qml",
+    "sha256": "32e3ac0bd8a8eb7889f8eba690748d3299f5c4dfd25f0732ae429833dd115dd5"
+  },
+  {
+    "path": "legacy/qt-qml-client/main.cpp",
+    "sha256": "7b898f961fc4f5c1c248a746f12b0900f50fab945edb9392c1e0e04fd1edeecd"
+  },
+  {
+    "path": "legacy/qt-qml-client/main.qml",
+    "sha256": "3658b158a63222f7fef564b851bab3c9fd803f8f4f10484ce1f4916087272358"
+  },
+  {
+    "path": "legacy/qt-qml-client/qml.qrc",
+    "sha256": "2f6371575647806962f2d9cbd486a3242eca90c75f7fd475cab583bcb8f16fab"
+  },
+  {
+    "path": "legacy/qt-qml-client/run_frontend.sh",
+    "sha256": "3e696e028058f66979d5ee3f28b4c4695f24a080bcae7adf11f1878844edb4b4"
+  },
+  {
+    "path": "legacy/qt-qml-client/smoke_frontend_api.py",
+    "sha256": "125bc187a3e3171306caad359f230936f8ae337c905481c9f301a3b1b047db1b"
+  },
+  {
+    "path": "model/LICENSE.CLIP-REID",
+    "sha256": "418d11035badfb4f4c15f8936dcaf1eb2256339b4f32011555acded8e3f34cf7"
+  },
+  {
+    "path": "model/LICENSE.OPENAI-CLIP",
+    "sha256": "893951b3bf94db8df1b13e05da5cdeb499400960e4d44a3962a8b33ed0b4f28e"
+  },
+  {
+    "path": "model/NOTICE.md",
+    "sha256": "2b4be02ebbc1ca29930a8ee1993c8c36fb0cae94e5079df448bb9394a63156d1"
+  },
+  {
+    "path": "model/README.md",
+    "sha256": "3f06e06a8b4c8951659b123b85c1a30b527a29e8a027ba40f2c9232e09de177e"
+  },
+  {
+    "path": "model/__init__.py",
+    "sha256": "5a3482fe559e58d2a3c6071075e835c2d8bdb5ca351f18295e4836bed22080b4"
+  },
+  {
+    "path": "model/checkpoints.json",
+    "sha256": "9300ad01737b73f101fb363a83a40706ad234d03f00d6dc198bbbed7d09d81a9"
+  },
+  {
+    "path": "model/clip/__init__.py",
+    "sha256": "d7930eb290ebed432116795c91473200d098451a94c0aedd4ae0f934f97955e8"
+  },
+  {
+    "path": "model/clip/bpe_simple_vocab_16e6.txt.gz",
+    "sha256": "924691ac288e54409236115652ad4aa250f48203de50a9e4722a6ecd48d6804a"
+  },
+  {
+    "path": "model/clip/clip.py",
+    "sha256": "60f78c6dfd576470f2328df0e71cb28a95555f7e50fa97aa8d1dd0e0d92dc72e"
+  },
+  {
+    "path": "model/clip/model.py",
+    "sha256": "f63fd0c4ab2b721f185092772e0859313b70cd5a9bd72878abe7801d17b37bc2"
+  },
+  {
+    "path": "model/clip/simple_tokenizer.py",
+    "sha256": "d1b09f10ed3d1e2c343619cb98cbfacb92363dd8607526a43aa7fe2d60d15bad"
+  },
+  {
+    "path": "model/make_model_clipreid.py",
+    "sha256": "53f694479bf1600ce130142fcf6d8fbe5c355cf0ab04d8296960bc454ff00d70"
+  },
+  {
+    "path": "pytest.ini",
+    "sha256": "8830134304f80f4d8ee8bc53273bb1130db4eafb506b39841f364fc34e3a7ae0"
+  },
+  {
+    "path": "scripts/audit_database_split.py",
+    "sha256": "74f753dfefb45a8ab1e36f75f930ba3ef004a63285fc7d0d7f5d6c4416344632"
+  },
+  {
+    "path": "scripts/backup_restore.sh",
+    "sha256": "fe92ae77cfff268d07181f58baf00382b1b49c55f77ab159b4cbe77c4738075b"
+  },
+  {
+    "path": "scripts/benchmark_camera_preview.py",
+    "sha256": "ffd7090e363c3f16b970a58b4f4b441eb54abda0d7b29de517359adc496f3e99"
+  },
+  {
+    "path": "scripts/benchmark_models.py",
+    "sha256": "1b28b647529f88e1cd014823dcf85eed85685c0bc5a8cdba124dd136213cd73d"
+  },
+  {
+    "path": "scripts/benchmark_realtime.py",
+    "sha256": "6c799dc6c132644817d06d2de6271cec43d4b97435a692cae32807b1d8ecd16e"
+  },
+  {
+    "path": "scripts/camera_bridge.py",
+    "sha256": "b5c958c2d83921313f4de5e08ba3819e52977e8cec9fa49d5af7833527f749d9"
+  },
+  {
+    "path": "scripts/check_deployment.py",
+    "sha256": "942b060a1ab15d56eb1e8bd84edb640874a4282008abd3f04e2214709e8a35ed"
+  },
+  {
+    "path": "scripts/check_explicit_common_imports.py",
+    "sha256": "fdd47573aff09126c471cf0c7222f24c4a6c5959063cdbb2af4679aa44bdad00"
+  },
+  {
+    "path": "scripts/check_models.py",
+    "sha256": "16c9a56e230b4f6e9d0edd40c1ac726f2a18e268685887fdada12445bbc8fac6"
+  },
+  {
+    "path": "scripts/check_openapi_docs.py",
+    "sha256": "123e40f5b539ecd09c6893f5f54ffb9d263161e38cfc28dddd49484baef20e68"
+  },
+  {
+    "path": "scripts/check_postgres.py",
+    "sha256": "ce44f1fd4f8fe821450da9044975e911a82cbba16999f44307f45ef108458f1e"
+  },
+  {
+    "path": "scripts/check_public_config.py",
+    "sha256": "05dbf63c14e3f9da6d63792a1e090d0cead8fc629526c8a7f775f5679250f6f4"
+  },
+  {
+    "path": "scripts/check_visitor_postgres.py",
+    "sha256": "576d2d1f3ca20da55b22bb8f6e958c086161cce0121c932989e173333d96bdca"
+  },
+  {
+    "path": "scripts/cleanup_personal_data.py",
+    "sha256": "5dffd31d39edda52be1efb646b56df5004e9403680f970d08e31b5d8a11544b5"
+  },
+  {
+    "path": "scripts/deploy/Caddyfile",
+    "sha256": "1ec15769bd5b696aae8245d8e8c1607b785fc393cdfa814159557924f12333e8"
+  },
+  {
+    "path": "scripts/export_public_source.py",
+    "sha256": "91b1341e8774b54be49c953c8abceec0dc91c0fc468b6b2d300582877d8f1aa5"
+  },
+  {
+    "path": "scripts/export_yolo_int8.py",
+    "sha256": "9812d8f2a47a3f9f4e9a68908d3011b17e5fd1ed2c0aa4f00483b8814e567d1a"
+  },
+  {
+    "path": "scripts/fetch_ci_model.py",
+    "sha256": "acd43fec137c9ce5e88dbbd4691d90e635bdc8e1565511e9cb0d8a0842bda1a5"
+  },
+  {
+    "path": "scripts/init_runtime.py",
+    "sha256": "7f4f2ff89100e416e07c18ba80fed2ba5f08efdec5801666ab802cd6a97e8938"
+  },
+  {
+    "path": "scripts/install_gpu.ps1",
+    "sha256": "00aaef68d7416b2b65ae9fe42d4cc3e2409330c8597f684f4018d384c6e3a454"
+  },
+  {
+    "path": "scripts/object_store_backup.py",
+    "sha256": "52de7d6fa25349003cbc1941aec738f429d398a116f6ed002de46e989d7bb216"
+  },
+  {
+    "path": "scripts/prepare_deployment.py",
+    "sha256": "0c6bb53426142e6d7ae68c6a7044de7f09d966fba6e270c3a2fc91a50a4c449c"
+  },
+  {
+    "path": "scripts/run_backend.cmd",
+    "sha256": "35d95833760f4a79e3f63d908ffaef2088eeb1f3b75be82359980f8aa4b47e32"
+  },
+  {
+    "path": "scripts/run_backend.ps1",
+    "sha256": "fd0c96abc8d7e7638c1e78f8c1abde25c56ff7b03e6062fca678999b5de4047f"
+  },
+  {
+    "path": "scripts/run_backend.sh",
+    "sha256": "751bf5cc3b5bcc8ab36dd6b663cb4774b54ebfef227869b642431f47a168c7b1"
+  },
+  {
+    "path": "scripts/run_backend_postgres.sh",
+    "sha256": "e4c033d41432585e12ff2bd20ddc452ab7f929d7b44c60fd52ca837488ccc0c2"
+  },
+  {
+    "path": "scripts/run_camera_bridge.ps1",
+    "sha256": "a57214779000a998895de6001ba7ad5f1539df59ae3d5d24b20f419aaab4dd3e"
+  },
+  {
+    "path": "scripts/run_camera_gateway.ps1",
+    "sha256": "74092836ac989e18181780b07300268303e45cc2ad0c5fefe9a80838d27877ce"
+  },
+  {
+    "path": "scripts/run_production.ps1",
+    "sha256": "2356ceda5b523f94e5d4d10c141d69661c8ba9d285e998afa225d0306c71cbb1"
+  },
+  {
+    "path": "scripts/run_tauri_frontend.cmd",
+    "sha256": "26eba635ee4b4d05987f29a391a7fc388e2923f1ad10c904820ccc3056052415"
+  },
+  {
+    "path": "scripts/run_tauri_frontend.ps1",
+    "sha256": "ca86b1eb7122306474e9b1818ffefbe653eac1ce9b63a56586da5fcaf368535d"
+  },
+  {
+    "path": "scripts/run_worker.sh",
+    "sha256": "9d257e0a767b1b4fc4bbe70e937dfc03e17d6228d735b91ec6f5abf8d21aa1e7"
+  },
+  {
+    "path": "scripts/smoke_backend.py",
+    "sha256": "a66ffee82a6701b004399d2b7ec8fd6842c04cc0c20284a568ff408b25cd57b6"
+  },
+  {
+    "path": "scripts/smoke_business_http.py",
+    "sha256": "6607cf96a713004df7421877cf243596267daface854192da08b020299a63a3a"
+  },
+  {
+    "path": "scripts/start-visitor-test.ps1",
+    "sha256": "54bb4630aae9418e64cb55dd3b2dce2888af7ae7271d0e1a9b9f2c3861049526"
+  },
+  {
+    "path": "scripts/start_postgres.sh",
+    "sha256": "e8c9ef3ebf6e0260d074cac685000f4937e5595bd249f8a70ab612f7379263ae"
+  },
+  {
+    "path": "scripts/stop_postgres.sh",
+    "sha256": "76a0acd9efe3c73c6f1ac3893cf67a3a345e0887d9f74b4f429131a0f05717ff"
+  },
+  {
+    "path": "scripts/stop_production.ps1",
+    "sha256": "7974b8be475347216f8bfc1ddc84bd3f8f3975a8892d0bbc4b234e663fcb678d"
+  },
+  {
+    "path": "scripts/test_all.sh",
+    "sha256": "be723b949f1b8a0d9bdca68630429a7b03aa70604780a127fe5a9c94dad1564a"
+  },
+  {
+    "path": "scripts/tests/test_camera_bridge.py",
+    "sha256": "ae9d1d97a5af61e930777c1853bce403450307ac29aea8fe79e4160c17f4ff01"
+  },
+  {
+    "path": "scripts/tests/test_camera_gateway.py",
+    "sha256": "3569df381e7b884d0d716d48ad29e9bfc64f2988b6adfc15d99ea4d727b6eaf4"
+  },
+  {
+    "path": "scripts/tests/test_deployment.py",
+    "sha256": "215c5f68a7a7a5647109dd2162ed6b8aa56e33f206e2d15e4637aba4966fea71"
+  },
+  {
+    "path": "scripts/tests/test_public_release.py",
+    "sha256": "615fc0a0d86bf263ae0a4381314e2da721890bc5778d181c3f2145de8ef0e11d"
+  },
+  {
+    "path": "scripts/verify_camera_bridge.py",
+    "sha256": "2764a0fe86f8e10006a98d52719acb4d946b106d24fc9dbdeb94c21c2acf5dc0"
+  }
+]

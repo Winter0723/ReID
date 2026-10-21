@@ -1,0 +1,69 @@
+services:
+  maintenance:
+    env_file: !override
+      - .env.prod
+    image: myreid:production-gpu
+    build:
+      dockerfile: FastAPIBackend/Dockerfile.cuda
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      RUN_MIGRATIONS_ON_START: "0"
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+      MODEL_DEVICE: cpu
+  backend:
+    env_file: !override
+      - .env.prod
+    image: myreid:production-gpu
+    build:
+      dockerfile: FastAPIBackend/Dockerfile.cuda
+    gpus: all
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+      EMAIL_CODE_DEV_MODE: "0"
+      ENABLE_LEGACY_API: "0"
+      MODEL_DEVICE: cuda
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,video
+      MYREID_CAMERA_BRIDGE_DIR: /run/camera-bridge
+      OPENCV_FFMPEG_CAPTURE_OPTIONS: rtsp_transport;tcp
+    volumes:
+      - ${CAMERA_GATEWAY_DIR:-./tmp/camera-bridge}:/run/camera-bridge:ro
+    networks:
+      - default
+      - camera
+    ports: !override
+      - "127.0.0.1:${MYREID_API_PORT:-12889}:2889"
+    restart: unless-stopped
+  worker:
+    env_file: !override
+      - .env.prod
+    image: myreid:production-gpu
+    build:
+      dockerfile: FastAPIBackend/Dockerfile.cuda
+    gpus: all
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+      EMAIL_CODE_DEV_MODE: "0"
+      ENABLE_LEGACY_API: "0"
+      MODEL_DEVICE: cuda
+      SCENIC_VIDEO_ENCODER: h264_nvenc
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,video
+    restart: unless-stopped
+  visitor-coordinator:
+    env_file: !override
+      - .env.prod
+    image: myreid:production-gpu
+    build:
+      dockerfile: FastAPIBackend/Dockerfile.cuda
+    gpus: all
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+      MODEL_DEVICE: cuda
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,video
+
+networks:
+  camera:
+    name: myreid-camera
+    external: true

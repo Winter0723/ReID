@@ -1,0 +1,32 @@
+Alembic migration directory.
+
+Production databases use independent migration heads. The existing revisions
+remain a shared compatibility history; all new revisions belong under the
+matching `versions/core` or `versions/scenic` directory.
+
+Upgrade both data domains explicitly:
+
+    MYREID_MIGRATION_SCOPE=core alembic -c alembic.ini upgrade core@head
+    MYREID_MIGRATION_SCOPE=scenic alembic -c alembic.scenic.ini upgrade scenic@head
+
+Rollback the current revision for each data domain explicitly:
+
+    MYREID_MIGRATION_SCOPE=core alembic -c alembic.ini downgrade -1
+    MYREID_MIGRATION_SCOPE=scenic alembic -c alembic.scenic.ini downgrade -1
+
+SQLite remains a local development fallback. It also runs the checked-in
+Alembic revisions and no longer relies on SQLAlchemy `create_all()` or
+startup-time `ALTER TABLE` repair code.
+
+Run CLI commands from FastAPIBackend with the target DATABASE_URL and
+SCENIC_DATABASE_URL exported, or inside the intended Compose container.
+The CLI resolves its connection from the process environment / ini; copying
+.env.prod alone does not load that file into the migration process.
+
+As of 2026-10-15, the heads are 20261012100000_core and
+20261012100000_scenic (media_files.size_bytes BIGINT). Compare `current`
+with `heads` using each configuration before and after an upgrade.
+The split audit checks revision suffixes, not equality with the latest head.
+
+See docs/DATABASE_SPLIT_RUNBOOK.md and docs/DEPLOYMENT.md at repository root
+for backup formats, recovery prerequisites and historical-table handling.

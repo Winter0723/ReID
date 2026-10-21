@@ -1,0 +1,20 @@
+name: myreid-camera
+
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.1
+    command: ["/etc/camera-gateway/mediamtx.yml"]
+    volumes:
+      # Mount the directory so atomic configuration replacement is visible.
+      - ${CAMERA_GATEWAY_DIR:-./tmp/camera-bridge}:/etc/camera-gateway:ro
+    ports:
+      - "${CAMERA_RTSP_BIND:-127.0.0.1}:18554:8554"
+      - "127.0.0.1:19997:9997"
+    networks:
+      camera:
+        aliases: [mediamtx]
+    restart: unless-stopped
+
+networks:
+  camera:
+    name: myreid-camera

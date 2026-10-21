@@ -1,0 +1,20 @@
+services:
+  e2e:
+    build:
+      context: .
+      dockerfile: FastAPIBackend/Dockerfile
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.example}
+    environment:
+      RUN_MIGRATIONS_ON_START: "0"
+      MYREID_BASE_URL: http://backend:2889/api/v1
+      MYREID_BUSINESS_SMOKE_POLLS: "160"
+      MYREID_BUSINESS_SMOKE_SLEEP: "1"
+    entrypoint: ["python", "/scripts/smoke_business_http.py"]
+    volumes:
+      - ./scripts:/scripts:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      worker:
+        condition: service_started

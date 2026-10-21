@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux-dependency-lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lock validator
+        run: python -m pip install uv==0.12.17
+      - name: Validate complete Linux dependency lock
+        run: uv pip install --system --dry-run --require-hashes -r FastAPIBackend/requirements.txt
+      - name: Validate public configuration and release boundary
+        run: |
+          python scripts/check_public_config.py
+          python scripts/export_public_source.py --check
+          python -m unittest discover -s scripts/tests -p test_public_release.py -v
+          python -m unittest discover -s scripts/tests -p test_deployment.py -v
+
+  windows-production-client:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      APP_ENV: test
+      DATABASE_URL: sqlite:///./ci-core.db
+      SCENIC_DATABASE_URL: sqlite:///./ci-scenic.db
+      SECRET_KEY: ci-only-secret
+      EMAIL_CODE_DEV_MODE: "1"
+      VECTOR_BACKEND: memory
+      MODEL_DEVICE: cpu
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: FastAPIBackend/requirements.txt
+      - name: Fetch verified upstream YOLO smoke-test checkpoint
+        run: python scripts/fetch_ci_model.py
+      - name: Install backend dependencies
+        run: python -m pip install --require-hashes -r FastAPIBackend/requirements.txt
+      - name: Install media tools
+        run: |
+          $installed = $false
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            choco install ffmpeg --version=9.0.1 --yes --no-progress
+            if ($LASTEXITCODE -eq 0) {
+              $installed = $true
+              break
+            }
+            if ($attempt -lt 3) { Start-Sleep -Seconds (15 * $attempt) }
+          }
+          if (!$installed) { throw "FFmpeg installation failed after 3 attempts" }
+      - name: Verify media tools
+        run: |
+          Get-Command ffmpeg, ffprobe -ErrorAction Stop
+          ffmpeg -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ffprobe -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Prepare CJK font for media tests
+        run: |
+          $fontPath = Join-Path $env:RUNNER_TEMP "NotoSansCJKsc-Regular.otf"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf" -OutFile $fontPath
+          if ((Get-FileHash $fontPath -Algorithm SHA256).Hash -ne "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b") {
+            throw "CJK font checksum mismatch"
+          }
+          "SCENIC_FONT_FILE=$fontPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "SCENIC_FONT_FAMILY=Noto Sans CJK SC" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Check backend dependencies
+        run: python -m pip check
+      - name: Check explicit imports
+        working-directory: FastAPIBackend
+        run: python ../scripts/check_explicit_common_imports.py
+      - name: Check OpenAPI documentation
+        working-directory: FastAPIBackend
+        run: python ../scripts/check_openapi_docs.py
+      - name: Camera bridge unit tests
+        run: python -m unittest discover -s scripts/tests -p test_camera_bridge.py -v
+      - name: Backend tests
+        working-directory: FastAPIBackend
+        run: python -m pytest -W error
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: TauriFrontend/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: TauriFrontend
+        run: npm ci
+      - name: Audit frontend dependencies
+        working-directory: TauriFrontend
+        run: npm audit --audit-level=high
+      - name: Frontend tests
+        working-directory: TauriFrontend
+        run: npm run test
+      - name: Frontend typecheck
+        working-directory: TauriFrontend
+        run: npm run typecheck
+      - name: Frontend build
+        working-directory: TauriFrontend
+        run: npm run build
+      - name: Install Playwright browser
+        working-directory: TauriFrontend
+        run: npx playwright install chromium
+      - name: Minimum-window browser regression
+        working-directory: TauriFrontend
+        run: npm run test:e2e
+      - name: Preserve browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-browser-failures
+          path: TauriFrontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: TauriFrontend/src-tauri
+      - name: Rust check
+        working-directory: TauriFrontend/src-tauri
+        run: cargo check --locked
+      - name: Compile Rust tests
+        working-directory: TauriFrontend/src-tauri
+        run: cargo test --locked --no-run
+      - name: Build Windows installer
+        working-directory: TauriFrontend
+        env:
+          VITE_MYREID_API_BASE_URL: https://api.example.invalid
+        run: npm run tauri:build -- --bundles nsis
+
+  linux-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONUTF8: '1'
+      SCENIC_FONT_FILE: /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: FastAPIBackend/requirements.txt
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
+      - run: python -m pip install --require-hashes -r FastAPIBackend/requirements.txt
+      - run: python scripts/fetch_ci_model.py
+      - run: python -m pytest FastAPIBackend/tests -W error
+
+  visitor-client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: VisitorFrontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: VisitorFrontend/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
+  compose-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose variants
+        run: |
+          MYREID_ENV_FILE=.env.docker-local.example docker compose --env-file .env.docker-local.example -f docker-compose.yml --profile staff --profile visitor config --quiet
+          MYREID_ENV_FILE=.env.prod.example STAFF_DOMAIN=staff.example.test VISITOR_DOMAIN=visit.example.test ACME_EMAIL=operator@example.test docker compose --env-file .env.prod.example -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.https.yml --profile staff --profile visitor config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml config --quiet
+          MYREID_ENV_FILE=.env.staging.example docker compose -f docker-compose.yml -f docker-compose.staging.yml config --quiet
+          MYREID_ENV_FILE=.env.prod.example docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.e2e.yml config --quiet

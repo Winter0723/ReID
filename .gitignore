@@ -1,0 +1,112 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+FastAPIBackend/venv/
+
+# Backend runtime data
+FastAPIBackend/gallery/
+FastAPIBackend/object_storage/
+FastAPIBackend/reid_system.db
+backups/
+secrets/
+models/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Local environment files
+.env
+.env.local
+.env.dev
+.env.staging
+.env.prod
+.env.visitor-test
+
+# Model weights and exported inference artifacts
+*.pt
+*.pth
+*.onnx
+*.engine
+*.safetensors
+
+# Qt / CMake build outputs
+build/
+cmake-build-*/
+.cmake/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+*.cmake
+*.user
+*.autosave
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+
+# Tauri / Vite frontend outputs
+TauriFrontend/node_modules/
+TauriFrontend/.npm-cache/
+TauriFrontend/dist/
+TauriFrontend/dist-ssr/
+TauriFrontend/test-results/
+TauriFrontend/playwright-report/
+TauriFrontend/src-tauri/target/
+TauriFrontend/src-tauri/capabilities/api-origin.generated.json
+TauriFrontend/src-tauri/tauri.api.generated.conf.json
+
+# Logs and temporary files
+VisitorFrontend/node_modules/
+VisitorFrontend/dist/
+VisitorFrontend/test-results/
+VisitorFrontend/playwright-report/
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Local IDE metadata
+.idea/
+
+# Open-source publication boundary
+.env.*
+!.env.example
+!.env.*.example
+**/.vscode/
+.agents/
+.codex/
+*.pem
+*.key
+*.p12
+*.pfx
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.stdout
+*.stderr
+.tmp/
+release/
+/ReID/

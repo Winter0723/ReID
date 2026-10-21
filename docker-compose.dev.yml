@@ -1,0 +1,39 @@
+services:
+  maintenance:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.dev.example}
+    environment:
+      APP_ENV: development
+      OBJECT_STORAGE_MODE: local
+      VECTOR_BACKEND: memory
+      EMAIL_CODE_DEV_MODE: "1"
+      RUN_MIGRATIONS_ON_START: "0"
+  backend:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.dev.example}
+    environment:
+      APP_ENV: development
+      OBJECT_STORAGE_MODE: local
+      VECTOR_BACKEND: memory
+      EMAIL_CODE_DEV_MODE: "1"
+      RUN_MIGRATIONS_ON_START: "1"
+    volumes:
+      - ./FastAPIBackend:/workspace/FastAPIBackend
+      - ./model:/workspace/model:ro
+      - backend_gallery:/workspace/FastAPIBackend/gallery
+      - backend_objects:/workspace/FastAPIBackend/object_storage
+
+  worker:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.dev.example}
+    environment:
+      APP_ENV: development
+      OBJECT_STORAGE_MODE: local
+      VECTOR_BACKEND: memory
+      EMAIL_CODE_DEV_MODE: "1"
+      RUN_MIGRATIONS_ON_START: "0"
+    volumes:
+      - ./FastAPIBackend:/workspace/FastAPIBackend
+      - ./model:/workspace/model:ro
+      - backend_gallery:/workspace/FastAPIBackend/gallery
+      - backend_objects:/workspace/FastAPIBackend/object_storage

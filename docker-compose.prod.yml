@@ -1,0 +1,33 @@
+services:
+  maintenance:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.prod}
+    environment:
+      APP_ENV: production
+      RUN_MIGRATIONS_ON_START: "0"
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+  backend:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.prod}
+    environment:
+      APP_ENV: production
+      RUN_MIGRATIONS_ON_START: "1"
+      ENABLE_LEGACY_API: "0"
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+    restart: unless-stopped
+    volumes:
+      - backend_gallery:/workspace/FastAPIBackend/gallery
+      - backend_objects:/workspace/FastAPIBackend/object_storage
+
+  worker:
+    env_file:
+      - ${MYREID_ENV_FILE:-.env.prod}
+    environment:
+      APP_ENV: production
+      RUN_MIGRATIONS_ON_START: "0"
+      ENABLE_LEGACY_API: "0"
+      ALLOW_LOCAL_JOB_FALLBACK: "0"
+    restart: unless-stopped
+    volumes:
+      - backend_gallery:/workspace/FastAPIBackend/gallery
+      - backend_objects:/workspace/FastAPIBackend/object_storage

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "discovery": {"auto_enable_physical": true, "scan_interval_seconds": 3},
+  "capture": {"width": 640, "height": 480, "fps": 30, "bitrate_kbps": 1500},
+  "sources": [
+    {
+      "id": "park-gate",
+      "label": "Park entrance IP camera",
+      "kind": "rtsp",
+      "enabled": false,
+      "url": "rtsp://192.168.1.100:554/stream1"
+    }
+  ]
+}

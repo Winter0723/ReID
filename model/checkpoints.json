@@ -1,0 +1,17 @@
+[
+  {
+    "path": "FastAPIBackend/yolov8n.pt",
+    "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+    "bytes": 6549796
+  },
+  {
+    "path": "model/ViT-MSMT17-60.pth",
+    "sha256": "8181c2607f37d84fc1f85e61ac56a121c2cd7a60c7b9fb64c50b366fba479c47",
+    "bytes": 524179318
+  },
+  {
+    "path": "model/clip_weights/ViT-B-16.pt",
+    "sha256": "5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f",
+    "bytes": 350837078
+  }
+]

@@ -1,0 +1,220 @@
+x-backend-common: &backend-common
+  build:
+    context: .
+    dockerfile: FastAPIBackend/Dockerfile
+    args:
+      INSTALL_SCENIC_TRACKING: ${INSTALL_SCENIC_TRACKING:-0}
+  env_file:
+    - ${MYREID_ENV_FILE:-.env.example}
+  volumes:
+    - type: bind
+      source: ./FastAPIBackend/yolov8n.pt
+      target: /models/yolov8n.pt
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ./model/ViT-MSMT17-60.pth
+      target: /models/ViT-MSMT17-60.pth
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ./model/clip_weights/ViT-B-16.pt
+      target: /workspace/model/clip_weights/ViT-B-16.pt
+      read_only: true
+      bind: {create_host_path: false}
+    - backend_gallery:/workspace/FastAPIBackend/gallery
+    - backend_objects:/workspace/FastAPIBackend/object_storage
+  depends_on:
+    postgres:
+      condition: service_healthy
+    database-init:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+    milvus:
+      condition: service_healthy
+
+services:
+  backend:
+    <<: *backend-common
+    command: uvicorn main:app --host 0.0.0.0 --port 2889
+    environment:
+      RUN_MIGRATIONS_ON_START: "1"
+    ports:
+      - "127.0.0.1:${MYREID_API_PORT:-2889}:2889"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:2889/api/v1/healthz', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 180s
+
+  staff-web:
+    profiles: [staff]
+    build:
+      context: .
+      dockerfile: TauriFrontend/Dockerfile
+    ports:
+      - "127.0.0.1:${STAFF_WEB_PORT:-15173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    <<: *backend-common
+    command: sh -c 'rq worker "$${RQ_QUEUE_NAME:-media}" --url "$${REDIS_URL:-redis://redis:6379/0}"'
+    environment:
+      RUN_MIGRATIONS_ON_START: "0"
+      MODEL_DEVICE: ${WORKER_MODEL_DEVICE:-cpu}
+    healthcheck:
+      disable: true
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  maintenance:
+    <<: *backend-common
+    command: python -m app.workers.maintenance
+    healthcheck:
+      disable: true
+    environment:
+      RUN_MIGRATIONS_ON_START: "0"
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  visitor-coordinator:
+    <<: *backend-common
+    profiles: [visitor]
+    command: python -m app.workers.visitor
+    healthcheck:
+      disable: true
+    environment:
+      RUN_MIGRATIONS_ON_START: "0"
+      MODEL_DEVICE: ${WORKER_MODEL_DEVICE:-cpu}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  visitor-web:
+    profiles: [visitor]
+    build:
+      context: .
+      dockerfile: VisitorFrontend/Dockerfile
+    ports:
+      - "127.0.0.1:${VISITOR_WEB_PORT:-15174}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myreid}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myreid}
+      POSTGRES_DB: ${POSTGRES_DB:-myreid}
+      SCENIC_POSTGRES_DB: ${SCENIC_POSTGRES_DB:-myreid_scenic}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./FastAPIBackend/docker/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  database-init:
+    image: postgres:16
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-myreid}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myreid}
+      POSTGRES_DB: ${POSTGRES_DB:-myreid}
+      SCENIC_POSTGRES_DB: ${SCENIC_POSTGRES_DB:-myreid_scenic}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-myreid}
+    volumes:
+      - ./FastAPIBackend/docker/init-databases.sh:/usr/local/bin/init-databases.sh:ro
+    entrypoint: ["/usr/bin/env", "bash", "/usr/local/bin/init-databases.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  redis:
+    image: redis:7.4.2-alpine
+    command: redis-server --appendonly yes --appendfsync everysec
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-myreid}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-myreid-password}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls=http://0.0.0.0:2379 --data-dir=/etcd
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+    volumes:
+      - etcd_data:/etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  milvus:
+    image: milvusdb/milvus:v2.5.6
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-myreid}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-myreid-password}
+    volumes:
+      - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+volumes:
+  backend_gallery:
+  backend_objects:
+  postgres_data:
+  redis_data:
+  minio_data:
+  etcd_data:
+  milvus_data:
