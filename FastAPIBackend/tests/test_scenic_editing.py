@@ -152,6 +152,24 @@ def test_mixed_draft_clamps_merges_and_keeps_original_segments_unchanged(scene):
     assert next(clip for clip in draft["sources"] if clip["kind"] == "image")["location_name"] == "湖畔"
 
 
+def test_thumbnail_cache_supports_deep_paths_and_preserves_media_isolation(scene, tmp_path, monkeypatch):
+    _, _, add = scene
+    _, _, path = add("cache-test.avi")
+    cache = tmp_path / ("x" * max(1, 164 - len(str(tmp_path))))
+    cache.mkdir()
+    monkeypatch.setattr(editing, "_cache_root", lambda: cache)
+    analysis = {"kind": "video", "source_sha256": editing.source_sha256(path)}
+    quality = {"peak_seconds": 1.0}
+    first = editing.candidate_thumbnail(path, analysis, 0, 3, quality, 1, 1, "")
+    second = editing.candidate_thumbnail(path, analysis, 0, 3, quality, 1, 2, "")
+    assert first != second
+    assert editing.storage.path_for(first).read_bytes() == editing.storage.path_for(second).read_bytes()
+    assert all(len(str(manifest)) < 260 for manifest in cache.glob("*.json.lock"))
+    monkeypatch.setattr(editing.storage, "save_path", lambda *args, **kwargs: pytest.fail("cached thumbnail was written again"))
+    assert editing.candidate_thumbnail(path, analysis, 0, 3, quality, 1, 1, "") == first
+    assert editing.candidate_thumbnail(path, analysis, 0, 3, quality, 1, 2, "") == second
+
+
 def test_corrupt_source_excluded_with_reason_but_never_repeat_fill(scene, tmp_path):
     db, visitor, add = scene
     add("good.png", "image", order=1)

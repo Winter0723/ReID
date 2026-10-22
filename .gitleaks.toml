@@ -1,0 +1,14 @@
+title = "ReID secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Literal non-secret placeholder in the staging example"
+condition = "AND"
+paths = ['''^\.env\.staging\.example$''']
+regexTarget = "secret"
+regexes = ['''^replace-with-32-character-api-v3-key$''']

@@ -56,6 +56,10 @@
     "sha256": "6cbe08a1c2966e0a2804fec85eb48d749862897a749e3a5a00668ce5614e7f12"
   },
   {
+    "path": ".gitleaks.toml",
+    "sha256": "a1b6ab5cbff8232248cbd601575249150b10469ad9dac5151d376d0f990f817e"
+  },
+  {
     "path": "CONTRIBUTING.md",
     "sha256": "e850bf1a045ba8709a2ae6c7fd4cf8c892dc0fa1a0c563eabed055ff8cbda8af"
   },
@@ -65,7 +69,7 @@
   },
   {
     "path": "FastAPIBackend/Dockerfile.cuda",
-    "sha256": "2bb0dcf955cd8525c8c5b295b31854a8839787322174d750e0baece7e7338605"
+    "sha256": "0eaa31c63f4f9b1e6d099ab4984bdfa84f7533e312b52162f8bae3aeaf5186f0"
   },
   {
     "path": "FastAPIBackend/alembic.ini",
@@ -177,7 +181,7 @@
   },
   {
     "path": "FastAPIBackend/app/core/security.py",
-    "sha256": "c4e09b566d086f2b0021584a306274c9e387b87a4f615ba9e217d2847afcb1f9"
+    "sha256": "7aa1f780e58eccb4dfe2a450e1a29fea960ad8f786f1f0f59413f57648712191"
   },
   {
     "path": "FastAPIBackend/app/db/__init__.py",
@@ -273,11 +277,11 @@
   },
   {
     "path": "FastAPIBackend/app/services/legacy_service.py",
-    "sha256": "f967837df64838c41976ccddb1ff3f63be2e1aa67dc7295b7071f500d6c9b419"
+    "sha256": "f84f0e7f6344f6335442a08a4c38bd91fe1c62ac13a9cbe46598fb732d514998"
   },
   {
     "path": "FastAPIBackend/app/services/media_service.py",
-    "sha256": "218cc0e416b7081d30d8555fcd8a84819dae65d7c58df8692eebf1bac8dc2baf"
+    "sha256": "1f0faeb1975e39c188eda8e433ab59a9ada839515c24e5fb8fec44fea6931769"
   },
   {
     "path": "FastAPIBackend/app/services/model_precision.py",
@@ -321,7 +325,7 @@
   },
   {
     "path": "FastAPIBackend/app/services/scenic_editing.py",
-    "sha256": "678d9b2e4fa4d74ef6d973c2d93e5a76a7cb17960e77d808c515de6ca19dc5cd"
+    "sha256": "b73dad39acce6ad2db2b4a9509dd5e68e69822fdf3f180ab8d28c166113e8d54"
   },
   {
     "path": "FastAPIBackend/app/services/scenic_operations.py",
@@ -537,15 +541,15 @@
   },
   {
     "path": "FastAPIBackend/requirements-editing.txt",
-    "sha256": "941340dc977fd2d835cc4241a04669868a90b2c7863821aaf5ff8ccf9145eb37"
+    "sha256": "38d3c18f8b756ed71a047cd4901b04f08cc05a1582617261ff576e7e62b2fe37"
   },
   {
     "path": "FastAPIBackend/requirements.in",
-    "sha256": "4bed726365b548cb7ff0443fee917417b6af97dd0bbe5b39c70eb107113b38ab"
+    "sha256": "507afed6f52045bda8794dbee6f3798bef18a9a5cc32b508ca143fd06de8534b"
   },
   {
     "path": "FastAPIBackend/requirements.txt",
-    "sha256": "50a88f415ceaa24bd3e27a2ce81cb174d937d9f29bad2767c5b37f39ec6c4c68"
+    "sha256": "44bfe4a9488e5431d8dcb8ab177962efed727903b49bd92db580c189548f6b1c"
   },
   {
     "path": "FastAPIBackend/scenic_database.py",
@@ -553,7 +557,7 @@
   },
   {
     "path": "FastAPIBackend/tests/conftest.py",
-    "sha256": "ab2f58cc286729d79829eecb714d5a60b1e2d1eb76bdb90b8d886711eb98e2b6"
+    "sha256": "68f4a2edadd79be93d7e3186e34fbb29f9a836e69a566e3be6110a9bdf8502f2"
   },
   {
     "path": "FastAPIBackend/tests/test_api_docs_contract.py",
@@ -601,7 +605,7 @@
   },
   {
     "path": "FastAPIBackend/tests/test_model_precision.py",
-    "sha256": "ab0a1c35528714aaf262d08ca5c5620fbc76948b7dcef17541fbe5c351dc446b"
+    "sha256": "a0825e0b839d8d9fe5baa0e943bc7a998ca01dc06ac7fa6829037e5db24f9869"
   },
   {
     "path": "FastAPIBackend/tests/test_observability_regressions.py",
@@ -633,7 +637,7 @@
   },
   {
     "path": "FastAPIBackend/tests/test_scenic_editing.py",
-    "sha256": "43c79651ca7c7eaace42dbd4397025bd0d56b6a91fb603aa9901d03a6c7e97fb"
+    "sha256": "a134f61bcb4a98f8e79bf01ecb9f077b435c5fa8181565349ca4eda2c70de997"
   },
   {
     "path": "FastAPIBackend/tests/test_scenic_editing_api.py",
@@ -696,6 +700,10 @@
     "sha256": "e078b571a61eab0feff134413511f206c83ac732f6315f15b68bf9e1a33167d7"
   },
   {
+    "path": "FastAPIBackend/tests/test_token_compatibility.py",
+    "sha256": "6bc4bc8b50394e29e45bd23377cf63120a793449fd2b26bc2c001e47b96234ca"
+  },
+  {
     "path": "FastAPIBackend/tests/test_unit_core.py",
     "sha256": "e80ce9ed3e5f83b75251fef8db50c80b238f82cb25e2f5a3b00f6eb106240a26"
   },
@@ -745,7 +753,7 @@
   },
   {
     "path": "TauriFrontend/e2e/production-feedback.spec.ts",
-    "sha256": "6e4cc6d588fbb8353b30c8104bc887b895b9b906f26933f5ba8cefa74f1e0c1a"
+    "sha256": "17ae4731582a1462439f580b3029aeeb8d55bcf7cc1bdb8f1e80695903154847"
   },
   {
     "path": "TauriFrontend/e2e/realtime.spec.ts",
@@ -753,7 +761,7 @@
   },
   {
     "path": "TauriFrontend/e2e/redesign.spec.ts",
-    "sha256": "984887ec558be47b6736118b6baa27bfbe52c82e07477841c97e16b8dfadf1c3"
+    "sha256": "342cc5c195dce18e449f345e430a2b21b8411040f9211e6a4cf5e07bb26ba72c"
   },
   {
     "path": "TauriFrontend/e2e/scenic-editing.spec.ts",
@@ -769,7 +777,7 @@
   },
   {
     "path": "TauriFrontend/e2e/workbench.spec.ts",
-    "sha256": "60d5f89d070af9cabedb7c7f43a390749ed1b0ba33ce7602e5632b17eb1bedfe"
+    "sha256": "b13833614085c9b80409c0681eb74edd923706496f19ad36901c5e19285e0579"
   },
   {
     "path": "TauriFrontend/index.html",
@@ -781,7 +789,7 @@
   },
   {
     "path": "TauriFrontend/package-lock.json",
-    "sha256": "9dff1b86c14e9f78cbf23e6dc06f4686e4b0eca9e712bb8ee622e66b0a1818c5"
+    "sha256": "1188da6ad8dded8722fe0c666c73ee2aebbe34e762821d5c1b9bf37614772172"
   },
   {
     "path": "TauriFrontend/package.json",
@@ -809,7 +817,7 @@
   },
   {
     "path": "TauriFrontend/src-tauri/Cargo.lock",
-    "sha256": "a432a63d70d38a127c78dcdaa4e15c03cc06dbb414eca5eff4fd288a281373f3"
+    "sha256": "64e35b3f7390d9ce02f6fe930690aa7a7871b08810072c647785a6ed57daefa6"
   },
   {
     "path": "TauriFrontend/src-tauri/Cargo.toml",
@@ -909,11 +917,11 @@
   },
   {
     "path": "TauriFrontend/src/App.p1.test.ts",
-    "sha256": "ec44963b63bb8274ee6cedb586b1be5a7c39838f26b01f5cc43192866f5c6a2e"
+    "sha256": "be2939e544d6332a41f1e54c092e0303491a062b8f84a1adcf986ffa5fd33ba9"
   },
   {
     "path": "TauriFrontend/src/App.vue",
-    "sha256": "353d7dc06436c5f4c874fdfbafb1cff7059e0ef73edd43454184220e324ebd2d"
+    "sha256": "47ba8ed79aa67fd2b01c38bc1e8acd619255618345bcf96ab8706ff5afaf5647"
   },
   {
     "path": "TauriFrontend/src/components/LiveCameraPreview.test.ts",
@@ -1189,7 +1197,7 @@
   },
   {
     "path": "TauriFrontend/src/workspace-theme.css",
-    "sha256": "6f28a42491cb9f1b1895e8828f63379891bc3c5b932368381becb2f12347f0d1"
+    "sha256": "07eb316543df66e0fe7ba15be894d0b604c477bc3673c3367e497838b310794f"
   },
   {
     "path": "TauriFrontend/tsconfig.json",
@@ -1249,7 +1257,7 @@
   },
   {
     "path": "VisitorFrontend/package-lock.json",
-    "sha256": "d603dfb763d42c91961ce760719fd1c20f142dfde927b8a3bc14bc422f96d9ce"
+    "sha256": "af5d1159ef2bf14e07c74554216e2eb406ced18debeea0eec6dcb6cd5e32efd7"
   },
   {
     "path": "VisitorFrontend/package.json",
@@ -1437,7 +1445,7 @@
   },
   {
     "path": "docs/NEW_MACHINE_DEPLOYMENT.md",
-    "sha256": "21516d22aab173c3ff4caa1f005ade6e45d68aaa914cb77db34bcdd22ac4be6e"
+    "sha256": "9f11baa35d0136907632d07b9d9d34da0d4ce8b301621175a8896383ba84fe61"
   },
   {
     "path": "docs/OPEN_SOURCE_RELEASE.md",
@@ -1489,7 +1497,7 @@
   },
   {
     "path": "docs/local-production.md",
-    "sha256": "28822c267453f356a4e4407aae7d826216ee03fb24a4f960d0cc0517abe3e53a"
+    "sha256": "bcbf910520efb70987e7cfa124a4e812b9f306224d4b50650a43a4e7e6c9ea69"
   },
   {
     "path": "docs/production-fixes.md",
@@ -1501,7 +1509,7 @@
   },
   {
     "path": "docs/realtime-validation.md",
-    "sha256": "9d5bb19fcd39d655f927a1f418779b66543729f02462b76f3460e981f6ff1fb9"
+    "sha256": "119f1a1418a6805cce027fd9604fc749a3c3735081a08fab079580e9d2c5792d"
   },
   {
     "path": "docs/windows-camera-bridge.md",
@@ -1517,7 +1525,7 @@
   },
   {
     "path": "legacy/api/pre_v1.py",
-    "sha256": "d9f00fc370496cceecc6108ccc24da7cc8451bbfde124b46e422afe55ce6fcb6"
+    "sha256": "e298b1e7c37221291d40bc8a0068b14f8353e487a52ce63afab63806c78b1b5e"
   },
   {
     "path": "legacy/qt-qml-client/ARCHIVED.md",
@@ -1757,7 +1765,7 @@
   },
   {
     "path": "scripts/export_public_source.py",
-    "sha256": "91b1341e8774b54be49c953c8abceec0dc91c0fc468b6b2d300582877d8f1aa5"
+    "sha256": "e1c077453b189a86babe1ef3b195c174735090cbd7f89d8d112e5c1b7c913140"
   },
   {
     "path": "scripts/export_yolo_int8.py",
@@ -1773,7 +1781,7 @@
   },
   {
     "path": "scripts/install_gpu.ps1",
-    "sha256": "00aaef68d7416b2b65ae9fe42d4cc3e2409330c8597f684f4018d384c6e3a454"
+    "sha256": "bcca404175525e1441be47627a7981566cf6bc67d67713158c03f72104a9f3c2"
   },
   {
     "path": "scripts/object_store_backup.py",

@@ -84,6 +84,14 @@ def _cache_root() -> Path:
     return directory
 
 
+def _analysis_cache_path(kind: str, *identity) -> Path:
+    # Bound names, including temporary/lock suffixes, for Windows storage roots.
+    # Cache identities still include the analysis version and complete inputs.
+    serialized = json.dumps([ANALYSIS_VERSION, *identity], separators=(",", ":"))
+    digest = hashlib.sha256(serialized.encode()).hexdigest()
+    return _cache_root() / f"{kind}-{digest}.json"
+
+
 def _cache_read(path: Path) -> dict | None:
     try:
         result = json.loads(path.read_text(encoding="utf-8"))
@@ -166,7 +174,7 @@ def analyze_media(path: Path, kind: str | None = None, expected_sha256: str | No
     if expected_sha256 and fingerprint != expected_sha256:
         raise EditingError("源素材内容已改变，请重新分析；锁定或已提交版本不能替换素材")
     kind = "image" if kind == "image" or path.suffix.lower() in _IMAGE_SUFFIXES else "video"
-    cache_path = _cache_root() / f"media-v{ANALYSIS_VERSION}-{fingerprint}-{kind}.json"
+    cache_path = _analysis_cache_path("media", fingerprint, kind)
     with FileLock(str(cache_path) + ".lock", timeout=120):
         cached = _cache_read(cache_path)
         if cached:
@@ -234,7 +242,7 @@ def analyze_window(path: Path, analysis: dict, start: float, end: float) -> dict
     """Score only the candidate window, not unrelated portions of a long recording."""
     if analysis["kind"] == "image":
         return dict(analysis["quality"])
-    cache_path = _cache_root() / f"window-v{ANALYSIS_VERSION}-{analysis['source_sha256']}-{start:.3f}-{end:.3f}.json"
+    cache_path = _analysis_cache_path("window", analysis["source_sha256"], f"{start:.3f}", f"{end:.3f}")
     with FileLock(str(cache_path) + ".lock", timeout=120):
         cached = _cache_read(cache_path)
         if cached:
@@ -273,9 +281,9 @@ def candidate_thumbnail(path: Path, analysis: dict, start: float, end: float, qu
     """
     if analysis["kind"] == "image":
         return original_key
-    stem = f"window-v{ANALYSIS_VERSION}-{analysis['source_sha256']}-{start:.3f}-{end:.3f}"
-    image_path = _cache_root() / f"{stem}.jpg"
-    manifest_path = _cache_root() / f"thumbnail-{project_id}-{media_id}-{stem}.json"
+    window_path = _analysis_cache_path("window", analysis["source_sha256"], f"{start:.3f}", f"{end:.3f}")
+    image_path = window_path.with_suffix(".jpg")
+    manifest_path = _analysis_cache_path("thumb", project_id, media_id, window_path.stem)
     with FileLock(str(manifest_path) + ".lock", timeout=120):
         cached = _cache_read(manifest_path)
         if cached and storage.path_for(cached["object_key"]).is_file():

@@ -25,7 +25,8 @@ from PIL import Image, ImageOps
 from filelock import FileLock, Timeout
 from fastapi import Depends, File, Header, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
+import jwt
+from jwt.exceptions import InvalidTokenError as JWTError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 import database

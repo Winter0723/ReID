@@ -20,6 +20,7 @@ os.environ["MYREID_TEST_ROOT"] = str(TEST_ROOT)
 TEST_ROOT.mkdir(parents=True, exist_ok=True)
 
 sys.path.insert(0, str(BACKEND_DIR))
+sys.path.insert(0, str(ROOT_DIR))
 os.chdir(BACKEND_DIR)
 
 # Never inherit a developer's production database, storage, SMTP or Redis.
@@ -29,7 +30,7 @@ for key in tuple(os.environ):
 os.environ.update({
     "APP_ENV": "test", "DATABASE_URL": f"sqlite:///{TEST_ROOT / 'test.db'}",
     "SCENIC_DATABASE_URL": f"sqlite:///{TEST_ROOT / 'scenic_test.db'}",
-    "SECRET_KEY": "test-secret-key", "EMAIL_CODE_DEV_MODE": "1",
+    "SECRET_KEY": "test-only-signing-key-at-least-32-bytes", "EMAIL_CODE_DEV_MODE": "1",
     "OBJECT_STORAGE_MODE": "local", "OBJECT_STORAGE_DIR": str(TEST_ROOT / "object_storage"),
     "GALLERY_DIR": str(TEST_ROOT / "gallery"), "VECTOR_BACKEND": "memory",
     "REDIS_URL": "redis://127.0.0.1:1/15", "MODEL_DEVICE": "cpu",

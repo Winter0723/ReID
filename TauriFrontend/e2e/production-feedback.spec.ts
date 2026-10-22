@@ -69,6 +69,7 @@ test("production search renders its image before history finishes", async ({ pag
     await route.fulfill({ json: body });
   });
   await page.goto("/");
+  await page.getByRole("button", { name: "打开检索结果", exact: true }).click();
   await page.getByPlaceholder("描述目标人物的衣着、外貌等特征").fill("red jacket");
   await page.getByRole("button", { name: "以文搜图", exact: true }).click();
   await expect(page.locator(".result-tile")).toBeVisible({ timeout: 2000 });

@@ -483,10 +483,21 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                 >
                   {{ store.coreCameraStatus?.error || store.coreCameraStatus?.message || (store.coreCameraStatus?.running ? '相机运行中' : '相机未启动') }}
                 </div>
+                <div v-if="activeView === 'workspace'" class="core-camera-details">
+                  <span>{{ coreMonitorOnline ? '监控在线' : '等待监控' }}</span>
+                  <dl>
+                    <div><dt>相机源</dt><dd>{{ store.coreCameraStatus?.camera_source || store.activeProject?.camera_source || '-' }}</dd></div>
+                    <div><dt>已索引目标</dt><dd>{{ store.coreCameraStatus?.indexed_targets ?? 0 }}</dd></div>
+                  </dl>
+                  <small v-if="store.coreCameraStatus?.monitor_status?.width">{{ store.coreCameraStatus.monitor_status.width }}×{{ store.coreCameraStatus.monitor_status.height }} · 预览源 {{ store.coreCameraStatus.monitor_status.preview_fps || 0 }} FPS</small>
+                  <button v-if="store.coreCameraStatus?.recording_url" class="ghost-button w-full justify-center" type="button" @click="downloadCoreAsset(store.coreCameraStatus.recording_url, store.coreCameraStatus.recording_filename || 'camera-recording.mp4')">
+                    <Download :size="14" /><span>下载录像</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="glass-panel p-5 query-form">
+            <div v-if="activeView === 'results'" class="glass-panel p-5 query-form">
               <div class="mb-4 flex items-center justify-between">
                 <div>
                   <p class="eyebrow text-purple-300">检索中枢</p>
@@ -524,90 +535,44 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
       </section>
 
       <!-- 3. RIGHT COLUMN (Result Workspace) -->
-      <section class="core-result-panel flex-1 flex flex-col min-w-0 bg-[#0A0B0C] relative h-full">
-        <template v-if="activeView === 'workspace'">
-          <header class="h-[72px] shrink-0 border-b border-white/[0.06] px-8 flex items-center justify-between">
-            <div>
-              <p class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-0.5">Live Workspace</p>
-              <h1 class="text-lg font-bold tracking-tight text-white/90">
-                实时监控与媒体
-              </h1>
-            </div>
-          </header>
-
-        <div class="flex-1 overflow-y-auto p-8 space-y-8">
-          <!-- CORE MODE: Waterfall & Portrait -->
-            <div v-if="store.activeIsCameraProject" class="glass-panel p-4">
-              <div class="mb-4 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                  <Camera class="text-amber-400" :size="16" />
-                  实时相机预览
-                </h3>
-                <span class="text-[10px] font-bold px-2 py-1 rounded border" :class="coreMonitorOnline ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-zinc-900 text-zinc-500 border-zinc-700'">{{ coreMonitorOnline ? '监控在线' : '等待监控' }}</span>
-              </div>
-              <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
-                <div class="relative overflow-hidden rounded-xl bg-zinc-950 border border-white/[0.06] aspect-video">
-                  <LiveCameraPreview v-if="coreCameraFrameUrl" :key="coreCameraPreviewKey" :src="coreCameraFrameUrl" :stream-endpoint="`/api/v1/projects/${store.coreProjectId}/camera/preview-stream`" class="absolute inset-0 w-full h-full" alt="摄像头实时预览" />
-                  <div v-else class="absolute inset-0 flex flex-col items-center justify-center text-zinc-600">
-                    <Camera :size="28" />
-                    <span class="mt-2 text-xs">等待相机画面</span>
-                  </div>
-                </div>
-                <div class="grid gap-3">
-                  <div class="bg-zinc-900/40 p-3 rounded-xl border border-white/[0.06]">
-                    <span class="text-[10px] text-zinc-500 block">相机源</span>
-                    <strong class="text-sm text-white mt-1 block truncate">{{ store.coreCameraStatus?.camera_source || store.activeProject?.camera_source || '-' }}</strong>
-                    <small v-if="store.coreCameraStatus?.monitor_status?.width" class="text-zinc-400">{{ store.coreCameraStatus.monitor_status.width }}×{{ store.coreCameraStatus.monitor_status.height }} · 预览源 {{ store.coreCameraStatus.monitor_status.preview_fps || 0 }} FPS</small>
-                  </div>
-                  <div class="bg-zinc-900/40 p-3 rounded-xl border border-white/[0.06]">
-                    <span class="text-[10px] text-zinc-500 block">已索引目标</span>
-                    <strong class="text-lg text-cyan-400 mt-1 block">{{ store.coreCameraStatus?.indexed_targets ?? 0 }}</strong>
-                  </div>
-                  <button v-if="store.coreCameraStatus?.recording_url" class="ghost-button text-xs rounded-xl justify-center" type="button" @click="downloadCoreAsset(store.coreCameraStatus.recording_url, store.coreCameraStatus.recording_filename || 'camera-recording.mp4')">
-                    <Download :size="14" />
-                    <span>下载录像</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                <Upload class="text-emerald-400" :size="16"/>
-                已上传媒体 ({{ store.mediaItems.length }})
-              </h3>
-              <div v-if="store.mediaItems.length" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <article v-for="media in store.mediaItems" :key="media.id" class="glass-panel p-3 flex gap-3 items-center min-w-0">
-                  <div class="w-20 h-16 shrink-0 rounded-lg overflow-hidden bg-zinc-900 border border-white/[0.06] flex items-center justify-center">
-                    <img v-if="media.thumbnail_url || media.object_url" :src="normalizeAssetUrl(media.thumbnail_url || media.object_url)" class="w-full h-full object-cover" alt="" />
-                    <Film v-else-if="media.media_type === 'video' || media.media_type === 'camera'" :size="18" class="text-zinc-500" />
-                    <FileImage v-else :size="18" class="text-zinc-500" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-xs font-semibold text-white truncate">{{ media.filename || media.original_filename || `媒体 #${media.id}` }}</h4>
-                    <p class="mt-1 text-[10px] text-zinc-500 truncate">{{ media.media_type || '-' }} · {{ media.status || '-' }} · 目标 {{ media.target_count ?? 0 }}</p>
-                    <p class="mt-1 text-[10px] text-zinc-600 truncate">{{ media.created_at || '-' }}</p>
-                  </div>
-                </article>
-              </div>
-              <div v-else class="empty-panel h-28 border border-dashed border-white/[0.06] rounded-xl bg-zinc-900/20">
-                <Upload :size="20" class="text-zinc-600" />
-                <span class="text-[11px] text-zinc-500">暂无上传媒体</span>
-              </div>
-            </div>
-
+      <section :class="{ 'core-media-panel': activeView === 'workspace' }" class="core-result-panel flex-1 flex flex-col min-w-0 bg-[#0A0B0C] relative h-full">
+        <div v-if="(activeView === 'workspace' || activeView === 'results') && store.activeIsCameraProject" class="core-camera-section shrink-0 border-b border-white/10 p-4">
+          <h3 class="mb-2 text-sm font-semibold">实时相机预览</h3>
+          <div class="core-camera-frame relative mx-auto aspect-video max-h-64 overflow-hidden rounded-xl bg-zinc-950">
+            <LiveCameraPreview :key="coreCameraPreviewKey" :src="coreCameraFrameUrl" :stream-endpoint="`/api/v1/projects/${store.coreProjectId}/camera/preview-stream`" alt="摄像头实时预览" />
+            <span v-if="!coreMonitorOnline" class="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">等待相机画面</span>
+          </div>
         </div>
+        <template v-if="activeView === 'workspace'">
+          <header class="shrink-0 flex items-center gap-2">
+            <Upload class="text-emerald-400" :size="16" />
+            <h1 class="font-semibold">已上传媒体 ({{ store.mediaItems.length }})</h1>
+          </header>
+          <div class="core-media-scroll" aria-label="已上传媒体列表" tabindex="0">
+            <div v-if="store.mediaItems.length" class="core-media-grid result-grid">
+              <article v-for="media in store.mediaItems" :key="media.id" class="core-media-tile">
+                <div class="core-media-image">
+                  <img v-if="media.thumbnail_url || media.object_url" :src="normalizeAssetUrl(media.thumbnail_url || media.object_url)" alt="" />
+                  <Film v-else-if="media.media_type === 'video' || media.media_type === 'camera'" :size="28" />
+                  <FileImage v-else :size="28" />
+                </div>
+                <div class="core-media-meta">
+                  <h4 :title="media.filename || media.original_filename || `媒体 #${media.id}`">{{ media.filename || media.original_filename || `媒体 #${media.id}` }}</h4>
+                  <p>{{ media.media_type || '-' }} · {{ media.status || '-' }} · 目标 {{ media.target_count ?? 0 }}</p>
+                  <p>{{ media.created_at || '-' }}</p>
+                </div>
+              </article>
+            </div>
+            <div v-else class="core-media-empty empty-panel">
+              <Upload :size="26" />
+              <strong>暂无上传媒体</strong>
+              <span>从左侧上传图片、视频或启用实时入库，媒体会显示在这里。</span>
+            </div>
+          </div>
         </template>
 
         <CoreRealtimeView v-else-if="activeView === 'realtime'" />
         <template v-else-if="activeView === 'results'">
-          <div v-if="store.activeIsCameraProject" class="shrink-0 border-b border-white/10 p-4">
-            <h3 class="mb-2 text-sm font-semibold">实时相机预览</h3>
-            <div class="relative mx-auto aspect-video max-h-64 overflow-hidden rounded-xl bg-zinc-950">
-              <LiveCameraPreview :key="coreCameraPreviewKey" :src="coreCameraFrameUrl" :stream-endpoint="`/api/v1/projects/${store.coreProjectId}/camera/preview-stream`" alt="摄像头实时预览" />
-              <span v-if="!coreMonitorOnline" class="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">等待相机画面</span>
-            </div>
-          </div>
         <CoreSearchResultsView
           :fallback-query-text="searchForm.text"
           :fallback-query-image-url="searchImagePreviewUrl"

@@ -17,7 +17,7 @@ from typing import List
 import torch
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
+import jwt
 from PIL import Image
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError

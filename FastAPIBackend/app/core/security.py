@@ -1,8 +1,19 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+import warnings
 
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+import jwt
+from jwt.exceptions import InvalidTokenError as JWTError
+
+# Passlib probes the deprecated Unix crypt backend during import on Python 3.11.
+# This application uses only bcrypt; retain its legacy hash compatibility.
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore",
+        message="'crypt' is deprecated and slated for removal in Python 3.13",
+        category=DeprecationWarning,
+    )
+    from passlib.context import CryptContext
 
 from app.core.config import get_settings
 

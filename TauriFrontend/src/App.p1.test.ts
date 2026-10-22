@@ -182,6 +182,7 @@ describe("P1 core workbench behavior", () => {
       store.selectedResult = store.searchResults[0];
     });
 
+    await wrapper.get('button[aria-label="打开检索结果"]').trigger("click");
     await wrapper.get('textarea[placeholder="描述目标人物的衣着、外貌等特征"]').setValue("穿蓝色外套的人");
     await wrapper.get('button[title="执行文本检索"]').trigger("click");
     await flushPromises();

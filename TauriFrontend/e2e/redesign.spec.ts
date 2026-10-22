@@ -74,6 +74,7 @@ test("reference layout keeps registration, review, overview and search connected
   await page.locator(".overview-recent").getByRole("button", { name: "查看记录 →", exact: true }).click();
   await expect(page.locator(".review-count strong")).toHaveText("3 个精彩片段");
   await page.getByTitle("返回基础系统").click();
+  await page.getByRole("button", { name: "打开检索结果", exact: true }).click();
   await page.getByPlaceholder("描述目标人物的衣着、外貌等特征").fill("穿浅色外套的游客");
   await page.getByRole("button", { name: "以文搜图", exact: true }).click();
   await expect(page.locator(".result-tile")).toHaveCount(4);

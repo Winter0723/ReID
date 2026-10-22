@@ -237,7 +237,7 @@ docker @ComposeArgs logs --tail 100 backend worker visitor-coordinator visitor-w
 以下保留当时的硬件、依赖和验证结果；不代表后续改动、当前主机或重新构建镜像已重新验收。
 
 - Windows Python：PyTorch 2.12.0+cu130；本机 `.env.local` 为 `MODEL_DEVICE=cuda`。可用 `scripts/install_gpu.ps1` 重装并校验。
-- 当前 Docker 镜像复用本机已验证的 PyTorch 2.13.0+cu130 依赖层，补齐当前 requirements.in、FFmpeg 和字体后更新应用代码；完整重建的 Dockerfile.cuda 固定 PyTorch 2.12.0+cu130。两者版本有所不同，完整冷构建未作为本次验收环境。
+- 当时使用复用依赖层的 Docker 镜像，未验证完整冷构建。当前依赖以 `requirements.in`、`Dockerfile.cuda` 和 `scripts/install_gpu.ps1` 为准，不能将历史记录作为当前构建的验收结果。
 - GPU：NVIDIA GeForce RTX 5060 Ti；CUDA 运算及模型推理已通过。
 - 用户提供的 PedestrianTrackingVideo.avi：169 帧全部完成，单帧处理耗时 P50=46.6 ms、P95=65.74 ms；之前 CPU 为约 358/844 ms。输入视频为 1 FPS，播放按源时间输出，显示约 0.97 FPS，不代表 GPU 只能处理 1 FPS。
 - readyz：ready，device=cuda，数据库/景区数据库/模型/队列/向量库均就绪，queue_mode=redis，无降级。

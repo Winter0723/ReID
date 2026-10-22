@@ -94,6 +94,7 @@ test("authenticated users without a project get guidance and disabled actions", 
   await page.goto("/");
   await expect(page.getByText("请先创建或选择项目", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "重建当前项目索引" })).toBeDisabled();
+  await page.getByRole("button", { name: "打开检索结果", exact: true }).click();
   await page.getByLabel("选择用于检索的图片").setInputFiles({
     name: "query.png",
     mimeType: "image/png",

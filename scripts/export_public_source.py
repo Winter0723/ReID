@@ -9,7 +9,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 ROOT_FILES = {"README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md",
-              ".gitignore", ".gitattributes", ".dockerignore", ".editorconfig", "pytest.ini", "SOURCE_MANIFEST.json"}
+              ".gitignore", ".gitattributes", ".gitleaks.toml", ".dockerignore", ".editorconfig", "pytest.ini", "SOURCE_MANIFEST.json"}
 ROOT_DIRS = {"FastAPIBackend", "TauriFrontend", "VisitorFrontend", "model", "scripts", "docs", "legacy", ".github", "camera_gateway"}
 DENIED_PARTS = {".git", ".vscode", ".idea", ".agents", ".codex", "node_modules", "venv", ".venv",
                 "gallery", "object_storage", "secrets", "backups", "tmp", ".tmp", "dist", "target",

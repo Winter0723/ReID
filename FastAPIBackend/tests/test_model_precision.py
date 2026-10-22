@@ -26,6 +26,7 @@ def tiny_clip():
 # PyTorch still exposes this supported compatibility path; only its known
 # migration notice is excluded from strict warning checks.
 @pytest.mark.filterwarnings("ignore:torch.ao.quantization is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions.*deprecated:UserWarning")
 def test_int8_preserves_attention_and_produces_finite_features():
     model = tiny_clip()
     prepare_clipreid(model, "int8")
