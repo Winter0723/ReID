@@ -148,13 +148,18 @@ jobs:
       SCENIC_FONT_FILE: /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
     steps:
       - uses: actions/checkout@v4
+      - name: Free runner disk for locked ML dependencies
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt-get clean
+          df -h /
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: pip
           cache-dependency-path: FastAPIBackend/requirements.txt
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
-      - run: python -m pip install --require-hashes -r FastAPIBackend/requirements.txt
+      - run: python -m pip install --no-cache-dir --require-hashes -r FastAPIBackend/requirements.txt
       - run: python scripts/fetch_ci_model.py
       - run: python -m pytest FastAPIBackend/tests -W error
 
