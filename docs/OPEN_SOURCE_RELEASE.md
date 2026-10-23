@@ -29,3 +29,5 @@ python scripts/export_public_source.py --directory ReID --output release/reid-so
 模型权重需另行获取并通过校验。生产环境需配置 SMTP、管理员邮箱、随机密钥、域名与 HTTPS。游客微信登录需有效的应用配置；真实微信支付尚未完成接入验收，默认使用工作人员核实收款。摄像头、GPU、邮件投递、微信授权、备份恢复及真实素材出片须分别验收，不能由单元测试或页面可访问代替。
 
 自动检查应覆盖后端回归、两端单元测试和构建、浏览器业务回归、配置完整性、OpenAPI 文档以及发布边界。记录实际环境、日期与结果，不使用历史通过数量代表新版本验收。
+
+Windows 安装包检查使用 `npm ci` 和 `npm run tauri:build -- --bundles nsis -- --locked`。升级 Tauri 时须同时检查 npm 包与 Rust crate 的主、次版本是否匹配，并提交两端锁文件，不跳过版本一致性检查。静态素材成片使用 FFmpeg 的 H.264 编码路径；Linux 环境不依赖 OpenCV 提供 H.264 写入器。

@@ -138,7 +138,7 @@ jobs:
         working-directory: TauriFrontend
         env:
           VITE_MYREID_API_BASE_URL: https://api.example.invalid
-        run: npm run tauri:build -- --bundles nsis
+        run: npm run tauri:build -- --bundles nsis -- --locked
 
   linux-backend:
     runs-on: ubuntu-latest

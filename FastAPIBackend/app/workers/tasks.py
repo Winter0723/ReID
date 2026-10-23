@@ -951,10 +951,17 @@ def _fit_video_frame(image, width: int, height: int, *, preview: bool, index: in
 
 
 def _render_slideshow_video(segments, output_path: Path, *, preview: bool) -> float:
+    segments = list(segments)
+    if not segments:
+        raise ValueError("没有可用于生成成片的素材")
+    if _try_render_ffmpeg_slideshow(segments, output_path, preview=preview):
+        return sum(max(2.0, min(6.0, _segment_duration(segment))) for segment in segments)
+
     width, height = (640, 360) if preview else (1280, 720)
     fps = 24
     writer = _open_opencv_browser_video_writer(output_path, fps, (width, height))
     if writer is None:
+        output_path.unlink(missing_ok=True)
         raise RuntimeError("无法创建浏览器兼容的 MP4 成片文件，请安装 ffmpeg/imageio-ffmpeg")
 
     total_duration = 0.0
@@ -970,6 +977,47 @@ def _render_slideshow_video(segments, output_path: Path, *, preview: bool) -> fl
     if not output_path.exists() or output_path.stat().st_size == 0:
         raise RuntimeError("成片文件为空")
     return total_duration
+
+
+def _try_render_ffmpeg_slideshow(segments, output_path: Path, *, preview: bool) -> bool:
+    ffmpeg = ffmpeg_executable()
+    if not ffmpeg:
+        return False
+    width, height = (640, 360) if preview else (1280, 720)
+    try:
+        with tempfile.TemporaryDirectory(prefix="myreid-slides-") as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            entries = []
+            total_duration = 0.0
+            for index, segment in enumerate(segments, start=1):
+                frame = _segment_frame(segment, width, height, preview=preview, index=index)
+                encoded, image = cv2.imencode(".png", frame)
+                if not encoded:
+                    raise OSError("无法编码成片画面")
+                name = f"slide_{index:04d}.png"
+                (tmp_root / name).write_bytes(image.tobytes())
+                duration = max(2.0, min(6.0, _segment_duration(segment)))
+                entries.extend([f"file '{name}'", f"duration {duration:.6f}"])
+                total_duration += duration
+            # The concat demuxer needs a final frame to honor the last duration.
+            entries.append(f"file '{name}'")
+            (tmp_root / "slides.txt").write_text("\n".join(entries) + "\n", encoding="utf-8")
+            subprocess.run(
+                [ffmpeg, "-nostdin", "-y", "-f", "concat", "-safe", "1",
+                 "-i", "slides.txt", "-t", f"{total_duration:.6f}",
+                 "-vf", "fps=24,tpad=stop_mode=clone:stop_duration=6",
+                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+                 "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an",
+                 str(output_path.resolve())],
+                cwd=tmp_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                check=True, timeout=180,
+            )
+        if output_path.exists() and output_path.stat().st_size > 0:
+            return True
+    except (OSError, subprocess.SubprocessError):
+        logger.warning("FFmpeg 幻灯片编码失败，正在尝试 OpenCV 编码")
+    output_path.unlink(missing_ok=True)
+    return False
 
 
 def _segment_duration(segment) -> float:

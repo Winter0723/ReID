@@ -1,7 +1,10 @@
 import datetime as dt
 from io import BytesIO
 from pathlib import Path
+from types import SimpleNamespace
 
+import cv2
+import numpy as np
 import pytest
 import torch
 from PIL import Image
@@ -12,6 +15,66 @@ def _image_bytes(color="blue"):
     buffer = BytesIO()
     image.save(buffer, format="JPEG")
     return buffer.getvalue()
+
+
+@pytest.mark.parametrize("preview", [True, False])
+def test_slideshow_encodes_h264_without_opencv_writer(monkeypatch, tmp_path, preview):
+    from app.workers import tasks
+
+    monkeypatch.setattr(tasks, "_open_opencv_browser_video_writer", lambda *args: None)
+    monkeypatch.setattr(
+        tasks, "_segment_frame",
+        lambda segment, width, height, **kwargs: np.full(
+            (height, width, 3), segment.shade, dtype=np.uint8
+        ),
+    )
+    segments = [
+        SimpleNamespace(start_seconds=0, end_seconds=2, shade=40),
+        SimpleNamespace(start_seconds=0, end_seconds=3, shade=200),
+    ]
+    output = tmp_path / "slideshow.mp4"
+    assert tasks._render_slideshow_video(segments, output, preview=preview) == 5.0
+    capture = cv2.VideoCapture(str(output))
+    try:
+        assert capture.isOpened()
+        # OpenCV reports the H.264 codec as either its MP4 tag or decoder name.
+        assert int(capture.get(cv2.CAP_PROP_FOURCC)) in {
+            cv2.VideoWriter_fourcc(*"avc1"), cv2.VideoWriter_fourcc(*"h264")
+        }
+        assert capture.get(cv2.CAP_PROP_FPS) == pytest.approx(24)
+        assert capture.get(cv2.CAP_PROP_FRAME_COUNT) == 120
+        expected_size = (640, 360) if preview else (1280, 720)
+        assert (capture.get(cv2.CAP_PROP_FRAME_WIDTH), capture.get(cv2.CAP_PROP_FRAME_HEIGHT)) == expected_size
+        for frame_number, shade in [(0, 40), (72, 200), (119, 200)]:
+            capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+            ok, frame = capture.read()
+            assert ok
+            assert float(frame.mean()) == pytest.approx(shade, abs=5)
+    finally:
+        capture.release()
+
+
+def test_slideshow_removes_partial_output_on_encoder_failure(monkeypatch, tmp_path):
+    from app.workers import tasks
+
+    monkeypatch.setattr(tasks, "ffmpeg_executable", lambda: "ffmpeg")
+    monkeypatch.setattr(tasks, "_open_opencv_browser_video_writer", lambda *args: None)
+    monkeypatch.setattr(tasks, "_segment_frame", lambda *args, **kwargs: np.zeros((360, 640, 3), dtype=np.uint8))
+    output = tmp_path / "failed.mp4"
+    temporary_dirs = []
+
+    def fail_encoder(*args, **kwargs):
+        temporary_dirs.append(kwargs["cwd"])
+        output.write_bytes(b"incomplete")
+        raise tasks.subprocess.TimeoutExpired(args[0], 180)
+
+    monkeypatch.setattr(tasks.subprocess, "run", fail_encoder)
+    with pytest.raises(RuntimeError, match="无法创建浏览器兼容"):
+        tasks._render_slideshow_video(
+            [SimpleNamespace(start_seconds=0, end_seconds=2)], output, preview=True
+        )
+    assert not output.exists()
+    assert temporary_dirs and all(not path.exists() for path in temporary_dirs)
 
 
 def test_core_and_scenic_tokens_are_not_interchangeable(client, register_user, register_scenic_user):

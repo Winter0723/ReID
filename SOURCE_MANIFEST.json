@@ -45,7 +45,7 @@
   },
   {
     "path": ".github/workflows/ci.yml",
-    "sha256": "f51697f8ec5b5aeb3098acc482136ab980999cdaef458d537e3f50d8d6ee399e"
+    "sha256": "a0444deef461e21e974e8add3b2bdaceaad6e053cef9522fc5ee096d4abe067a"
   },
   {
     "path": ".github/workflows/security.yml",
@@ -409,7 +409,7 @@
   },
   {
     "path": "FastAPIBackend/app/workers/tasks.py",
-    "sha256": "1ea0b0219d26e4d307d42062b495c2d8f1b52c657fdf5a486f7aa06ce3e807d5"
+    "sha256": "891d2665ce1bc1248b8e54c24e8e4fd7be0b281ff810814bf7b3a86f36f675a3"
   },
   {
     "path": "FastAPIBackend/app/workers/visitor.py",
@@ -685,7 +685,7 @@
   },
   {
     "path": "FastAPIBackend/tests/test_scenic_vlog_flow.py",
-    "sha256": "891892e7403ff9587aee0892a03542a579af9d8a4bd075b9ea7e1720a4ef81f9"
+    "sha256": "ee12dbb3dab9fbe7a0b4adc2b1f707d8cf9b1f19a685ea84a3c21d86853347b4"
   },
   {
     "path": "FastAPIBackend/tests/test_scenic_worker_reliability.py",
@@ -789,11 +789,11 @@
   },
   {
     "path": "TauriFrontend/package-lock.json",
-    "sha256": "1188da6ad8dded8722fe0c666c73ee2aebbe34e762821d5c1b9bf37614772172"
+    "sha256": "d49ffb0f36dd3c228a5d21e6999a8cc0f46fe40f18debf75a9b0c836000732fd"
   },
   {
     "path": "TauriFrontend/package.json",
-    "sha256": "9f3e975e81de944e07b16ccdc7eac2f4817d8c6cc6b3132ba271d6073340ea81"
+    "sha256": "7cf3dcc10eed6110a90d77770106896e866ef0d3eef0b3871d2867e71a3aa0be"
   },
   {
     "path": "TauriFrontend/playwright.config.ts",
@@ -1449,7 +1449,7 @@
   },
   {
     "path": "docs/OPEN_SOURCE_RELEASE.md",
-    "sha256": "a540322121dac9466e11883b3fe7f95849f54fe209414533242aba2147312982"
+    "sha256": "b6679df9bc6eb958d6c9f77241dd6294a0926a436dc27e899fdce1bb373db510"
   },
   {
     "path": "docs/PROJECT_GUIDE.md",
