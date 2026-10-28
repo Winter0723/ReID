@@ -18,8 +18,8 @@ for (const width of [390, 1120]) {
       project_id: 1,
       name: "青山景区",
       created_at: "2026-10-13T01:00:00Z",
-      checked_out_at: "2026-10-13T02:00:00Z",
-      stage: "selecting",
+      checked_out_at: null,
+      stage: "visiting",
       message: "请挑选本人的游玩片段",
       price_cents: 1990,
       video_available: false,
@@ -54,13 +54,19 @@ for (const width of [390, 1120]) {
       if (path === "/runtime")
         return route.fulfill({
           json: {
-            auth_provider: "wechat",
+            auth_provider: "browser",
+            browser_login_available: true,
+            wechat_login_available: true,
             payment_provider: "manual",
             testing: false,
           },
         });
       if (path === "/me")
-        return route.fulfill({ json: { authenticated: true } });
+        return route.fulfill({ json: { authenticated: true, auth_provider: width === 390 ? "browser" : "wechat" } });
+      if (path === "/visits/7/finish") {
+        state = { ...state, stage: "selecting", checked_out_at: "2026-10-13T02:00:00Z" };
+        return route.fulfill({ json: state });
+      }
       if (path === "/visits/7/editor")
         return route.fulfill({
           json: {
@@ -208,6 +214,9 @@ for (const width of [390, 1120]) {
       });
     });
     await page.goto("/visitor/#/visits/7");
+    await expect(page.getByText(width === 390 ? "当前身份：浏览器登录。" : "当前身份：微信登录", { exact: false })).toBeVisible();
+    await page.getByRole("button", { name: "结束游览，匹配我的画面" }).click();
+    await page.getByRole("button", { name: "结束并匹配", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "我的短片工作室" }),
     ).toBeVisible();

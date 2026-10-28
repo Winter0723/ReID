@@ -1,0 +1,30 @@
+{
+  "id": "clipreid-msmt17",
+  "name": "DSCL-ReID MSMT17",
+  "adapter": "clipreid",
+  "adapter_version": "1",
+  "weights": "ViT-MSMT17-60.pth",
+  "dimension": 512,
+  "preprocess": {
+    "size": [
+      336,
+      160
+    ],
+    "normalization": "clip",
+    "interpolation": "bicubic"
+  },
+  "output": "projection_cls_l2",
+  "options": {
+    "model_name": "ViT-B-16",
+    "dataset_name": "MSMT17",
+    "num_classes": 1041,
+    "camera_num": 15,
+    "view_num": 1,
+    "stride_size": 16,
+    "precision": "auto"
+  },
+  "capabilities": {
+    "image": true,
+    "text": true
+  }
+}

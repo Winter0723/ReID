@@ -63,7 +63,7 @@ myreid.scenic.refresh
 http://127.0.0.1:2889
 ```
 
-浏览器代理端口通过进程变量 `MYREID_API_PORT` 或仓库根目录 Vite 环境文件配置，未配置时为 `2889`。例如连接本机 Docker 生产后端，在启动 Vite 前设置 `$env:MYREID_API_PORT="12889"`。切换端口后重启 Vite。
+浏览器代理端口通过进程变量 `MYREID_API_PORT` 或仓库根目录 Vite 环境文件配置，未配置时为 `2889`。例如连接本机 Docker 生产后端，在启动 Vite 前设置 `$env:MYREID_API_PORT="2889"`。切换端口后重启 Vite。
 
 Tauri 直连地址可显式设置为：
 

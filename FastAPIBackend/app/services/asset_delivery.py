@@ -38,6 +38,15 @@ def has_valid_asset_signature(request: Request) -> bool:
     return hmac.compare_digest(expected, provided)
 
 
+def deliver_video_preview(object_key: str):
+    """Previews are generated locally, including when originals live in S3."""
+    root = get_settings().object_storage_dir.resolve()
+    path = (root / object_key).resolve()
+    if not path.is_relative_to(root) or not path.is_file():
+        raise HTTPException(status_code=404, detail="视频预览不存在")
+    return FileResponse(path, media_type="video/mp4", headers={"Cache-Control": "private, no-store"})
+
+
 def deliver_object(
     object_key: str,
     *,

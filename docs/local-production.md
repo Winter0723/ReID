@@ -14,10 +14,10 @@ cd C:\path\to\MyReID
 | --- | --- | --- |
 | Vue/Vite 浏览器前端 | Windows 本机 | http://127.0.0.1:5173（以启动终端显示为准） |
 | Tauri 桌面前端 | Windows 本机 | 桌面窗口；与浏览器前端二选一即可 |
-| FastAPI | Docker backend | http://127.0.0.1:12889，容器内部端口 2889 |
+| FastAPI | Docker backend | http://127.0.0.1:2889，容器内部端口 2889 |
 | RQ Worker | Docker worker | 从 Redis 队列取任务，CUDA 推理、NVENC 编码 |
 | 游客制作协调器 | Docker visitor-coordinator | 推进持久化匹配与制作请求 |
-| 游客 H5 | Docker visitor-web | http://127.0.0.1:15174/visitor/，生产公网入口另配 HTTPS |
+| 游客 H5 | Docker visitor-web | http://127.0.0.1:5174/visitor/，生产公网入口另配 HTTPS |
 | 独立摄像头网关 | 宿主机代理 + myreid-camera Docker 项目 | 多 USB / 虚拟设备 / 网络 RTSP；回环视频端口 18554、控制端口 19997 |
 | PostgreSQL | Docker postgres | 基础系统 myreid、景区系统 myreid_scenic 两个数据库 |
 | Milvus + etcd | Docker | 向量检索与元数据 |
@@ -40,8 +40,8 @@ cd C:\path\to\MyReID
 3. 验证服务：
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:12889/api/v1/healthz
-Invoke-RestMethod http://127.0.0.1:12889/api/v1/readyz
+Invoke-RestMethod http://127.0.0.1:2889/api/v1/healthz
+Invoke-RestMethod http://127.0.0.1:2889/api/v1/readyz
 ```
 
 `healthz` 预期 `environment=production`；`readyz` 预期 `status=ready`、`device=cuda`、`queue_mode=redis`，数据库、模型、队列、向量库和磁盘就绪字段为 True，`degraded_reasons` 为空。HTTP 200 或容器 healthy 只证明存活，仍要检查这些字段和 worker/协调器日志。
@@ -61,10 +61,12 @@ Invoke-RestMethod http://127.0.0.1:12889/api/v1/readyz
 根目录 `.env.local` 中应保留：
 
 ```dotenv
-MYREID_API_PORT=12889
+MYREID_API_PORT=2889
 ```
 
-修改端口后要重启前端；如果使用之前打包的桌面程序，需要重新构建才能更新编译进去的默认地址。若设置过 VITE_MYREID_API_BASE_URL 或 MYREID_API_BASE_URL，检查它是否仍指向旧后端；显式前端地址会覆盖默认地址。
+常规端口固定为后端 `2889`、运营前端 `5173`、游客前端 `5174`。从旧配置升级时，将前端 `.env.local` 的 `MYREID_API_PORT` 恢复为 `2889`，清除终端中旧端口覆盖值并重启前端；若旧桌面包编译了旧地址，需要重新构建。显式配置过 `VITE_MYREID_API_BASE_URL` 或 `MYREID_API_BASE_URL` 时也应清除旧地址。后续不再随部署模式切换端口。
+
+Docker 游客网页与 Vite 游客开发服务器都使用 `5174`，二选一运行。需要热更新或局域网开发服务器时，先停止该 Compose 项目的 `visitor-web`，再启动 Vite；不要改端口来同时运行两份。运营端 Docker `staff` profile 与 Vite `5173` 同理。
 
 生产模式下不要再启动 `run_backend.cmd`：后端已由 Docker 运行，重复启动会争用端口。Windows venv 的 CUDA 配置仅用于独立本地后端，不控制容器中的 PyTorch。
 
@@ -92,11 +94,11 @@ if (!(Test-Path .env.prod)) { Copy-Item .env.prod.example .env.prod }
 
 如果游客入口使用 `http://192.168.x.x:5174` 等局域网 HTTP 地址，应在现有 `.env.prod` 中显式设置 `APP_ENV=local`、`VISITOR_COOKIE_SECURE=0`、`VISITOR_ALLOW_LAN_HTTP=1`。Compose 会为 API、worker、游客协调器和维护服务统一读取 `APP_ENV`；未配置时仍默认 production。其余数据库、队列、账号和项目数据保持原配置，启动命令不变。该模式用于本机联调，不是 HTTPS 生产部署，`healthz` 中的 `environment` 应为 `local`。
 
-局域网网页演示可设置 `VISITOR_AUTH_PROVIDER=browser`，无需微信、邀请码或个人资料，点击“开始登记”即可使用。每个浏览器通过 HttpOnly Cookie 保存独立游客身份（有效期 30 天），再次进入同一或其他景区仍沿用该身份。清除 Cookie、使用无痕窗口或更换设备后无法找回原记录。登录与付款分别配置，`VISITOR_PAYMENT_PROVIDER=manual` 仍需工作人员确认收款。修改后运行 `scripts/run_production.ps1 -Build`。
+浏览器游客入口可设置 `VISITOR_AUTH_PROVIDER=browser`，无需微信、邀请码或个人资料，点击“开始登记”即可使用。每个浏览器通过 HttpOnly Cookie 保存独立游客身份（有效期 30 天），再次进入同一或其他景区仍沿用该身份。清除 Cookie、使用无痕窗口或更换设备后无法找回原记录。登录与付款分别配置，`VISITOR_PAYMENT_PROVIDER=manual` 仍需工作人员确认收款。修改后运行 `scripts/run_production.ps1 -Build`。
 
-正式 HTTPS 部署使用 `APP_ENV=production`、`VISITOR_AUTH_PROVIDER=wechat`、`VISITOR_COOKIE_SECURE=1`、`VISITOR_ALLOW_LAN_HTTP=0`，并设置对应的 HTTPS 游客入口。浏览器演示登录只允许 local/dev/development/test 环境。启动脚本会在构建和启动网关之前检查模式与 Cookie 配置是否冲突；不要仅把 HTTP 环境的 Cookie 改为 Secure，否则手机不能发送登录 Cookie。
+正式 HTTPS 部署使用 `APP_ENV=production`、`VISITOR_AUTH_PROVIDER=wechat`、`VISITOR_COOKIE_SECURE=1`、`VISITOR_ALLOW_LAN_HTTP=0`，并设置对应的 HTTPS 游客入口。`wechat` 和 `browser` 均支持正式环境的独立浏览器游客，配置公众号后同时提供微信登录入口。`VISITOR_REQUIRE_STAFF_VERIFICATION=0` 为自助流程，设为 `1` 可启用现场核验。启动脚本会在构建和启动网关之前检查模式与 Cookie 配置是否冲突；不要仅把 HTTP 环境的 Cookie 改为 Secure，否则手机不能发送登录 Cookie。
 
-部署组合固定为 `docker-compose.yml` + `docker-compose.local-production.yml`，项目名 `myreid-production`，脚本已启用 `visitor` profile，并先启动独立的 `myreid-camera` 摄像头网关。`-Build` 构建 backend 与 visitor-web，worker 和协调器复用后端镜像；不加该参数时使用现有镜像。不要只运行裸的 `docker compose up`，它使用的配置、端口和项目名可能不同。`docker-compose.prod.yml` 是另一套包含支付证书的部署覆盖文件，不是本指南使用的组合。
+部署组合固定为 `docker-compose.yml` + `docker-compose.local-production.yml`，项目名 `myreid-production`，脚本已启用 `visitor` profile，并先启动独立的 `myreid-camera` 摄像头网关。启动时始终用 Docker 构建缓存核对 backend 与 visitor-web 的源码，worker 和协调器复用后端镜像，避免新前端连接旧后端；源码未变化时复用缓存层。`-Build` 参数保留兼容旧命令。不要只运行裸的 `docker compose up`，它使用的配置、端口和项目名可能不同。`docker-compose.prod.yml` 是另一套包含支付证书的部署覆盖文件，不是本指南使用的组合。
 
 Docker Compose 必须支持覆盖文件中的 `!override` 和 `gpus`。宿主机还需 PATH 中的 FFmpeg、Python（含 pythonw.exe）及桌面应用摄像头权限，详见 [Windows 摄像头桥接](windows-camera-bridge.md)。
 
@@ -106,7 +108,7 @@ Docker Compose 必须支持覆盖文件中的 `!override` 和 `gpus`。宿主机
 | --- | --- |
 | APP_ENV | production |
 | MYREID_ENV_FILE | .env.prod |
-| MYREID_API_PORT | 12889，与前端 .env.local 一致 |
+| MYREID_API_PORT | 2889，与前端 .env.local 一致 |
 | POSTGRES_USER / POSTGRES_DB / SCENIC_POSTGRES_DB | myreid / myreid / myreid_scenic |
 | POSTGRES_PASSWORD | 自行生成强随机密码；已有数据库不能仅修改 env 就完成数据库密码轮换 |
 | DATABASE_URL | postgresql+psycopg://myreid:数据库密码@postgres:5432/myreid |
@@ -221,12 +223,13 @@ docker @ComposeArgs logs --tail 100 backend worker visitor-coordinator visitor-w
 | 旧会话刷新 401 | 退出旧账号再登录，生产 SECRET_KEY 与旧环境不同 |
 | 注册发码 500，提示 SMTP_HOST 未配置 | 把真实邮件参数写入 .env.prod，重新执行启动脚本 |
 | 发码 502 | 检查容器网络、465/587 配置及 SMTP 授权码，查看后端日志 |
-| 前端连接失败 | 先检查 12889 的 healthz，再检查 5173/api/v1/healthz，核对前端端口配置并重启前端 |
+| 前端连接失败 | 先检查 2889 的 healthz，再检查 5173/api/v1/healthz，核对前端端口配置并重启前端 |
 | 修改 env 后没生效 | 用生产启动脚本重新创建有配置变化的容器，不是仅 docker restart |
 | 找不到 myreid:production-gpu | 首次运行附加 -Build |
+| 模型列表 404 或旧路径权重加载失败 | 旧镜像没有多模型接口。更新代码后运行启动脚本，会先构建同步镜像。实际 `.env.prod` 应设置 `REID_MODEL_DIR=/models/reid`、`CLIPREID_MODEL_PATH=/models/reid/ViT-MSMT17-60.pth`。模型文件与 `.model.json` 一起挂载。 |
 | 镜像 Built，但 backend unhealthy，日志提示 Production requires VISITOR_COOKIE_SECURE | 生产模式与 HTTP 联调配置冲突，按上文选择完整的一组环境、Cookie 和入口配置 |
 | 摄像头接入后报 object_storage 或 gallery PermissionError | 检查旧命名卷所有者；当前镜像用户为 10001:10001，旧 root 所有目录需一次性修正为该用户。不要删除数据卷或使用 chmod 777 |
-| 启动脚本端口冲突 | 关闭另外启动的本地后端，或统一调整后端映射与前端 MYREID_API_PORT |
+| 启动脚本端口冲突 / access permissions | 启动前检查 backend `2889` 和 visitor-web `5174`；已运行的同项目同端口可重复启动。排查监听进程及 Windows TCP 保留范围，释放固定端口后重试。先停止同端口的开发服务器，不自动换端口，也不修改系统保留范围。 |
 | readyz 队列或向量库未就绪 | 查看 worker、redis、milvus 日志，等待依赖启动；不启用模拟回退 |
 | USB 摄像头不可用 | 生产启动会启动 Windows 采集代理与 MediaMTX；检查 tmp/camera-bridge/agent.log，详见 [Windows 摄像头接入](windows-camera-bridge.md) |
 
@@ -241,7 +244,7 @@ docker @ComposeArgs logs --tail 100 backend worker visitor-coordinator visitor-w
 - GPU：NVIDIA GeForce RTX 5060 Ti；CUDA 运算及模型推理已通过。
 - 用户提供的 PedestrianTrackingVideo.avi：169 帧全部完成，单帧处理耗时 P50=46.6 ms、P95=65.74 ms；之前 CPU 为约 358/844 ms。输入视频为 1 FPS，播放按源时间输出，显示约 0.97 FPS，不代表 GPU 只能处理 1 FPS。
 - readyz：ready，device=cuda，数据库/景区数据库/模型/队列/向量库均就绪，queue_mode=redis，无降级。
-- 两个 PostgreSQL 数据库临时表读写、MinIO 上传/下载/删除、Milvus 写入/检索/项目隔离/删除、RQ 真 Worker 执行排队任务均通过；另实际排队运行 CLIP-ReID，输出为 `(1,512)`、设备 `cuda:0`，烟测数据已清理。
+- 两个 PostgreSQL 数据库临时表读写、MinIO 上传/下载/删除、Milvus 写入/检索/项目隔离/删除、RQ 真 Worker 执行排队任务均通过；另实际排队运行 DSCL-ReID，输出为 `(1,512)`、设备 `cuda:0`，烟测数据已清理。
 - NVENC 已实际编码 2 秒 1280×720 H.264 视频，FFprobe 校验通过。
 - 已删除三个无容器使用的 myreid_codex_e2e 旧测试镜像；保留全部数据卷与当前生产镜像。
 

@@ -183,3 +183,45 @@ def register_scenic_user(client):
         }
 
     return _register
+
+
+@pytest.fixture(autouse=True)
+def project_model_fixture(monkeypatch, request):
+    """Existing mocked inference fixtures emit 2-D vectors; keep that contract explicit.
+
+    Real registry/migration tests opt out and exercise the actual descriptors.
+    """
+    if request.node.get_closest_marker("real_model_registry"):
+        yield
+        return
+    import copy
+    from sqlalchemy import event
+    import database
+    import scenic_database
+    from app.services import model_registry, project_models, vector_store as stores
+    snapshot = {"id": "clipreid-msmt17", "name": "Test embedding", "adapter": "clipreid",
+                "adapter_version": "1", "sha256": "test-checkpoint", "weights": "test.pth",
+                "preprocess": {"size": [336, 160], "normalization": "clip", "interpolation": "bicubic"},
+                "output": "projection_cls_l2", "dimension": 2, "options": {},
+                "capabilities": {"image": True, "text": True}, "available": True,
+                "unavailable_reason": ""}
+    snapshot["embedding_space_id"] = model_registry.space_id(snapshot)
+    monkeypatch.setattr(model_registry, "discover_models", lambda: [copy.deepcopy(snapshot)])
+    def bind(mapper, connection, target):
+        if not target.embedding_space_id:
+            model_registry.bind_project(target)
+    for cls in (database.Project, scenic_database.Project):
+        event.listen(cls, "before_insert", bind)
+    with project_models._lock:
+        project_models._cache.clear()
+    stores._space_stores.clear()
+    yield
+    for cls in (database.Project, scenic_database.Project):
+        event.remove(cls, "before_insert", bind)
+
+
+@pytest.fixture
+def isolated_model_binding(monkeypatch):
+    """Use a bound snapshot in unit tests that intentionally have no SQL project."""
+    from app.services import project_models, model_registry
+    monkeypatch.setattr(project_models, "snapshot_for", lambda *a, **kw: model_registry.resolve_model())

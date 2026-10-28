@@ -222,7 +222,7 @@ def test_duplicate_upload_reuses_existing_media_without_new_row(client, register
     )
     assert project.status_code == 200, project.text
     project_id = project.json()["id"]
-    monkeypatch.setattr(project_routes, "_enqueue_job", lambda *args: None)
+    monkeypatch.setattr(project_routes, "_enqueue_job_or_503", lambda *args, **kwargs: None)
 
     image = Image.new("RGB", (64, 128), "green")
     buffer = BytesIO()

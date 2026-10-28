@@ -4,8 +4,10 @@ No model is downloaded here. Every candidate owns its tracker state; identities
 are matched with the existing ReID embedder, never inferred from a track ID.
 Ambiguous identity, crowd intersections and small subjects retain the full frame.
 """
-
 from __future__ import annotations
+from app.services.project_models import project_bound, current_binding
+
+
 
 import json
 import math
@@ -223,8 +225,13 @@ def analyze_candidate(clip: dict, session, segment) -> dict:
     import importlib.util
     if importlib.util.find_spec("lap") is None:
         return {"reliable": False, "reason": "本地 ByteTrack 缺少 lap 依赖，请配置可选跟踪环境"}
+    return _analyze_bound_candidate(clip, session, segment)
+
+
+@project_bound(lambda clip, session, segment: (session.project_id, "scenic"))
+def _analyze_bound_candidate(clip, session, segment):
     weights = _weights_path()
-    embedding_signature = _local_embedding_signature()
+    embedding_signature = current_binding().snapshot["embedding_space_id"]
     path = storage.path_for(clip["object_key"])
     reference_path = storage.path_for(segment.thumbnail_object_key)
     entry_path = storage.path_for(session.entry_image_object_key)

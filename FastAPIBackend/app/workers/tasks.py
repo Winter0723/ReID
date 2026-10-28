@@ -1,3 +1,5 @@
+from contextlib import ExitStack
+from app.services.project_models import project_context
 import datetime
 import json
 import logging
@@ -183,11 +185,13 @@ def process_scenic_media_index(job_id: str, media_id: int, project_id: int, obje
 
 def _process_media_index(db_module, vector_store_instance, job_id: str, media_id: int, project_id: int, object_key: str, media_type: str, username: str, camera_id: str = None):
     db = db_module.SessionLocal()
+    model_context = ExitStack()
     created_crop_keys: list[str] = []
     created_vector_ids: list[str] = []
     try:
+        model_context.enter_context(project_context(project_id, "scenic" if db_module is scenic_database else "core"))
         media = db.query(db_module.MediaFile).filter(db_module.MediaFile.id == media_id).first()
-        if not media:
+        if not media or media.project_id != project_id:
             raise RuntimeError("媒体记录不存在")
 
         stale_targets = db.query(db_module.DetectionTarget).filter(db_module.DetectionTarget.media_id == media_id).all()
@@ -380,12 +384,15 @@ def _process_media_index(db_module, vector_store_instance, job_id: str, media_id
             logger.exception("Failed to persist media worker failure for job %s", job_id)
         raise
     finally:
+        model_context.close()
         db.close()
 
 
 def rebuild_project_index(job_id: str, project_id: int, username: str):
     db = database.SessionLocal()
+    model_context = ExitStack()
     try:
+        model_context.enter_context(project_context(project_id))
         _update_job_state_for(
             database,
             db,
@@ -474,6 +481,7 @@ def rebuild_project_index(job_id: str, project_id: int, username: str):
         )
         raise
     finally:
+        model_context.close()
         db.close()
 
 
@@ -1055,3 +1063,25 @@ def _segment_frame(segment, width: int, height: int, *, preview: bool, index: in
     else:
         cv2.putText(frame, "MyReID Scenic Vlog", (28, 42), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2, cv2.LINE_AA)
     return frame
+
+def run_bound_model_job(task_path, scope, project_id, expected_space, args):
+    """Queue envelope binds API selection to the worker's local model files."""
+    import importlib
+    from app.services.project_models import database_for
+    try:
+        with project_context(project_id, scope, expected_space=expected_space):
+            module, function = task_path.rsplit(".", 1)
+            return getattr(importlib.import_module(module), function)(*args)
+    except Exception as exc:
+        module = database_for(scope)
+        with module.SessionLocal() as db:
+            row = db.get(module.ProcessingJob, args[0])
+            if row:
+                row.status, row.error, row.message = "failed", str(exc), "项目模型任务失败"
+                if row.media_id:
+                    media = db.get(module.MediaFile, row.media_id)
+                    if media:
+                        media.status = "failed"
+                db.commit()
+        job_manager.update(args[0], status="failed", error=str(exc), message="项目模型任务失败")
+        raise

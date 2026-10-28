@@ -9,7 +9,7 @@
 | `backend` | HTTP、实时 WebSocket、相机入库、录像封存/发布、保留清理；单个 Uvicorn 进程持有相机与会话状态。 |
 | `worker` | RQ 离线索引与精剪渲染；队列、双数据库和对象目录与 API 一致。 |
 | `visitor-coordinator` | 每秒调度持久化游客请求，推进匹配和制作结果检查；属于 `visitor` profile。 |
-| `visitor-web` | Nginx 静态 H5 与游客 API 同源代理；属于 `visitor` profile，默认监听宿主机 `127.0.0.1:15174`。 |
+| `visitor-web` | Nginx 静态 H5 与游客 API 同源代理；属于 `visitor` profile，默认监听宿主机 `127.0.0.1:5174`。 |
 | PostgreSQL / `database-init` | Core、Scenic 两库 / 幂等建库；游客表位于 Scenic 库。 |
 | Redis、MinIO/S3、Milvus、etcd | 队列、媒体对象、向量及向量服务元数据。 |
 
@@ -77,7 +77,7 @@ docker compose --env-file .env.prod -p myreid-production \
   --profile visitor up --build -d
 ```
 
-游客 HTTPS 域名转发到 `127.0.0.1:15174`。附带 Nginx 只提供 `/visitor/` 与 `/api/v1/scenic/visitor/`，运营 API、`/docs` 和相机预览不经游客入口开放。页面、API、OAuth 回调同源。游客 JSAPI 通知路径为 `/api/v1/scenic/visitor/payments/wechat/notify`；人工支付无需商户配置，真实微信登录仍需公众号配置，见 [游客说明](VISITOR_H5.md)。
+游客 HTTPS 域名转发到 `127.0.0.1:5174`。附带 Nginx 只提供 `/visitor/` 与 `/api/v1/scenic/visitor/`，运营 API、`/docs` 和相机预览不经游客入口开放。页面、API、OAuth 回调同源。游客 JSAPI 通知路径为 `/api/v1/scenic/visitor/payments/wechat/notify`；人工支付无需商户配置，真实微信登录仍需公众号配置，见 [游客说明](VISITOR_H5.md)。
 
 Windows 本机生产直接运行 `scripts/run_production.ps1 -Build`，已包含游客 profile、CUDA 镜像和宿主机桥接初始化。不要用裸 `docker compose up` 替代该生命周期入口。
 
@@ -136,3 +136,20 @@ scripts/backup_restore.sh restore \
 ## 停止与保留数据
 
 普通 Compose 使用原参数 `stop` 或 `down`，不加 `-v` 时保留命名卷；包含游客容器时保留 `--profile visitor`。Windows 本机生产使用 `scripts/stop_production.ps1`，先给后端封存时间再释放摄像头并停止容器。关闭前端窗口不会停止后台采集和制作。
+
+
+## 多模型升级
+
+1. 备份两域数据库、向量库和模型文件，暂停相机入库，处理完旧队列；统一升级 API 和 worker。
+2. 迁移为两域项目新增模型绑定字段；旧行保持未核验，不会自动认领当前默认模型。历史媒体仍可浏览。
+3. 将权重与 `*.model.json` 一起放入模型目录。Docker 现在挂载整个 `./model` 到 `/models/reid`。真实部署环境须同步新增环境变量，不能只更新示例文件。
+4. 核验旧项目所用原权重 SHA256、图像尺寸、标准化、输出和精度。执行下方预览，确认输出描述与历史记录一致后追加 `--apply`。此命令是对来源的显式确认；只允许未绑定项目，保留原 collection/JSON，无需重新提取。来源不明的项目保持未核验，可新建项目重新导入素材。
+
+```sh
+python scripts/bind_legacy_models.py --scope core --project-id 1 --model-id clipreid-msmt17 --expected-sha256 <已核验原权重哈希>
+# 景区单独使用 --scope scenic。确认预览后追加 --apply。
+```
+
+5. 新建两个模型项目验证入库和检索；用已标注正负样本分别校准相似度阈值，不将两个模型的分数直接比较。缓存容量是每进程计算的，模型资源不足会明确失败。
+
+开发和本次功能发布只在 `allinone` 进行。纯净分支/独立源码副本只定期发布用户测试确认的版本，不随开发提交自动同步。

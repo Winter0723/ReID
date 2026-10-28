@@ -1,4 +1,10 @@
-# CLIP-ReID provenance
+# Inference code and checkpoint provenance
+
+The application owner identifies `ViT-MSMT17-60.pth` as a DSCL-ReID
+checkpoint and `Market2MSMT.pth` as an MGD-DPM checkpoint. The CLIP-ReID
+code attribution below does not establish the training provenance of either
+weight file. The historical `clipreid` adapter/configuration keys are retained
+for compatibility; the default model is displayed as DSCL-ReID.
 
 The local CLIP-ReID adapter is derived from the official
 [`Syliz517/CLIP-ReID`](https://github.com/Syliz517/CLIP-ReID) implementation of
@@ -19,7 +25,7 @@ Local runtime files:
 - `make_model_clipreid.py`: reduced inference-oriented model builder used by
   `FastAPIBackend/app/services/model_runtime.py`.
 - `clip/`: local CLIP implementation required by the checkpoint architecture.
-- `ViT-MSMT17-60.pth`: MSMT17 ViT-B/16 60-epoch checkpoint expected by the
+- `ViT-MSMT17-60.pth`: owner-supplied DSCL-ReID MSMT17 checkpoint expected by the
   default configuration; SHA-256
   `8181c2607f37d84fc1f85e61ac56a121c2cd7a60c7b9fb64c50b366fba479c47`.
 - `clip_weights/ViT-B-16.pt`: CLIP ViT-B/16 base weights; SHA-256

@@ -20,6 +20,22 @@ const imagePreview: MediaPreviewState = {
 
 
 describe("MediaPreviewDialog", () => {
+  it("seeks once and does not rewind when canplay fires after manual seeking", async () => {
+    const wrapper = mount(MediaPreviewDialog, { attachTo: document.body, props: {
+      preview: { ...imagePreview, type: "video", source: "preview.mp4", seekSeconds: 21 },
+    } });
+    await nextTick();
+    const video = document.body.querySelector("video")!;
+    Object.defineProperty(video, "readyState", { value: 1 });
+    Object.defineProperty(video, "duration", { value: 60 });
+    video.dispatchEvent(new Event("loadedmetadata"));
+    expect(video.currentTime).toBe(21);
+    video.dispatchEvent(new Event("seeked"));
+    video.currentTime = 35;
+    video.dispatchEvent(new Event("canplay"));
+    expect(video.currentTime).toBe(35);
+    wrapper.unmount();
+  });
   it("renders an accessible image dialog with image download semantics", async () => {
     const wrapper = mount(MediaPreviewDialog, {
       attachTo: document.body,

@@ -50,7 +50,7 @@ CI 覆盖后端测试、Tauri 前端测试与 Windows 安装包，以及移动�
 - FastAPI 后端：应用工厂、模块化路由、JWT 鉴权、RBAC、审计、健康检查、Prometheus 指标和运行观测。
 - Tauri + Vue + TypeScript 前端：双工作台模式，覆盖核心 ReID 和景区运营业务。
 - 用户与权限：密码登录、邮箱验证码登录、access/refresh token 轮换、管理员用户管理、项目成员权限。
-- 核心 ReID：图片/视频上传、SHA-256 去重、YOLO 行人检测、CLIP-ReID 向量、文本检索、图片检索、历史与报告导出。
+- 核心 ReID：图片/视频上传、SHA-256 去重、YOLO 行人检测、项目固定的 DSCL-ReID / MGD-DPM 模型、独立向量空间、图片检索、历史与报告导出；DSCL-ReID 项目保留文本检索。
 - 实时识别：参考人物框选、USB/RTSP/视频单目标跟踪、一次性 WebSocket 票据和逐帧确认；与持续入库任务分别管理。
 - 实时相机：相机项目采集、预览帧、录像落盘、采样索引、中央相机监控服务。
 - 独立摄像头网关：多 USB 热插拔、虚拟设备选择与网络 RTSP 配置，其他应用可直接读取，详见 [网关部署](docs/camera-gateway.md)。
@@ -274,7 +274,7 @@ npm run dev
 | `CAMERA_RECORDING_RETENTION_HOURS` | `12` | 未引用景区录像的保留窗口，历史引用素材继续保护。 |
 | `EMBEDDING_BACKEND` | `clipreid` | 向量模型后端。 |
 | `YOLO_MODEL_PATH` | `FastAPIBackend/yolov8n.pt` | 行人检测模型路径。 |
-| `CLIPREID_MODEL_PATH` | `model/ViT-MSMT17-60.pth` | CLIP-ReID checkpoint 路径。 |
+| `CLIPREID_MODEL_PATH` | `model/ViT-MSMT17-60.pth` | DSCL-ReID checkpoint 路径。 |
 | `EMAIL_CODE_DEV_MODE` | local `1`, prod `0` | 开发时返回调试验证码。 |
 | `PAYMENT_PROVIDER` | dev `fake_wechat`, prod `wechat_native` | 开发环境可点击确认完成模拟支付；生产环境拒绝模拟支付。 |
 | `PAYMENT_PUBLIC_BASE_URL` | `https://pay.example.com` | 微信支付通知使用的公网后端地址。 |

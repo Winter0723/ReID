@@ -1,8 +1,9 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ScenicAccountDialog from "./ScenicAccountDialog.vue";
 import ScenicProjectView from "./ScenicProjectView.vue";
+import { projectsApi } from "../../lib/api/projects";
 
 
 const mockStore = vi.hoisted(() => ({
@@ -40,7 +41,9 @@ describe("scenic focused dialogs", () => {
   });
 
   it("owns scenic project selection and creation state", async () => {
+    vi.spyOn(projectsApi, "models").mockResolvedValue([{ id: "clip", name: "CLIP", available: true, default: true, capabilities: { image: true, text: true } }]);
     const wrapper = mount(ScenicProjectView, { props: { open: true } });
+    await flushPromises();
 
     expect(wrapper.get('[role="dialog"]').attributes("aria-labelledby")).toBe("scenic-project-dialog-title");
     expect(wrapper.text()).toContain("西湖景区");
@@ -59,6 +62,7 @@ describe("scenic focused dialogs", () => {
       "新项目",
       "scenic",
       "main-camera",
+      "clip",
     );
   });
 

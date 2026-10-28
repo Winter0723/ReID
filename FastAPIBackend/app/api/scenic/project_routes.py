@@ -46,6 +46,7 @@ from app.schemas import CameraInput
 
 
 class ScenicProjectCreate(CameraInput):
+    reid_model_id: str | None = Field(default=None, max_length=64)
     name: str = Field(min_length=1, max_length=120)
     description: str = ""
     camera_source: str = Field(default="0", max_length=128)
@@ -85,6 +86,8 @@ def scenic_create_project(
         camera_source=camera_source,
         owner_username=username,
     )
+    from app.services.model_registry import bind_project
+    bind_project(project, payload.reid_model_id)
     db.add(project)
     db.flush()
     _ensure_project_membership(db, project.id, username, "owner")
@@ -311,7 +314,8 @@ def scenic_project_media_preview_content(
     if not media_exists or Path(filename).name != filename:
         raise HTTPException(status_code=404, detail="视频预览不存在")
     object_key = f"projects/{_scenic_storage_project_id(project_id)}/media/{media_id}/previews/{filename}"
-    return deliver_object(object_key, filename=filename, content_type="video/mp4")
+    from app.services.asset_delivery import deliver_video_preview
+    return deliver_video_preview(object_key)
 
 
 def scenic_list_project_jobs(
@@ -730,3 +734,9 @@ router.add_api_route(
     v1_scenic_dashboard,
     methods=["GET"],
 )
+
+
+@router.get("/api/v1/scenic/models")
+def list_models(username: str = Depends(get_current_username)):
+    from app.services.model_registry import public_models
+    return public_models()

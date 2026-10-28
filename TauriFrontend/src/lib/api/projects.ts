@@ -1,6 +1,15 @@
-import { apiRequest, type AuthScope } from "./http";
+import { ApiError, apiRequest, type AuthScope } from "./http";
+
+export interface ReIDModel {
+  id: string; name: string; dimension?: number; embedding_space_id?: string;
+  available: boolean; unavailable_reason?: string; default?: boolean;
+  capabilities?: { image: boolean; text: boolean };
+}
 
 export interface Project {
+  reid_model_id?: string;
+  embedding_space_id?: string;
+  reid_model?: ReIDModel;
   id: number;
   name: string;
   description: string;
@@ -107,11 +116,23 @@ function normalizeAuditRow(row: ProjectAuditRow): ProjectAuditRow {
 }
 
 export const projectsApi = {
+  async models(scope: AuthScope): Promise<ReIDModel[]> {
+    try {
+      const rows = await apiRequest<ReIDModel[]>(scope === "scenic" ? "/api/v1/scenic/models" : "/api/v1/models", { authScope: scope });
+      if (!Array.isArray(rows)) throw new Error("模型接口返回格式错误，请检查后端版本及 API 代理地址");
+      return rows;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        throw new Error("当前后端缺少多模型接口，请运行 scripts/run_production.ps1 更新镜像后重试");
+      }
+      throw error;
+    }
+  },
   list(scope: AuthScope, signal?: AbortSignal): Promise<Project[]> {
     return apiRequest<Project[]>(projectBase(scope), { authScope: scope, signal });
   },
 
-  create(scope: AuthScope, payload: { name: string; description: string; project_type?: string; camera_source?: string }): Promise<Project> {
+  create(scope: AuthScope, payload: { name: string; description: string; project_type?: string; camera_source?: string; reid_model_id?: string }): Promise<Project> {
     return apiRequest<Project>(projectBase(scope), { method: "POST", authScope: scope, json: payload });
   },
 
@@ -169,6 +190,7 @@ export const projectsApi = {
   ): Promise<MediaPreviewResponse> {
     return apiRequest<MediaPreviewResponse>(`${projectBase(scope)}/${projectId}/media/${mediaId}/preview-video`, {
       authScope: scope,
+        timeoutMs: 480_000,
       query: {
         start_seconds: options.start_seconds,
         duration_seconds: options.duration_seconds,

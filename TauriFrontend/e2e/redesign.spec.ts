@@ -30,7 +30,7 @@ test("reference layout keeps registration, review, overview and search connected
     let body: unknown = { status: "ok" };
     if (path.endsWith("/readyz")) body = { status: "ready", queue_ready: true, queue_mode: "local" };
     else if (path.endsWith("/auth/me")) body = { username: "operator", role: "admin" };
-    else if (path.endsWith("/projects")) body = [{ id: 7, name: "青山景区", project_type: path.includes("scenic") ? "scenic" : "media" }];
+    else if (path.endsWith("/projects")) body = [{ id: 7, name: "青山景区", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: path.includes("scenic") ? "scenic" : "media" }];
     else if (path.endsWith("/status")) body = { indexed_targets: 4 };
     else if (path.endsWith("/preview")) body = { previews: [] };
     else if (path.endsWith("/media")) body = { media: [] };
@@ -107,7 +107,7 @@ test("visitor staff confirmation requires explicit review", async ({ page }) => 
     const path = new URL(route.request().url()).pathname;
     let body: unknown = { status: "ok" };
     if (path.endsWith("/auth/me")) body = { username: "operator", role: "operator" };
-    else if (path.endsWith("/projects")) body = [{ id: 7, name: "青山景区", project_type: path.includes("scenic") ? "scenic" : "media" }];
+    else if (path.endsWith("/projects")) body = [{ id: 7, name: "青山景区", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: path.includes("scenic") ? "scenic" : "media" }];
     else if (path.endsWith("/visitor-service")) body = { enabled: true, description: "游客服务", consent_text: "授权", consent_version: "v1", price_cents: 1990, entry_url: "http://192.168.1.100:5174/visitor/#/sites/7" };
     else if (path.endsWith("/visitor-queue")) body = { requests: [row], can_confirm_payment: true };
     else if (path.endsWith("/visitor-requests/7/resume")) {

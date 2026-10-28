@@ -1,0 +1,71 @@
+import { expect, test } from "@playwright/test";
+import { createServer, type ViteDevServer } from "vite";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { readFileSync, unlinkSync } from "node:fs";
+let server: ViteDevServer;
+const videoPath = join(tmpdir(), `myreid-seek-${process.pid}.mp4`);
+const pixel = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="100"><rect width="80" height="100" fill="#80d9cd"/></svg>');
+test.beforeAll(async () => {
+  execFileSync('ffmpeg', ['-y', '-f', 'lavfi', '-i', 'testsrc=size=320x240:rate=10', '-t', '30', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', videoPath], { stdio: 'ignore' });
+  server = await createServer({ configFile: 'vite.config.ts', configLoader: 'runner', logLevel: 'error', server: { host: '127.0.0.1', port: 41739, strictPort: true } });
+  await server.listen();
+});
+test.afterAll(async () => { await server?.close(); try { unlinkSync(videoPath); } catch {} });
+test('media targets and search results seek in the full video without rewinding', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.addInitScript(() => { localStorage.setItem('myreid.core.access', 'fixture'); localStorage.setItem('myreid.core.refresh', 'fixture'); });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.route('**/api/v1/**', async route => {
+    const url = new URL(route.request().url()); const path = url.pathname;
+    if (path.endsWith('/playable.mp4')) {
+      const data = readFileSync(videoPath);
+      const range = /bytes=(\d+)-(\d*)/.exec(route.request().headers()['range'] || '');
+      const start = range ? Number(range[1]) : 0;
+      const end = range?.[2] ? Math.min(Number(range[2]), data.length - 1) : data.length - 1;
+      await route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', ...(range ? { 'Content-Range': `bytes ${start}-${end}/${data.length}` } : {}) }, body: data.subarray(start, end + 1) }); return;
+    }
+    let body: unknown = { status: 'ok' };
+    if (path.endsWith('/readyz')) body = { status: 'ready', queue_ready: true, queue_mode: 'local' };
+    else if (path.endsWith('/auth/me')) body = { username: 'operator', role: 'admin' };
+    else if (path.endsWith('/projects')) body = [{ id: 7, name: '视频定位测试', reid_model: { id: 'clip', available: true, capabilities: { text: true, image: true } }, project_type: 'media' }];
+    else if (path.endsWith('/media')) body = { media: [{ id: 8, filename: 'tracking.avi', media_type: 'video', object_url: '/api/v1/original.avi', thumbnail_url: pixel, target_count: 2, status: 'indexed', targets: [1, 2].map(id => ({ id, media_id: 8, thumbnail_url: pixel, timestamp: '0:00:21', video_seek_seconds: 21 })) }] };
+    else if (path.endsWith('/preview-video')) { expect(url.searchParams.get('full')).toBe('true'); body = { preview_url: '/api/v1/playable.mp4', original_url: '/api/v1/original.avi', generated: true }; }
+    else if (path.endsWith('/search/text')) body = { results: [{ id: 1, rank: 1, media_id: 8, media_type: 'video', media_filename: 'tracking.avi', original_media_url: '/api/v1/original.avi', thumbnail_url: pixel, path: pixel, similarity: .91, video_seek_seconds: 21, timestamp: '0:00:21' }] };
+    else if (path.endsWith('/jobs')) body = { jobs: [] };
+    else if (path.endsWith('/history')) body = { history: [] };
+    else if (path.endsWith('/audit')) body = { audit: [] };
+    else if (path.endsWith('/cameras')) body = { devices: [] };
+    await route.fulfill({ json: body });
+  });
+  await page.goto('http://127.0.0.1:41739');
+  await expect(page).toHaveTitle(/MyReID/);
+  await page.locator('.media-targets summary').click();
+  await expect(page.locator('.media-target-list button')).toHaveCount(2);
+  await page.screenshot({ path: join(process.env.MYREID_QA_SCREENSHOT_DIR || tmpdir(), 'media-targets.png') });
+  await page.locator('.media-target-list button').first().click();
+  const video = page.locator('video');
+  await expect(video).toBeVisible();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThanOrEqual(21);
+  await video.evaluate((v: HTMLVideoElement) => { v.pause(); v.currentTime = 25; });
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBe(25);
+  await page.screenshot({ path: join(process.env.MYREID_QA_SCREENSHOT_DIR || tmpdir(), 'video-position.png') });
+  await page.getByRole('button', { name: '关闭预览' }).click();
+  await page.getByRole('button', { name: '打开检索结果', exact: true }).click();
+  await page.getByPlaceholder('描述目标人物的衣着、外貌等特征').fill('蓝色外套');
+  await page.getByRole('button', { name: '以文搜图', exact: true }).click();
+  await page.locator('.result-tile').first().click();
+  await page.getByRole('button', { name: '查看视频帧位置', exact: true }).click();
+  await expect(video).toBeVisible();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThanOrEqual(21);
+  await page.getByRole('button', { name: '关闭预览' }).click();
+  await page.getByRole('button', { name: '查看完整视频', exact: true }).click();
+  await expect(video).toBeVisible();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThanOrEqual(2);
+  expect(await video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeLessThan(5);
+  await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

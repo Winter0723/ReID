@@ -37,7 +37,8 @@ class InMemoryVectorStore:
     indexed vectors during local development.
     """
 
-    def __init__(self, namespace: str = "default") -> None:
+    def __init__(self, namespace: str = "default", dimension=None) -> None:
+        self.dimension = dimension
         self._points: List[VectorPoint] = []
         self._lock = Lock()
         filename = "vector_store.json" if namespace == "default" else f"{namespace}_vector_store.json"
@@ -50,6 +51,8 @@ class InMemoryVectorStore:
     def upsert(self, points: Iterable[VectorPoint]) -> int:
         items_by_id = {point.id: self._normalized_point(point) for point in points}
         items = list(items_by_id.values())
+        if self.dimension and any(p.vector.numel() != self.dimension for p in items):
+            raise ValueError("Vector dimension does not match embedding space")
         if not items:
             return 0
         ids = {p.id for p in items}
@@ -105,6 +108,8 @@ class InMemoryVectorStore:
         if top_k <= 0:
             return []
         query = query_vector.detach().to(device="cpu", dtype=torch.float32).reshape(-1)
+        if self.dimension and query.numel() != self.dimension:
+            raise ValueError("Query dimension does not match embedding space")
         if query.numel() == 0:
             return []
         candidates: List[VectorPoint] = []
@@ -153,6 +158,8 @@ class InMemoryVectorStore:
     def rebuild_project(self, project_id: int, points: Iterable[VectorPoint]) -> int:
         items_by_id = {point.id: self._normalized_point(point) for point in points}
         items = list(items_by_id.values())
+        if self.dimension and any(p.vector.numel() != self.dimension for p in items):
+            raise ValueError("Vector dimension does not match embedding space")
         if any(point.metadata.get("project_id") != project_id for point in items):
             raise ValueError("All rebuilt vectors must belong to the requested project")
         with self._lock, _exclusive_file_lock(self._file_lock_path):
@@ -173,7 +180,7 @@ class InMemoryVectorStore:
         return {
             "backend": "memory",
             "path": str(self.path),
-            "dimension": get_settings().embedding_dimension,
+            "dimension": self.dimension or get_settings().embedding_dimension,
             "ready": True,
         }
 
@@ -265,11 +272,11 @@ class MilvusVectorStore:
     PRIMARY_FIELD = "vector_id"
     DEFAULT_DIMENSION = 512
 
-    def __init__(self, namespace: str = "default") -> None:
+    def __init__(self, namespace: str = "default", dimension=None) -> None:
         settings = get_settings()
         self.uri = settings.milvus_uri
         self.collection_name = settings.milvus_collection if namespace == "default" else f"{settings.milvus_collection}_{namespace}"
-        self.dimension = settings.embedding_dimension or self.DEFAULT_DIMENSION
+        self.dimension = dimension or settings.embedding_dimension or self.DEFAULT_DIMENSION
         self._client = None
         self._lock = RLock()
 
@@ -279,6 +286,11 @@ class MilvusVectorStore:
             if not client.has_collection(self.collection_name):
                 self._create_collection_unlocked(client)
             else:
+                description = client.describe_collection(self.collection_name)
+                fields = description.get("fields", [])
+                vector_field = next((f for f in fields if f["name"] == self.VECTOR_FIELD), None)
+                if vector_field and int(vector_field.get("params", {}).get("dim", 0)) != self.dimension:
+                    raise ValueError("Existing Milvus collection dimension does not match embedding space")
                 self._ensure_index_unlocked(client)
             client.load_collection(self.collection_name)
 
@@ -319,6 +331,8 @@ class MilvusVectorStore:
 
     def rebuild_project(self, project_id: int, points: Iterable[VectorPoint]) -> int:
         items = list({point.id: point for point in points}.values())
+        if self.dimension and any(p.vector.numel() != self.dimension for p in items):
+            raise ValueError("Vector dimension does not match embedding space")
         if any(point.metadata.get("project_id") != project_id for point in items):
             raise ValueError("All rebuilt vectors must belong to the requested project")
         with self._lock:
@@ -592,14 +606,105 @@ def _timestamp_to_seconds(value: Any) -> Optional[float]:
     return None
 
 
-def create_vector_store(namespace: str = "default"):
+def create_vector_store(namespace: str = "default", dimension=None):
     backend = get_settings().vector_backend.lower()
     if backend == "milvus":
-        return MilvusVectorStore(namespace=namespace)
+        return MilvusVectorStore(namespace=namespace, dimension=dimension)
     if backend in {"memory", "inmemory", "local"}:
-        return InMemoryVectorStore(namespace=namespace)
+        return InMemoryVectorStore(namespace=namespace, dimension=dimension)
     raise RuntimeError(f"Unsupported VECTOR_BACKEND: {get_settings().vector_backend}")
 
 
-vector_store = create_vector_store()
-scenic_vector_store = create_vector_store(namespace="scenic")
+_space_stores = {}
+_space_lock = RLock()
+
+
+def store_for_snapshot(scope, snapshot):
+    namespace = ("default" if scope == "core" else "scenic") if snapshot.get("legacy_vectors") else f"{scope}_{snapshot['embedding_space_id']}"
+    key = (scope, namespace, snapshot["dimension"], str(get_settings().object_storage_dir), get_settings().vector_backend)
+    with _space_lock:
+        if key not in _space_stores:
+            _space_stores[key] = create_vector_store(namespace, snapshot["dimension"])
+        return _space_stores[key]
+
+
+class ProjectVectorRouter:
+    """No default-space fallback for project operations, including deletion."""
+    def __init__(self, scope):
+        self.scope = scope
+
+    def for_project(self, project_id, *, verify=False):
+        from app.services.project_models import current_binding, snapshot_for
+        binding = current_binding()
+        if binding and binding.scope == self.scope and binding.project_id == project_id:
+            snapshot = binding.snapshot
+            if verify:
+                binding.validate()
+        else:
+            snapshot = snapshot_for(project_id, self.scope, verify=verify)
+        return store_for_snapshot(self.scope, snapshot)
+
+    def upsert(self, points):
+        points = list(points)
+        groups = {}
+        for point in points:
+            project_id = point.metadata.get("project_id")
+            if project_id is None:
+                raise ValueError("Project is required for vector writes")
+            from app.services.project_models import current_binding, snapshot_for
+            binding = current_binding()
+            snapshot = binding.snapshot if binding and binding.scope == self.scope and binding.project_id == project_id else snapshot_for(project_id, self.scope)
+            supplied = point.metadata.get("embedding_space_id")
+            if supplied and supplied != snapshot["embedding_space_id"]:
+                raise ValueError("Vector belongs to another embedding space")
+            point.metadata["embedding_space_id"] = snapshot["embedding_space_id"]
+            groups.setdefault(project_id, []).append(point)
+        return sum(self.for_project(pid, verify=True).upsert(items) for pid, items in groups.items())
+
+    def search(self, query_vector, *, project_id, **kwargs):
+        return self.for_project(project_id, verify=True).search(query_vector, project_id=project_id, **kwargs)
+
+    def rebuild_project(self, project_id, points):
+        return self.for_project(project_id, verify=True).rebuild_project(project_id, points)
+
+    def delete_by_project(self, project_id):
+        return self.for_project(project_id).delete_by_project(project_id)
+
+    def delete_by_media(self, media_id):
+        from app.services.project_models import database_for
+        module = database_for(self.scope)
+        with module.SessionLocal() as db:
+            media = db.get(module.MediaFile, media_id)
+            return self.for_project(media.project_id).delete_by_media(media_id) if media else 0
+
+    def delete_by_ids(self, vector_ids):
+        from app.services.project_models import current_binding, database_for
+        ids = list(vector_ids)
+        if not ids:
+            return 0
+        binding = current_binding()
+        if binding and binding.scope == self.scope:
+            return store_for_snapshot(self.scope, binding.snapshot).delete_by_ids(ids)
+        module = database_for(self.scope)
+        with module.SessionLocal() as db:
+            rows = db.query(module.DetectionTarget.project_id, module.DetectionTarget.vector_id).filter(module.DetectionTarget.vector_id.in_(ids)).all()
+        groups = {}
+        for pid, vector_id in rows:
+            groups.setdefault(pid, []).append(vector_id)
+        return sum(self.for_project(pid).delete_by_ids(items) for pid, items in groups.items())
+
+    def ensure_ready(self):
+        from app.services.model_registry import discover_models
+        for snapshot in discover_models():
+            if snapshot["available"]:
+                store_for_snapshot(self.scope, snapshot).ensure_ready()
+
+    def status(self):
+        self.ensure_ready()
+        with _space_lock:
+            rows = [store.status() for key, store in _space_stores.items() if key[0] == self.scope]
+        return {"backend": get_settings().vector_backend, "ready": all(r.get("ready", True) for r in rows), "spaces": rows}
+
+
+vector_store = ProjectVectorRouter("core")
+scenic_vector_store = ProjectVectorRouter("scenic")

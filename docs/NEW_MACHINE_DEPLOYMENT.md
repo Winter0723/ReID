@@ -96,17 +96,16 @@ docker compose --env-file .env.docker-local -p myreid-local -f docker-compose.ym
 | `REDIS_URL`、`MILVUS_URI` | 保留 `redis://redis:6379/0`、`http://milvus:19530` |
 | `EMAIL_CODE_DEV_MODE` | `1`；界面/API 的验证码响应提供 debug_code，仅 local 可用 |
 | `VISITOR_AUTH_PROVIDER`、`VISITOR_TEST_INVITE_CODE` | `test`；邀请码已生成，游客登录时输入该值 |
-| `VISITOR_COOKIE_SECURE`、`VISITOR_PUBLIC_BASE_URL` | `0`、`http://127.0.0.1:15174`；只在本机 HTTP 测试 |
+| `VISITOR_COOKIE_SECURE`、`VISITOR_PUBLIC_BASE_URL` | `0`、`http://127.0.0.1:5174`；只在本机 HTTP 测试 |
 | `PAYMENT_PROVIDER`、`VISITOR_PAYMENT_PROVIDER` | `manual` / `manual`；不需要微信支付证书 |
-| `VISITOR_REQUIRE_STAFF_VERIFICATION` | 保持 `1`，工作人员现场核验后游客才能看匹配画面 |
+| `VISITOR_REQUIRE_STAFF_VERIFICATION` | 默认 `0`，游客自助匹配与选片；设为 `1` 可启用工作人员现场核验 |
 | `SMTP_*`、`VISITOR_WECHAT_*`、`WECHAT_PAY_*` | local 留空 |
 
-入口：管理端 `http://127.0.0.1:15173/`，游客端 `http://127.0.0.1:15174/visitor/`，
+入口：管理端 `http://127.0.0.1:5173/`，游客端 `http://127.0.0.1:5174/visitor/`，
 API 健康检查 `http://127.0.0.1:2889/api/v1/readyz`。
 游客从景区入口二维码进入具体项目，直接打开根页面并不会创建景区。
 
-端口冲突时改 `MYREID_API_PORT`、`STAFF_WEB_PORT`、`VISITOR_WEB_PORT`；游客端口改变后，
-`VISITOR_PUBLIC_BASE_URL` 必须同步；管理端口改变后，将新的管理端来源加入 `REALTIME_ORIGINS`。浏览器管理端使用同源代理，无需改 VITE API 地址。
+常规端口固定为 API `2889`、管理端 `5173`、游客端 `5174`，Compose 映射不再读取端口覆盖变量。发生冲突时排查占用进程或 Windows 保留范围，释放原端口后重试，不切换端口。开发前端与对应 Docker 前端二选一，不能同时占用相同端口。浏览器管理端使用同源代理，无需改 VITE API 地址。
 这些端口默认仅监听服务器回环地址。远程访问可使用 SSH 隧道；不要把本机测试登录暴露到公网。
 
 ## 5. Docker production：哪些必须自己填写
@@ -173,7 +172,7 @@ docker compose --env-file .env.prod -p myreid-prod -f docker-compose.yml -f dock
 ```
 
 网关将管理域名转到 `staff-web`，游客域名转到只允许游客 API 的 `visitor-web`。
-外网不需开放 2889、15173、15174、5432、6379、9000、19530。
+外网不需开放 2889、5173、5174、5432、6379、9000、19530。
 如果已有 HTTPS 代理，省略 `docker-compose.https.yml`，转发管理/游客域名到两个回环端口，
 保留 Host 和 WebSocket 升级头。生产游客 Cookie 要求真实 HTTPS，仅把配置写成 https 不会生成证书。
 自动签发条件见 [Caddy HTTPS 文档](https://caddyserver.com/docs/automatic-https)。

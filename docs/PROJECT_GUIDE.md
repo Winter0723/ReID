@@ -53,7 +53,7 @@ Vue view
   -> core DB or scenic DB
   -> local/S3 object storage
   -> Redis/RQ worker or local fallback
-  -> YOLO + CLIP-ReID
+  -> YOLO + 项目绑定的 DSCL-ReID / MGD-DPM
   -> JSON vector store or Milvus
 ```
 
@@ -91,7 +91,7 @@ MyReID/
 │   ├── src/features/            # 登记、游览、视频编辑、订单和领取
 │   ├── src/shared/              # HTTP 请求、类型和公共样式
 │   └── nginx.conf              # /visitor/ 静态页及游客 API 代理
-├── model/                       # CLIP-ReID 代码、词表、许可和权重校验清单
+├── model/                       # 兼容推理代码、模型描述、词表、许可和权重校验清单
 ├── scripts/                     # 启动、测试、冒烟、备份和数据库脚本
 ├── docs/                        # 受版本控制的项目文档
 ├── legacy/                      # 冻结的 Qt/QML 与 pre-v1 API
@@ -110,7 +110,7 @@ MyReID/
 | `app/core/config.py` | 环境变量读取、路径解析和生产安全校验；配置事实来源。 |
 | `app/core/security.py` | 密码哈希、JWT 签发与解析。 |
 | `app/core/observability.py` | JSON 日志、request ID、进程内错误与指标聚合。 |
-| `app/services/model_runtime.py` | YOLO 与 CLIP-ReID 的加载、检测和 embedding 接口。 |
+| `app/services/model_runtime.py` | YOLO 检测及按项目绑定的 DSCL-ReID / MGD-DPM embedding 接口。 |
 | `app/services/storage.py` | 本地文件或 S3 兼容对象存储。 |
 | `app/services/vector_store.py` | 本地持久化 JSON 向量库或 Milvus。 |
 | `app/services/job_manager.py` | Redis/RQ 状态与本地任务 fallback。 |
@@ -248,7 +248,7 @@ npm run dev
 
 1. 检查 `lap`，升级 core/scenic 数据库、补齐默认角色/项目 owner，并修复异常退出遗留的相机任务状态。
 2. 按配置启动可选中央相机服务。
-3. 加载 CLIP-ReID 与 YOLO。
+3. 加载 YOLO 并检查模型注册列表；项目使用的 ReID 模型按需加载。
 4. 初始化 core/scenic 向量库。
 5. 创建 gallery/object storage 运行目录。
 6. 输出 `startup.ready`，启动实时会话维护、录像分段/封存/发布、景区自动采集和过期清理线程，再由 Uvicorn 报告 application startup complete。
@@ -324,7 +324,7 @@ $env:MYREID_API_BASE_URL = "http://127.0.0.1:2889"
 1. 在 Core 域注册/登录。
 2. 创建 `media` 项目，或创建 `camera` 项目并选择摄像头源。
 3. 上传图片/视频。API 计算 SHA-256、写对象、写 `MediaFile`/`ProcessingJob`，再派发索引任务。
-4. worker/fallback 用 YOLO 检测行人，用 CLIP-ReID 生成特征，保存裁剪图，写 `DetectionTarget` 和向量库。
+4. worker/fallback 用 YOLO 检测行人，用项目绑定的 DSCL-ReID 或 MGD-DPM 生成特征，保存裁剪图，写 `DetectionTarget` 和对应特征空间的向量库。
 5. 使用文本或图片发起检索。API 生成查询向量、按 project/filter 搜索、写 `SearchTask`/`SearchResult`。
 6. 在结果、历史、媒体预览或 CSV 报告中查看/下载输出。
 

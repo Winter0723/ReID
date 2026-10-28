@@ -98,7 +98,8 @@ class build_transformer(nn.Module):
         self.h_resolution = int((cfg.INPUT.SIZE_TRAIN[0]-16)//cfg.MODEL.STRIDE_SIZE[0] + 1)
         self.w_resolution = int((cfg.INPUT.SIZE_TRAIN[1]-16)//cfg.MODEL.STRIDE_SIZE[1] + 1)
         self.vision_stride_size = cfg.MODEL.STRIDE_SIZE[0]
-        clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size)
+        clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size,
+                                      model_path=getattr(cfg.MODEL, "BASE_WEIGHTS", None))
         clip_model.to(_resolve_model_device(cfg))
 
         self.image_encoder = clip_model.visual
@@ -200,12 +201,15 @@ def make_model(cfg, num_class, camera_num, view_num):
 
 
 from .clip import clip
-def load_clip_to_cpu(backbone_name, h_resolution, w_resolution, vision_stride_size):
+def load_clip_to_cpu(backbone_name, h_resolution, w_resolution, vision_stride_size, model_path=None):
     url = clip._MODELS[backbone_name]
     cache_root = os.getenv("CLIP_CACHE_DIR")
     if not cache_root:
         cache_root = Path(__file__).resolve().parent / "clip_weights"
-    model_path = clip._download(url, root=str(cache_root))
+    if model_path is None:
+        model_path = clip._download(url, root=str(cache_root))
+    elif not Path(model_path).is_file():
+        raise RuntimeError(f"Registered CLIP base checkpoint not found: {model_path}")
 
     try:
         # loading JIT archive

@@ -39,13 +39,11 @@ def test_sqlite_alembic_upgrade_repairs_active_media_duplicates_before_index(
             )
         )
         db.flush()
-        project = db_module.Project(
-            name="Legacy duplicate project",
-            description="",
-            owner_username=username,
-        )
-        db.add(project)
-        db.flush()
+        # Seed the historical schema without today's ORM-only binding columns.
+        from sqlalchemy import text
+        db.execute(text("INSERT INTO projects (id, name, description, owner_username, project_type, camera_source, created_at, updated_at) VALUES (1, 'Legacy duplicate project', '', :owner, 'media', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"), {"owner": username})
+        from types import SimpleNamespace
+        project = SimpleNamespace(id=1)
         db.add_all(
             [
                 db_module.MediaFile(
@@ -641,7 +639,7 @@ def test_job_manager_can_disable_local_job_fallback(monkeypatch):
     monkeypatch.setattr(main.job_manager, "allow_local_job_fallback", False)
 
     with pytest.raises(main.LocalJobFallbackDisabled):
-        main.job_manager.enqueue(job.id, "app.workers.tasks.process_media_index", job.id)
+        main.job_manager.enqueue(job.id, "app.workers.tasks.generate_scenic_vlog", job.id)
 
     failed = main.job_manager.get(job.id)
     assert failed.status == "failed"

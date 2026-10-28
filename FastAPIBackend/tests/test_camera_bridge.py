@@ -165,7 +165,7 @@ def test_camera_seal_timeout_does_not_return_live_recording(monkeypatch):
     service.release.assert_called_once()
 
 
-def test_stopping_stream_serializes_final_seal_and_commit(tmp_path):
+def test_stopping_stream_serializes_final_seal_and_commit(tmp_path, isolated_model_binding):
     import threading
     import scenic_database as d
     from app.services.camera_stream import CameraStreamManager, CameraStreamState

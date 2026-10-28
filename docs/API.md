@@ -1,6 +1,6 @@
 # MyReID API and Communication Guide / API 与通信机制
 
-本文档记录 `allinone` 实际挂载的 HTTP API、两类前端封装和通信流程。后端默认 `http://127.0.0.1:2889`；本机 GPU 生产默认 `12889`，隔离游客测试默认 `22889`，完整配置见 [CONFIGURATION.md](CONFIGURATION.md)。
+本文档记录 `allinone` 实际挂载的 HTTP API、两类前端封装和通信流程。后端默认 `http://127.0.0.1:2889`；本机 GPU 生产默认 `2889`，隔离游客测试默认 `22889`，完整配置见 [CONFIGURATION.md](CONFIGURATION.md)。
 
 FastAPI 仍会提供默认交互式文档：
 
@@ -30,7 +30,7 @@ flowchart LR
     CORE --> QUEUE["Redis / RQ or local fallback"]
     SCENIC --> QUEUE
     QUEUE --> WORKER["app/workers/tasks.py"]
-    WORKER --> MODEL["YOLO + CLIP-ReID"]
+    WORKER --> MODEL["YOLO + DSCL-ReID"]
     WORKER --> VECTOR["Memory / Milvus vector store"]
     CORE --> CAMERA["camera_stream_manager"]
     SCENIC --> SCENIC_CAMERA["scenic_camera_stream_manager"]
@@ -571,7 +571,7 @@ sequenceDiagram
     participant Storage
     participant Queue as Redis/RQ
     participant Worker
-    participant Model as YOLO + CLIP-ReID
+    participant Model as YOLO + DSCL-ReID
     participant Vector as Milvus/Memory
     participant DB
 
@@ -773,3 +773,17 @@ sequenceDiagram
 WebSocket 不出现在 OpenAPI method/path 表中。先用 Core JWT 取得 30 秒一次性票据，再连接 `/api/v1/projects/{project_id}/realtime/sessions/{session_id}/stream?ticket=...`；不能用长期 JWT 放进连接 URL。连接校验 Origin、项目权限、创建者与会话状态，每个会话只允许一个连接，当前 API 进程最多一个活动识别会话。
 
 服务端 `type=frame` 包含 JPEG base64 和同帧元数据，客户端解码并呈现后返回 `{"ack": sequence}`；心跳返回 `{"pong": true}`。错误 ACK/来源/票据会关闭连接，10 秒无 ACK 断开，断连 30 秒后停止。API 必须使用单进程，代理要支持 WebSocket upgrade；详细帧与资源生命周期见 [实时识别](realtime-recognition.md)。
+
+
+## 多模型项目绑定
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| `GET` | `/api/v1/models` | 核心账号鉴权，返回模型目录发现结果 |
+| `GET` | `/api/v1/scenic/models` | 景区账号鉴权，返回相同目录的模型列表 |
+
+列表字段：`id`、`name`、`embedding_space_id`、`dimension`、`capabilities.image/text`、`available`、`unavailable_reason`、`default`。不可用项可能没有维度和能力；不返回本地权重路径。
+
+两域创建项目请求可传 `reid_model_id`，省略时解析 `REID_DEFAULT_MODEL_ID` 并保存具体版本。项目响应包含 `reid_model_id`、`embedding_space_id` 和 `reid_model`（名称、维度、能力及可用状态）。核心 PATCH 拒绝所有模型绑定字段（422），景区没有模型修改接口。更换模型必须新建项目。
+
+MGD-DPM 项目发起文本检索返回 422。模型文件缺失、内容或配置改变、历史项目未核验、API/worker 空间不匹配返回 409；资源已被活动任务占满返回 503。历史浏览不依赖模型可用性。后台任务遇到相同条件会进入失败状态，不自动换用默认模型。

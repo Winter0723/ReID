@@ -1,3 +1,4 @@
+from app.services.project_models import project_bound
 from app.services.camera_policy import public_camera_source
 import datetime
 import io
@@ -129,6 +130,9 @@ def _project_payload(project: database.Project) -> dict:
         "name": project.name,
         "description": project.description,
         "project_type": project.project_type or "scenic",
+        "reid_model_id": project.reid_model_id,
+        "embedding_space_id": project.embedding_space_id,
+        "reid_model": project.reid_model,
         "camera_source": public_camera_source(project.camera_source or ""),
         "owner_username": project.owner_username,
         "created_at": project.created_at,
@@ -663,6 +667,7 @@ def _scenic_camera_status_payload(project_id: int, project, db: Session) -> dict
     return payload
 
 
+@project_bound(lambda session: (session.project_id, "scenic"))
 def _tourist_entry_feature(session: database.TouristSession):
     image_path = storage.path_for(session.entry_image_object_key)
     image = _load_verified_rgb_image(image_path)

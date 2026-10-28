@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { api, ApiError, date, type Visit } from "../../shared/api";
+import { useSession } from "../auth/session";
+const session = useSession();
 defineProps<{ works?: boolean }>();
 const rows = ref<Visit[]>([]),
   error = ref(""),
@@ -13,6 +15,7 @@ async function load() {
   signedOut.value = false;
   try {
     rows.value = (await api<{ visits: Visit[] }>("/visits")).visits;
+    if (!session.registrationPath && rows.value.length) session.rememberSite(rows.value[0].project_id);
   } catch (e) {
     signedOut.value = e instanceof ApiError && e.status === 401;
     error.value = (e as Error).message;
@@ -23,6 +26,7 @@ async function load() {
 onMounted(load);
 </script>
 <template>
+  <RouterLink v-if="session.registrationPath" :to="session.registrationPath" class="back">← 返回入园登记</RouterLink>
   <h1 class="page-title">{{ works ? "我的作品" : "我的游览" }}</h1>
   <p>
     {{ works ? "让每一段回忆，都有迹可循。" : "安心享受风景，精彩留给我们。" }}

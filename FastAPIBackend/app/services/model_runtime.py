@@ -200,10 +200,12 @@ class CLIPEmbeddingService(EmbeddingService):
 
 
 class CLIPReIDEmbeddingService(EmbeddingService):
-    name = "CLIP-ReID MSMT17 embedding"
+    name = "DSCL-ReID MSMT17 embedding"
     backend = "clipreid"
 
-    def __init__(self) -> None:
+    def __init__(self, settings=None, base_model_path=None) -> None:
+        self._settings = settings or get_settings()
+        self._base_model_path = base_model_path
         self._model = None
         self._preprocess = None
         self._tokenize = None
@@ -217,7 +219,7 @@ class CLIPReIDEmbeddingService(EmbeddingService):
         with self._lock:
             if self._model is not None and self._preprocess is not None and self._tokenize is not None:
                 return
-            settings = get_settings()
+            settings = self._settings
             model_path = self._resolve_model_path(settings.clipreid_model_path or settings.custom_reid_model_path)
             if not model_path.exists():
                 raise RuntimeError(f"CLIP-ReID checkpoint not found: {model_path}")
@@ -229,6 +231,7 @@ class CLIPReIDEmbeddingService(EmbeddingService):
             from torchvision.transforms import InterpolationMode
 
             cfg = self._build_cfg(settings)
+            cfg.MODEL.BASE_WEIGHTS = self._base_model_path
             model = make_model(cfg, settings.clipreid_num_classes, settings.clipreid_camera_num, settings.clipreid_view_num)
             model.load_param(str(model_path))
             model.to(DEVICE)
@@ -275,7 +278,7 @@ class CLIPReIDEmbeddingService(EmbeddingService):
         return self._model is not None and self._preprocess is not None and self._tokenize is not None
 
     def status(self) -> Dict[str, Any]:
-        settings = get_settings()
+        settings = self._settings
         return {
             **super().status(),
             "model_path": str(self._model_path or self._resolve_model_path(settings.clipreid_model_path or settings.custom_reid_model_path)),
@@ -532,15 +535,27 @@ model_service = create_reid_model_service()
 
 
 def load_models() -> ReIDModelService:
-    model_service.load()
+    # Embeddings are loaded on first use under a project lease.
+    model_service.detection_service.load()
     return model_service
 
 
 def clip_image_feature(image: Image.Image) -> torch.Tensor:
+    from app.services.project_models import current_binding
+    binding = current_binding()
+    if binding:
+        return binding.embedding().embed_image(image)
     return model_service.embed_image(image)
 
 
 def clip_text_feature(text: str) -> torch.Tensor:
+    from app.services.project_models import current_binding
+    from fastapi import HTTPException
+    binding = current_binding()
+    if binding:
+        if not binding.snapshot["capabilities"]["text"]:
+            raise HTTPException(422, detail="该项目模型不支持文本检索，请使用图片检索")
+        return binding.embedding().embed_text(text)
     return model_service.embed_text(text)
 
 
@@ -549,7 +564,12 @@ def detect_people(frame, *, min_confidence: float = 0.0) -> List[Detection]:
 
 
 def model_status() -> Dict[str, Any]:
-    return model_service.status()
+    from app.services.project_models import cache_status
+    from app.services.model_registry import public_models
+    models = public_models()
+    status = model_service.status()
+    return {**status, "ready": bool(status["detection"]["loaded"] and any(m["available"] for m in models)),
+            "models": models, "model_cache": cache_status()}
 
 
 def is_clip_loaded() -> bool:
@@ -563,7 +583,50 @@ def is_yolo_loaded() -> bool:
 
 
 def clip_image_features(images: List[Image.Image]) -> torch.Tensor:
-    embedding = model_service.embedding_service
+    from app.services.project_models import current_binding
+    binding = current_binding()
+    embedding = binding.embedding() if binding else model_service.embedding_service
     if hasattr(embedding, "embed_images"):
         return embedding.embed_images(images)
     return torch.cat([embedding.embed_image(image) for image in images], dim=0)
+
+
+class MGDDPMEmbeddingService(EmbeddingService):
+    name = "MGD-DPM"
+    backend = "mgddpm"
+
+    def __init__(self, path, *, snapshot=None):
+        self.path = path
+        self.image_size = (snapshot or {}).get("preprocess", {}).get("size", [256, 128])
+        self.options = (snapshot or {}).get("options", {"stride_size": 12, "camera_index": 0, "sie_coefficient": 1.0})
+        self._model = None
+        self._lock = Lock()
+        self._inference_lock = Lock()
+
+    def load(self):
+        with self._lock:
+            if self._model is not None:
+                return
+            CLIPReIDEmbeddingService._ensure_project_root_importable()
+            from model.mgddpm import load_teacher
+            from torchvision.transforms import Compose, Normalize, Resize, ToTensor, InterpolationMode
+            self._preprocess = Compose([Resize(tuple(self.image_size), interpolation=InterpolationMode.BICUBIC),
+                                        ToTensor(), Normalize((.485, .456, .406), (.229, .224, .225))])
+            self._model = load_teacher(self.path, image_size=self.image_size, stride=self.options["stride_size"],
+                                       camera_index=self.options["camera_index"], sie_coefficient=self.options["sie_coefficient"]).to(DEVICE).float().eval()
+
+    def embed_images(self, images):
+        self.load()
+        with self._inference_lock, torch.inference_mode():
+            inputs = torch.stack([self._preprocess(image.convert("RGB")) for image in images]).to(DEVICE)
+            features = (self._model(inputs) + self._model(inputs.flip([3]))) / 2.0
+            return F.normalize(features, p=2, dim=1)
+
+    def embed_image(self, image):
+        return self.embed_images([image])
+
+    def embed_text(self, text):
+        raise ValueError("MGD-DPM does not support text search")
+
+    def is_loaded(self):
+        return self._model is not None

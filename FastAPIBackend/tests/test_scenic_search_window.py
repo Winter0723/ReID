@@ -177,7 +177,7 @@ def test_staff_checkout_is_fixed_before_matching_and_survives_failure(client, vi
         assert as_utc(db.get(dbm.TouristSession, session_id).checked_out_at) == END
 
 
-def test_core_search_still_uses_whole_project():
+def test_core_search_still_uses_whole_project(isolated_model_binding):
     from app.services.vector_store import VectorPoint, vector_store
 
     vector_store.upsert([

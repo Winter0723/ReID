@@ -34,7 +34,7 @@ export async function resolveVideoPreviewSource(options: VideoPreviewOptions): P
   const full = Boolean(options.full);
   const startSeconds = full ? 0 : seconds(options.startSeconds);
   const fallbackSeekSeconds = seconds(options.fallbackSeekSeconds ?? startSeconds);
-  const generatedSeekSeconds = full ? 0 : seconds(options.generatedSeekSeconds);
+  const generatedSeekSeconds = seconds(options.generatedSeekSeconds);
 
   if (!options.mediaId || !options.projectId) {
     return {
@@ -68,6 +68,9 @@ export async function resolveVideoPreviewSource(options: VideoPreviewOptions): P
       generated,
     };
   } catch (error) {
+    if (options.scope === "core") {
+      throw new Error(`视频预览生成失败：${error instanceof Error ? error.message : "请稍后重试"}`);
+    }
     console.warn("resolveVideoPreviewSource:", error);
     return {
       source: original,

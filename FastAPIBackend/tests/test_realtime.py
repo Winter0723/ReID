@@ -122,7 +122,7 @@ def test_ticket_is_single_use_and_bound_to_owner_session_origin(client, register
             pass
 
 
-def test_video_session_streams_synchronized_frames_and_cleans_up(tmp_path, monkeypatch):
+def test_video_session_streams_synchronized_frames_and_cleans_up(tmp_path, monkeypatch, isolated_model_binding):
     import torch
     from app.services import model_runtime
     from app.services.realtime import Session

@@ -1,5 +1,7 @@
-"""Ephemeral single-process real-time recognition. No index or business-table writes."""
 from __future__ import annotations
+from contextlib import ExitStack
+from app.services.project_models import project_context
+"""Ephemeral single-process real-time recognition. No index or business-table writes."""
 
 import base64
 import logging
@@ -74,7 +76,9 @@ class Session:
 
     def run(self):
         cap = service = None
+        model_context = ExitStack()
         try:
+            model_context.enter_context(project_context(self.project, expected_space=getattr(self, "embedding_space_id", None)))
             from app.services.model_runtime import clip_image_feature, clip_image_features, detect_people
             settings = get_settings()
             inference_fps = settings.realtime_camera_inference_fps if self.camera else 10
@@ -235,6 +239,7 @@ class Session:
             self.error = "识别失败，请检查模型、lap 依赖和视频来源；详细信息见后端日志"
             self.status = "failed"
         finally:
+            model_context.close()
             if cap:
                 cap.release()
             if service:

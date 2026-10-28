@@ -57,6 +57,8 @@ def v1_readyz():
         ),
         "yolo_loaded": bool(detection.get("backend") == "yolo" and detection.get("loaded")),
         "models_ready": models_ready,
+        "models": models.get("models", []),
+        "model_cache": models.get("model_cache", []),
         "database_ready": database_ready,
         "scenic_database_ready": scenic_database_ready,
         "queue_ready": queue_ready,

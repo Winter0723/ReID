@@ -60,6 +60,6 @@
 
 ## Windows 启动后直接退出 / WinError 10013
 
-若 Windows 的 TCP 排除端口范围覆盖 2889，可在根目录 `.env.local` 设置 `MYREID_API_PORT=12889`（或其他可绑定端口），然后重启前后端。`scripts/run_backend.cmd`、Vite 代理和 Tauri 开发配置共用该值；不需要修改系统保留端口。本机生产组合也默认使用 12889。
+常规后端固定为 `2889`，运营前端为 `5173`，游客前端为 `5174`，本机开发和 Docker 使用相同端口。绑定失败时检查监听进程及 `netsh interface ipv4 show excludedportrange protocol=tcp`，处理占用或保留冲突后重试，不通过更换端口绕过问题，也不自动修改 Windows 保留范围。
 
 后端在加载模型前检查端口；`-Port` 可用于临时诊断。程序内执行数据库迁移时保留 API / Uvicorn 日志，绑定失败等错误会正常显示。前端仍使用原启动入口 `scripts/run_tauri_frontend.cmd`；该入口现在通过生成实际后端 HTTP/WebSocket 权限的 `tauri:dev` 命令启动。

@@ -1,3 +1,5 @@
+from contextlib import ExitStack
+from app.services.project_models import project_context, snapshot_for
 import datetime
 import hashlib
 import json
@@ -484,6 +486,7 @@ class CameraStreamManager:
         min_confidence: float = 0.35,
         stream_key: Optional[int] = None,
     ) -> dict:
+        snapshot = snapshot_for(project_id, "scenic" if self.db_module is scenic_database else "core")
         camera_source = validate_camera_source((camera_source or "0").strip() or "0")
         resolved_stream_key = self._stream_key(project_id, stream_key)
         with self._lock:
@@ -541,6 +544,7 @@ class CameraStreamManager:
                 sample_interval_seconds=sample_interval_seconds,
                 min_confidence=min_confidence,
             )
+            state.embedding_space_id = snapshot["embedding_space_id"]
             state.recording_filename = recording_filename
             thread = threading.Thread(target=self._run_stream, args=(state,), daemon=True)
             state.thread = thread
@@ -637,7 +641,9 @@ class CameraStreamManager:
         recording_path: Optional[Path] = None
         recording_writer = None
         recording_unavailable = False
+        model_context = ExitStack()
         try:
+            model_context.enter_context(project_context(state.project_id, "scenic" if self.db_module is scenic_database else "core", expected_space=getattr(state, "embedding_space_id", None)))
             self._update_job(db, state, status="running", progress=0.0, message="正在打开摄像头")
             cap = self._open_capture(state.source)
             if not cap.isOpened():
@@ -766,6 +772,7 @@ class CameraStreamManager:
             state.stopped_at = _utc_now()
             with self._lock:
                 self._streams[state.stream_key] = state
+            model_context.close()
             db.close()
 
     def _index_detections(self, db, state: CameraStreamState, frame, detections: list[Detection], capture_time: datetime.datetime):

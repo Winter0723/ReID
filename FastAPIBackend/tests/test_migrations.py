@@ -15,8 +15,8 @@ def test_core_and_scenic_configs_have_isolated_heads():
     core_script = ScriptDirectory.from_config(Config(str(backend_dir / "alembic.ini")))
     scenic_script = ScriptDirectory.from_config(Config(str(backend_dir / "alembic.scenic.ini")))
 
-    assert core_script.get_current_head() == "20261012100000_core"
-    assert scenic_script.get_current_head() == "20261016090000_scenic"
+    assert core_script.get_current_head() == "20261026090000_core"
+    assert scenic_script.get_current_head() == "20261026090000_scenic"
     with pytest.raises(CommandError):
         core_script.get_revision("20260829100000_scenic")
     with pytest.raises(CommandError):
@@ -61,6 +61,8 @@ def test_alembic_upgrade_and_downgrade_on_clean_sqlite(
         assert "processing_jobs" in inspector.get_table_names()
         assert "email_login_codes" in inspector.get_table_names()
 
+        project_columns = {column["name"] for column in inspector.get_columns("projects")}
+        assert {"reid_model_id", "embedding_space_id", "model_snapshot_json"} <= project_columns
         media_columns = {column["name"] for column in inspector.get_columns("media_files")}
         assert {"content_type", "size_bytes", "sha256", "duplicate_of_media_id"} <= media_columns
         media_indexes = {index["name"] for index in inspector.get_indexes("media_files")}

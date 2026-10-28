@@ -98,7 +98,7 @@ function previewSegmentFrame(segment: TouristSegment): void {
           <input v-model.number="minSimilarity" max="1" min="0" step="0.05" type="number" />
         </label>
         <button class="scenic-button subtle" type="button" :disabled="!store.selectedTourist || Boolean(store.selectedTourist.checked_out_at)" @click="checkout">{{ store.selectedTourist?.checked_out_at ? '已确认出园' : '确认出园' }}</button>
-        <button class="scenic-button primary" type="button" :disabled="!store.selectedTourist" @click="store.matchSelectedTourist(minSimilarity)">
+        <button class="scenic-button primary" type="button" :disabled="!store.modelAvailable || !store.selectedTourist" @click="store.matchSelectedTourist(minSimilarity)">
           <Search :size="15" />
           <span>开始匹配</span>
         </button>

@@ -171,6 +171,7 @@ describe("P1 core workbench behavior", () => {
     const wrapper = mount(App);
     const store = useWorkbenchStore();
     store.coreProjectId = 7;
+    store.coreProjects = [{ id: 7, name: "Bound project", description: "", project_type: "media", owner_username: "operator", created_at: "2026-10-26", reid_model: { id: "clip", name: "CLIP", available: true, capabilities: { image: true, text: true } } }];
     vi.spyOn(store, "runTextSearch").mockImplementation(async (queryText) => {
       store.searchResponse = {
         status: "success",

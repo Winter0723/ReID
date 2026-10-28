@@ -1,3 +1,4 @@
+from app.services.project_models import project_context
 import csv
 import io
 import json
@@ -347,7 +348,10 @@ def v1_get_job(job_id: str, username: str = Depends(get_current_username), db: S
 @router.post("/api/v1/search/text", response_model=SearchResponse)
 def v1_search_text(payload: TextSearchRequest, username: str = Depends(get_current_username), db: Session = Depends(database.get_db)):
     _ensure_project_access(payload.project_id, username, db)
-    query_feature = _clip_text_feature(payload.query_text)
+    with project_context(payload.project_id) as binding:
+        if not binding.snapshot["capabilities"]["text"]:
+            raise HTTPException(422, detail="该项目模型不支持文本检索，请使用图片检索")
+        query_feature = _clip_text_feature(payload.query_text)
     filters = _schema_dict(payload.filters, exclude_none=True)
     return _run_enterprise_search(
         db=db,
@@ -391,7 +395,8 @@ def v1_search_image(
     try:
         query_path = storage.path_for(query_object.object_key)
         query_image = _load_verified_rgb_image(query_path)
-        query_feature = _clip_image_feature(query_image)
+        with project_context(project_id):
+            query_feature = _clip_image_feature(query_image)
     except ImagePixelLimitError as exc:
         storage.delete(query_object.object_key)
         raise HTTPException(status_code=413, detail=str(exc)) from exc

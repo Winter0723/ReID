@@ -166,3 +166,12 @@ def test_probe_caches_real_sample_aspect_ratio(tmp_path):
     assert metadata["sample_aspect_ratio"] == pytest.approx(4 / 3)
     assert metadata["analysis_version"] == 2
     assert editing.analyze_media(path)["sample_aspect_ratio"] == pytest.approx(4 / 3)
+
+
+@pytest.mark.parametrize("orientation", ["landscape", "portrait"])
+@pytest.mark.parametrize("start,end", [(5.7, 8.167475999999999), (5.700024, 8.167476), (0.000024, 0.300024)])
+def test_fractional_camera_bounds_survive_automatic_planning(orientation, start, end):
+    source = clip(1, start=start, end=end)
+    result = editing.plan_variant([source], scenic_templates.TEMPLATES["documentary"], 45, orientation)
+    assert start <= result[0]["start_seconds"] < result[0]["end_seconds"] <= end
+    assert result[0]["end_seconds"] - result[0]["start_seconds"] >= .3 - 1e-6

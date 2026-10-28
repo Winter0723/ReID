@@ -9,6 +9,28 @@ import pytest
 from app.services import asset_delivery
 
 
+def test_local_preview_in_s3_mode_supports_seeking(monkeypatch, tmp_path):
+    key = "projects/1/media/2/previews/clip.mp4"
+    path = tmp_path / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"0123456789")
+    monkeypatch.setattr(asset_delivery, "get_settings", lambda: SimpleNamespace(object_storage_dir=tmp_path))
+    store = Mock()
+    monkeypatch.setattr(asset_delivery, "storage", store)
+    app = FastAPI()
+
+    @app.get("/preview")
+    def preview():
+        return asset_delivery.deliver_video_preview(key)
+
+    with TestClient(app) as client:
+        response = client.get("/preview", headers={"Range": "bytes=3-6"})
+        assert response.status_code == 206
+        assert response.content == b"3456"
+        assert response.headers["content-type"] == "video/mp4"
+    store.path_for.assert_not_called()
+
+
 def test_s3_media_stays_on_api_and_supports_ranges(monkeypatch, tmp_path):
     media = tmp_path / "video.mp4"
     media.write_bytes(b"0123456789")

@@ -27,7 +27,7 @@ test("target selection, synchronized stream, controls and navigation cleanup", a
     let body: unknown = { status: "ok" };
     if (path.endsWith('/readyz')) body = { status: "ready", queue_mode: "local", queue_ready: true };
     else if (path.endsWith('/auth/me')) body = { username: "operator", role: "operator" };
-    else if (path === '/api/v1/projects') body = [{ id: 7, name: "实时识别验证", project_type: "normal", owner_username: "operator" }];
+    else if (path === '/api/v1/projects') body = [{ id: 7, name: "实时识别验证", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "normal", owner_username: "operator" }];
     else if (path.endsWith('/realtime/media/11/preview')) { previewRequested = true; await previewGate; body = { preview }; }
     else if (path.endsWith('/realtime/inputs')) body = { id: 'reference', kind: 'image', width: 300, height: 200, preview, boxes: [{ box: [.1,.1,.37,.95], confidence: .9 }, { box: [.6,.1,.87,.95], confidence: .8 }] };
     else if (path.endsWith('/realtime/sessions')) { started++; expect(route.request().postDataJSON().source).toEqual({ media_id: 11 }); body = { id: 'session', status: 'running' }; }

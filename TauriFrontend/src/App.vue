@@ -26,6 +26,7 @@ import {
 } from "@lucide/vue";
 import { downloadAsset, normalizeAssetUrl } from "./lib/api/http";
 import type { SearchFilters, SearchResult } from "./lib/api/search";
+import type { MediaItem, MediaTarget } from "./lib/api/media";
 import { resolveVideoPreviewSource } from "./lib/videoPreview";
 import LiveCameraPreview from "./components/LiveCameraPreview.vue";
 import ScenicApp from "./components/ScenicApp.vue";
@@ -48,6 +49,7 @@ const coreCameraForm = reactive({ source: "0" });
 const searchForm = reactive({ text: "", minSimilarity: -1, cameraId: "", startTime: "", endTime: "", mediaId: 0 });
 
 const mediaFiles = ref<File[]>([]);
+const previewLoading = ref(false);
 const searchImageFile = ref<File | null>(null);
 const searchImagePreviewUrl = ref("");
 const lastSearchKind = ref<"text" | "image" | "">("");
@@ -212,7 +214,7 @@ function openMediaPreview(payload: {
   mediaPreview.source = source;
   mediaPreview.frameSource = normalizeAssetUrl(payload.frameSource || "");
   mediaPreview.downloadSource = normalizeAssetUrl(payload.downloadSource || payload.source || "");
-  mediaPreview.fallbackSource = normalizeAssetUrl(payload.fallbackSource || payload.downloadSource || payload.source || "");
+  mediaPreview.fallbackSource = normalizeAssetUrl(payload.fallbackSource ?? payload.source ?? "");
   mediaPreview.downloadName = payload.downloadName || fileNameFromUrl(payload.downloadSource || payload.source, "myreid_media");
   mediaPreview.seekSeconds = Math.max(0, Number(payload.seekSeconds || 0));
   mediaPreview.fallbackSeekSeconds = Math.max(0, Number(payload.fallbackSeekSeconds ?? payload.seekSeconds ?? 0));
@@ -245,42 +247,59 @@ function previewResultFrame(result: SearchResult): void {
 }
 
 async function previewResultMedia(result: SearchResult, seekToHit: boolean): Promise<void> {
-  const source = result.original_media_url || result.original_media_path || result.thumbnail_url || result.path;
-  const hasOriginalMedia = Boolean(result.original_media_url || result.original_media_path);
-  const canPreviewVideo = hasOriginalMedia && isVideoSource(result.media_type, source);
-  const hitSeconds = resultSeekSeconds(result);
-  const startSeconds = seekToHit ? Math.max(0, hitSeconds - 2) : 0;
-  const preview = canPreviewVideo
-    ? await resolveVideoPreviewSource({
-      scope: "core",
-      projectId: store.activeProjectId,
-      mediaId: result.media_id,
-      fallback: source,
-      full: !seekToHit,
-      startSeconds,
-      durationSeconds: seekToHit ? 8 : undefined,
-      generatedSeekSeconds: seekToHit ? Math.max(0, hitSeconds - startSeconds) : 0,
-      fallbackSeekSeconds: seekToHit ? hitSeconds : 0,
-    })
-    : {
-      source,
-      fallbackSource: source,
-      downloadSource: source,
-      seekSeconds: 0,
-      fallbackSeekSeconds: 0,
-      generated: false,
-    };
-  openMediaPreview({
-    title: seekToHit ? "视频帧位置" : (result.media_filename || "完整媒体"),
-    source: preview.source,
-    mediaType: canPreviewVideo ? result.media_type : "image",
-    frameSource: result.thumbnail_url || result.path,
-    fallbackSource: preview.fallbackSource,
-    seekSeconds: preview.seekSeconds,
-    fallbackSeekSeconds: preview.fallbackSeekSeconds,
-    downloadSource: preview.downloadSource || result.original_media_url || result.original_media_path || source,
-    downloadName: result.media_filename || fileNameFromUrl(source),
-  });
+  if (previewLoading.value) return;
+  previewLoading.value = true;
+  try {
+    const source = result.original_media_url || result.original_media_path || result.thumbnail_url || result.path;
+    const hasOriginalMedia = Boolean(result.original_media_url || result.original_media_path);
+    const canPreviewVideo = hasOriginalMedia && isVideoSource(result.media_type, source);
+    const hitSeconds = resultSeekSeconds(result);
+    const preview = canPreviewVideo
+      ? await resolveVideoPreviewSource({
+        scope: "core",
+        projectId: store.activeProjectId,
+        mediaId: result.media_id,
+        fallback: source,
+        full: true,
+        generatedSeekSeconds: seekToHit ? hitSeconds : 0,
+        fallbackSeekSeconds: seekToHit ? hitSeconds : 0,
+      })
+      : {
+        source,
+        fallbackSource: source,
+        downloadSource: source,
+        seekSeconds: 0,
+        fallbackSeekSeconds: 0,
+        generated: false,
+      };
+    openMediaPreview({
+      title: seekToHit ? "视频帧位置" : (result.media_filename || "完整媒体"),
+      source: preview.source,
+      mediaType: canPreviewVideo ? "video" : "image",
+      frameSource: result.thumbnail_url || result.path,
+      fallbackSource: preview.fallbackSource,
+      seekSeconds: preview.seekSeconds,
+      fallbackSeekSeconds: preview.fallbackSeekSeconds,
+      downloadSource: preview.downloadSource || result.original_media_url || result.original_media_path || source,
+      downloadName: result.media_filename || fileNameFromUrl(source),
+    });
+  } catch (error) {
+    store.error = error instanceof Error ? error.message : "视频预览加载失败";
+  } finally {
+    previewLoading.value = false;
+  }
+}
+
+function previewTarget(media: MediaItem, target: MediaTarget): void {
+  const result: SearchResult = {
+    id: target.id, media_id: media.id, media_filename: media.filename,
+    media_type: media.media_type, original_media_url: media.object_url,
+    path: target.thumbnail_url, thumbnail_url: target.thumbnail_url,
+    source_info: target.source_info || "", similarity: 0,
+    timestamp: target.timestamp, video_seek_seconds: target.video_seek_seconds,
+  };
+  if (isVideoSource(media.media_type, media.filename)) void previewResultMedia(result, true);
+  else previewResultFrame(result);
 }
 
 function progressPercent(value?: number): string {
@@ -351,7 +370,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
 
     <!-- MAIN WORKSPACE CONTAINER -->
     <div class="core-main flex-1 flex min-w-0 h-screen relative z-10">
-      <div class="workspace-topbar"><button type="button" @click="showProjectModal = true"><FolderPlus :size="16" />{{ store.activeProject?.name || '选择项目' }} / 核心工作区</button><div><span class="workspace-tag">核心工作台</span><button type="button" @click="store.setMode('scenic')">切换工作台</button></div></div>
+      <div class="workspace-topbar"><button type="button" @click="showProjectModal = true"><FolderPlus :size="16" />{{ store.activeProject?.name || '选择项目' }} / {{ store.activeProject?.reid_model?.name || '模型待核验' }}</button><div><span class="workspace-tag">核心工作台</span><button type="button" @click="store.setMode('scenic')">切换工作台</button></div></div>
       <header class="workspace-page-heading"><div><h1>{{ activeView === 'results' ? '跨模态检索' : activeView === 'workspace' ? '媒体资源' : activeView === 'realtime' ? '实时采集' : activeView === 'history' ? '检索历史' : '审计日志' }}</h1><p>连接每一个画面，从海量影像中找到目标。</p></div></header>
       <div class="core-columns">
       
@@ -390,7 +409,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                   <p class="eyebrow text-cyan-300">向量数据库</p>
                   <h2 class="panel-title text-base">状态与入库</h2>
                 </div>
-                <button class="icon-button w-8 h-8 rounded-lg" type="button" :title="store.coreProjectId ? '重建索引' : '请先创建或选择项目'" aria-label="重建当前项目索引" :disabled="!store.coreProjectId" @click="store.rebuildIndex()">
+                <button class="icon-button w-8 h-8 rounded-lg" type="button" :title="store.coreProjectId ? '重建索引' : '请先创建或选择项目'" aria-label="重建当前项目索引" :disabled="!store.modelAvailable || !store.coreProjectId" @click="store.rebuildIndex()">
                   <Settings2 :size="14" />
                 </button>
               </div>
@@ -399,7 +418,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                 <div class="signal-card bg-zinc-900/40 p-3 rounded-lg border border-white/[0.06]">
                   <Cpu :size="16" class="text-cyan-400 mb-2" />
                   <span class="text-[10px] text-zinc-500 block">模型状态</span>
-                  <strong class="text-[11px] leading-tight whitespace-nowrap text-white mt-0.5 block">{{ store.readyz?.clip_loaded ? '就绪' : '等待' }}</strong>
+                  <strong class="text-[11px] leading-tight whitespace-nowrap text-white mt-0.5 block">{{ store.modelAvailable ? '可用' : '待核验' }}</strong>
                 </div>
                 <div class="signal-card bg-zinc-900/40 p-3 rounded-lg border border-white/[0.06]">
                   <Boxes :size="16" class="text-emerald-400 mb-2" />
@@ -419,7 +438,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                   <span class="text-xs text-zinc-300">{{ mediaName() }}</span>
                   <input class="hidden" multiple type="file" accept="image/*,video/*" aria-label="选择待上传的图片或视频" @change="selectFiles($event, 'media')" />
                 </label>
-                <button class="primary-button rounded-xl py-2.5 text-xs min-h-[38px] justify-center" type="button" :disabled="!mediaFiles.length || !store.coreProjectId" :title="!store.coreProjectId ? '请先创建或选择项目' : (!mediaFiles.length ? '请先选择媒体文件' : '上传并提取特征')" @click="store.uploadMedia(mediaFiles)">
+                <button class="primary-button rounded-xl py-2.5 text-xs min-h-[38px] justify-center" type="button" :disabled="!store.modelAvailable || !mediaFiles.length || !store.coreProjectId" :title="!store.coreProjectId ? '请先创建或选择项目' : (!mediaFiles.length ? '请先选择媒体文件' : '上传并提取特征')" @click="store.uploadMedia(mediaFiles)">
                   <Upload :size="14" />
                   <span>上传并提取特征</span>
                 </button>
@@ -471,7 +490,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                 <button
                   class="primary-button text-xs rounded-xl py-2.5 min-h-[38px] justify-center w-full"
                   type="button"
-                  @click="coreIngesting ? store.stopCoreCamera() : store.startCoreCamera(coreCameraForm.source)"
+                  :disabled="!coreIngesting && !store.modelAvailable" @click="coreIngesting ? store.stopCoreCamera() : store.startCoreCamera(coreCameraForm.source)"
                 >
                   <Play v-if="!coreIngesting" :size="14" />
                   <X v-else :size="14" />
@@ -507,7 +526,8 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
               </div>
 
               <div class="space-y-3">
-                <textarea v-model="searchForm.text" class="field min-h-24 resize-none rounded-xl text-sm bg-zinc-900/50 border-white/[0.06]" placeholder="描述目标人物的衣着、外貌等特征"></textarea>
+                <p v-if="!store.textSearchAvailable" class="text-xs text-amber-300">{{ store.activeProject?.reid_model?.unavailable_reason || "当前模型不支持文本检索，请使用图片检索" }}</p>
+                <textarea :disabled="!store.textSearchAvailable" v-model="searchForm.text" class="field min-h-24 resize-none rounded-xl text-sm bg-zinc-900/50 border-white/[0.06]" placeholder="描述目标人物的衣着、外貌等特征"></textarea>
                 <div class="grid gap-2 grid-cols-2">
                   <input v-model.number="searchForm.minSimilarity" class="field text-sm rounded-xl bg-zinc-900/50 border-white/[0.06]" max="1" min="-1" step="0.05" type="number" />
                   <input v-model="searchForm.cameraId" class="field text-sm rounded-xl bg-zinc-900/50 border-white/[0.06]" placeholder="摄像头 ID" />
@@ -520,11 +540,11 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                   <input class="hidden" type="file" accept="image/*" aria-label="选择用于检索的图片" @change="selectFiles($event, 'search')" />
                 </label>
                 <div class="search-action-grid grid grid-cols-2 gap-2 mt-2">
-                  <button class="primary-button text-xs rounded-xl py-2.5 min-h-[38px] justify-center" type="button" :disabled="!store.coreProjectId || !searchForm.text.trim()" :title="!store.coreProjectId ? '请先创建或选择项目' : (!searchForm.text.trim() ? '请输入检索文本' : '执行文本检索')" @click="runTextSearch">
+                  <button class="primary-button text-xs rounded-xl py-2.5 min-h-[38px] justify-center" type="button" :disabled="!store.textSearchAvailable || !store.coreProjectId || !searchForm.text.trim()" :title="!store.coreProjectId ? '请先创建或选择项目' : (!searchForm.text.trim() ? '请输入检索文本' : '执行文本检索')" @click="runTextSearch">
                     <Search :size="14" />
                     <span>以文搜图</span>
                   </button>
-                  <button class="ghost-button text-xs rounded-xl py-2.5 min-h-[38px] justify-center bg-zinc-900/40 border-white/[0.06]" type="button" :disabled="!store.coreProjectId || !searchImageFile" :title="!store.coreProjectId ? '请先创建或选择项目' : (!searchImageFile ? '请选择检索图片' : '执行图片检索')" @click="runImageSearch">
+                  <button class="ghost-button text-xs rounded-xl py-2.5 min-h-[38px] justify-center bg-zinc-900/40 border-white/[0.06]" type="button" :disabled="!store.modelAvailable || !store.coreProjectId || !searchImageFile" :title="!store.coreProjectId ? '请先创建或选择项目' : (!searchImageFile ? '请选择检索图片' : '执行图片检索')" @click="runImageSearch">
                     <FileImage :size="14" />
                     <span>以图搜图</span>
                   </button>
@@ -560,6 +580,15 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
                   <h4 :title="media.filename || media.original_filename || `媒体 #${media.id}`">{{ media.filename || media.original_filename || `媒体 #${media.id}` }}</h4>
                   <p>{{ media.media_type || '-' }} · {{ media.status || '-' }} · 目标 {{ media.target_count ?? 0 }}</p>
                   <p>{{ media.created_at || '-' }}</p>
+                  <details v-if="media.targets?.length" class="media-targets">
+                    <summary>查看目标（{{ media.targets.length }}）</summary>
+                    <div class="media-target-list">
+                      <button v-for="target in media.targets" :key="target.id" type="button" :disabled="previewLoading" @click="previewTarget(media, target)">
+                        <img :src="normalizeAssetUrl(target.thumbnail_url)" :alt="`目标 #${target.id}`" loading="lazy" />
+                        <span>目标 #{{ target.id }}<small>{{ target.timestamp || '' }}</small></span>
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </article>
             </div>
@@ -589,6 +618,7 @@ async function downloadCoreAsset(source: string, filename: string): Promise<void
 
     </div>
 
+    <div v-if="previewLoading" class="preview-loading" role="status">正在准备视频预览，请稍候…</div>
     <MediaPreviewDialog :preview="mediaPreview" variant="dark" @close="mediaPreview.open = false" />
     <CoreAccountDialog :open="showLoginModal" @close="showLoginModal = false" />
     <CoreProjectDialog :open="showProjectModal" @close="showProjectModal = false" />

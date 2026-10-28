@@ -50,7 +50,7 @@ test("production search renders its image before history finishes", async ({ pag
     let body: unknown = { status: "ok" };
     if (path.endsWith("/readyz")) body = { status: "ready", queue_mode: "redis" };
     else if (path.endsWith("/auth/me")) body = { username: "tester", role: "operator" };
-    else if (path === "/api/v1/projects") body = [{ id: 7, name: "检索验证项目", project_type: "media" }];
+    else if (path === "/api/v1/projects") body = [{ id: 7, name: "检索验证项目", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "media" }];
     else if (path.endsWith("/status")) body = { indexed_targets: 1 };
     else if (path.endsWith("/preview")) body = { previews: [] };
     else if (path.endsWith("/media")) body = { media: [] };

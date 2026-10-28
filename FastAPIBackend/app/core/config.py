@@ -164,7 +164,7 @@ class Settings(BaseSettings):
     bootstrap_admin_email: str = ""
     public_registration_role: Literal["viewer", "operator"] = "viewer"
     camera_sources: dict[str, str] = Field(default_factory=lambda: {"0": "0"})
-    visitor_require_staff_verification: bool = True
+    visitor_require_staff_verification: bool = False
     visitor_operations_per_hour: int = Field(default=30, ge=1, le=1000)
     visitor_project_operations_per_hour: int = Field(default=300, ge=1, le=10000)
     visitor_retention_days: int = Field(default=30, ge=1, le=365)
@@ -224,6 +224,9 @@ class Settings(BaseSettings):
     model_service_backend: Literal["baseline"] = "baseline"
     embedding_backend: Literal["clipreid"] = "clipreid"
     detection_backend: Literal["yolo"] = "yolo"
+    reid_model_dir: str = "model"
+    reid_default_model_id: str = "clipreid-msmt17"
+    reid_model_cache_size: int = Field(default=2, ge=1, le=16)
     embedding_dimension: int = 512
     model_device: str = "auto"
     yolo_precision: Literal["auto", "fp32", "fp16"] = "auto"
@@ -282,8 +285,6 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     settings = Settings()
     app_env = settings.app_env.strip().lower()
-    if settings.visitor_auth_provider == "browser" and app_env not in {"development", "dev", "local", "test"}:
-        raise RuntimeError("游客浏览器演示登录仅允许在开发或测试环境启用")
     if "test" in {settings.visitor_auth_provider, settings.visitor_payment_provider}:
         if app_env not in {"development", "dev", "local", "test"}:
             raise RuntimeError("游客联调模式仅允许在开发或测试环境启用")

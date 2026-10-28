@@ -99,6 +99,10 @@ def enqueue_job_or_503(
 ) -> None:
     try:
         enqueue_job(job_id, task_path, *args)
+    except HTTPException as exc:
+        mark_job_enqueue_failed(db, processing_job_model, job_id, project_id, media_id, str(exc.detail))
+        db.commit()
+        raise
     except LocalJobFallbackDisabled as exc:
         mark_job_enqueue_failed(db, processing_job_model, job_id, project_id, media_id, str(exc))
         db.commit()

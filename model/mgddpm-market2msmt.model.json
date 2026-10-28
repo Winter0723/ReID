@@ -1,0 +1,27 @@
+{
+  "id": "mgddpm-market2msmt",
+  "name": "MGD-DPM Market2MSMT",
+  "adapter": "mgddpm",
+  "adapter_version": "1",
+  "weights": "Market2MSMT.pth",
+  "dimension": 1280,
+  "preprocess": {
+    "size": [
+      256,
+      128
+    ],
+    "normalization": "imagenet",
+    "interpolation": "bicubic"
+  },
+  "output": "teacher_bn_concat_flip_mean_l2",
+  "options": {
+    "stride_size": 12,
+    "camera_index": 0,
+    "sie_coefficient": 1.0,
+    "precision": "fp32"
+  },
+  "capabilities": {
+    "image": true,
+    "text": false
+  }
+}

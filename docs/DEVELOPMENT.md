@@ -131,7 +131,7 @@ $env:MYREID_API_BASE_URL="http://127.0.0.1:2889"
 浏览器模式通过端口变量配置同源代理（以下命令在仓库根目录的新终端执行）：
 
 ```powershell
-$env:MYREID_API_PORT="12889"
+$env:MYREID_API_PORT="2889"
 Remove-Item Env:MYREID_API_BASE_URL -ErrorAction SilentlyContinue
 Remove-Item Env:VITE_MYREID_API_BASE_URL -ErrorAction SilentlyContinue
 .\scripts\run_tauri_frontend.ps1 -BrowserOnly
@@ -140,6 +140,8 @@ Remove-Item Env:VITE_MYREID_API_BASE_URL -ErrorAction SilentlyContinue
 `VITE_MYREID_API_BASE_URL` 会让浏览器绕过代理；后端未配置通用 CORS。Tauri 需要直连时使用前一组地址变量及 `tauri:dev` 包装入口，自动生成权限。生产安装包使用 `npm run tauri:build` 并显式设置 HTTPS origin。
 
 ### 游客 H5
+
+游客开发服务器与 Docker `visitor-web` 都固定使用 `5174`。如果已启动 Docker 网页，先停止对应 Compose 项目的 `visitor-web` 再运行下方命令；不要改端口。运营端 Vite 与 Docker `staff-web` 的 `5173` 也不能同时占用。
 
 ```powershell
 # 新终端，从仓库根目录执行
@@ -169,7 +171,7 @@ model/clip_weights/ViT-B-16.pt
 | --- | --- |
 | `YOLO_MODEL_PATH` | YOLO 行人检测模型路径。 |
 | `EMBEDDING_BACKEND` | 当前配置只允许 `clipreid`；源码里的旧 CLIP/预留适配器不属于可切换的受支持配置。 |
-| `CLIPREID_MODEL_PATH` | 本地 CLIP-ReID checkpoint。 |
+| `CLIPREID_MODEL_PATH` | 本地 DSCL-ReID checkpoint。 |
 | `MODEL_DEVICE` | `auto`, `cpu`, `cuda`, `mps`。 |
 | `EMBEDDING_DIMENSION` | 向量维度，必须与 Milvus collection 一致。 |
 

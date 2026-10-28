@@ -209,7 +209,8 @@ function openMediaPreview(payload: {
     </aside>
 
     <section class="scenic-main">
-      <div class="workspace-topbar"><button type="button" @click="showProjectModal = true"><FolderPlus :size="16" />{{ store.scenicProjects.find(project => project.id === store.scenicProjectId)?.name || '选择景区项目' }} / 主园区</button><div><span class="workspace-tag">运营工作台</span><button type="button" @click="emit('switch-core')">切换工作台</button></div></div>
+      <p v-if="store.activeProject && !store.modelAvailable" role="alert">{{ store.activeProject.reid_model?.unavailable_reason || "项目模型待核验，暂停推理操作" }}</p>
+      <div class="workspace-topbar"><button type="button" @click="showProjectModal = true"><FolderPlus :size="16" />{{ store.scenicProjects.find(project => project.id === store.scenicProjectId)?.name || '选择景区项目' }} / {{ store.activeProject?.reid_model?.name || '模型待核验' }}</button><div><span class="workspace-tag">运营工作台</span><button type="button" @click="emit('switch-core')">切换工作台</button></div></div>
       <header class="scenic-header">
         <div>
           <h2>{{ pageTitle }}</h2>

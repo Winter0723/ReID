@@ -68,7 +68,7 @@ def test_scenic_registration_accepts_chinese_photo_in_s3(client, register_scenic
         assert session.visitor_label == "游客甲"
 
 
-def test_entry_photo_detection_reads_unicode_path_without_opencv_file_io(tmp_path, monkeypatch):
+def test_entry_photo_detection_reads_unicode_path_without_opencv_file_io(tmp_path, monkeypatch, isolated_model_binding):
     from app.api.scenic import system_routes
 
     path = tmp_path / "微信入园照片.png"
@@ -80,7 +80,7 @@ def test_entry_photo_detection_reads_unicode_path_without_opencv_file_io(tmp_pat
     monkeypatch.setattr(system_routes, "detect_people", detect)
     monkeypatch.setattr(system_routes, "clip_image_feature", feature)
     assert system_routes._tourist_entry_feature(SimpleNamespace(
-        entry_image_object_key="entry", entry_target_box_json="")) == "feature"
+        project_id=1, entry_image_object_key="entry", entry_target_box_json="")) == "feature"
     frame = detect.call_args.args[0]
     assert frame.shape == (50, 30, 3)
     assert frame[0, 0].tolist() == [20, 100, 200]

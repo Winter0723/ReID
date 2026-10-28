@@ -41,7 +41,7 @@
 | `BOOTSTRAP_ADMIN_EMAIL` | `(空)` |
 | `PUBLIC_REGISTRATION_ROLE` | `viewer` |
 | `CAMERA_SOURCES` | `{"0":"0"}` |
-| `VISITOR_REQUIRE_STAFF_VERIFICATION` | `1` |
+| `VISITOR_REQUIRE_STAFF_VERIFICATION` | `0` |
 | `VISITOR_OPERATIONS_PER_HOUR` | `30` |
 | `VISITOR_PROJECT_OPERATIONS_PER_HOUR` | `300` |
 | `VISITOR_RETENTION_DAYS` | `30` |
@@ -155,4 +155,15 @@
 
 ## 启动器、工具和 Compose 选项
 
-示例末尾同时列出 `CLIP_CACHE_DIR`、`YOLO_CONFIG_DIR`、`MYREID_CAMERA_SOURCE`、`MYREID_CAMERA_BRIDGE_DIR`、字体/编码器、本地队列容量和 TTL、API/游客端口等。空路径表示使用程序内默认路径。`VITE_MYREID_API_BASE_URL` 是前端构建时变量，不能存放任何密钥。`SCENIC_FONT_FILE` 应指向具有许可的 CJK 字体；`SCENIC_VIDEO_ENCODER` 默认 libx264，GPU 编码需部署者自行验证。
+示例末尾同时列出 `CLIP_CACHE_DIR`、`YOLO_CONFIG_DIR`、`MYREID_CAMERA_SOURCE`、`MYREID_CAMERA_BRIDGE_DIR`、字体/编码器、本地队列容量和 TTL、前端 API 代理目标等。常规端口固定为 API `2889`、运营 `5173`、游客 `5174`；Compose 不再读取 `STAFF_WEB_PORT` 或 `VISITOR_WEB_PORT`。空路径表示使用程序内默认路径。`VITE_MYREID_API_BASE_URL` 是前端构建时变量，不能存放任何密钥。`SCENIC_FONT_FILE` 应指向具有许可的 CJK 字体；`SCENIC_VIDEO_ENCODER` 默认 libx264，GPU 编码需部署者自行验证。
+
+
+### 项目模型目录
+
+| 配置 | 默认 | 用途 |
+| --- | --- | --- |
+| `REID_MODEL_DIR` | `model` | 后端模型描述和权重目录；相对路径以仓库根目录解析 |
+| `REID_DEFAULT_MODEL_ID` | `clipreid-msmt17` | 仅影响新项目，不能改变已有绑定 |
+| `REID_MODEL_CACHE_SIZE` | `2` | 每进程模型实例上限，仅淘汰闲置实例；API 和各 worker 分别占用资源 |
+
+Docker 模板使用 `REID_MODEL_DIR=/models/reid`，API、worker、visitor coordinator 等共用只读目录挂载。描述中的权重路径必须位于该目录内。模型精度与图像尺寸由项目绑定的描述决定，旧全局 `CLIPREID_*` 设置仅供旧接口兼容；升级时须核对实际历史配置。

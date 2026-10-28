@@ -535,8 +535,10 @@ def _plan_variant_raw(sources: list[dict], template: dict, target_seconds: float
                     duration = max(nearby)
             available_start, available_end = clip["start_seconds"], clip["end_seconds"]
             peak = _finite(clip["quality"].get("peak_seconds"), (available_start + available_end) / 2)
-            clip["start_seconds"] = round(max(available_start, min(peak - duration / 2, available_end - duration)), 4)
-            clip["end_seconds"] = round(clip["start_seconds"] + duration, 4)
+            # Camera intervals retain sub-frame precision. Rounding these
+            # values can escape matched bounds or shorten a 0.3-second clip.
+            clip["start_seconds"] = max(available_start, min(peak - duration / 2, available_end - duration))
+            clip["end_seconds"] = min(available_end, clip["start_seconds"] + duration)
             if clip["kind"] == "image":
                 clip["start_seconds"], clip["end_seconds"] = 0.0, round(duration, 4)
             clip["locked"] = False

@@ -44,7 +44,8 @@ const boxStyle = computed(() =>
 onMounted(async () => {
   try {
     site.value = await api<Site>(`/sites/${route.params.id}`);
-    if (session.runtime?.auth_provider === "browser") await session.browserLogin(site.value.id);
+    session.rememberSite(site.value.id);
+    if (session.runtime?.browser_login_available ?? session.runtime?.auth_provider === "browser") await session.browserLogin(site.value.id);
     else await session.check();
   } catch (e) {
     error.value = (e as Error).message;

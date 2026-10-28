@@ -17,6 +17,7 @@ vi.mock("../LiveCameraPreview.vue", () => ({ default: {
 
 
 const mockStore = vi.hoisted(() => ({
+  modelAvailable: true,
   tourists: [] as Record<string, unknown>[],
   touristQuery: { q: "", page: 1, page_size: 20, status: "", work_queue: "", date_from: "", date_to: "" },
   touristPagination: { page: 1, page_size: 20, total: 0, total_pages: 0 },

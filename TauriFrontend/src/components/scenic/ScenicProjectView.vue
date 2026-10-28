@@ -2,6 +2,7 @@
 import { reactive, ref, toRef } from "vue";
 import { FolderPlus, X } from "@lucide/vue";
 
+import ModelSelect from "../ModelSelect.vue";
 import { useDialogFocus } from "../../lib/dialogFocus";
 import { useWorkbenchStore } from "../../stores/workbench";
 
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 
 const store = useWorkbenchStore();
 const dialog = ref<HTMLElement | null>(null);
+const reidModelId = ref("");
 const projectForm = reactive({ name: "默认景区项目", description: "景区游客游玩记录与短片交付", cameraSource: "0" });
 
 function close(): void {
@@ -24,7 +26,7 @@ function close(): void {
 useDialogFocus(toRef(props, "open"), dialog, close);
 
 async function createProject(): Promise<void> {
-  await store.createProject("scenic", projectForm.name, projectForm.description, "scenic", projectForm.cameraSource);
+  await store.createProject("scenic", projectForm.name, projectForm.description, "scenic", projectForm.cameraSource, reidModelId.value);
   if (!store.error) close();
 }
 
@@ -59,7 +61,7 @@ function selectProject(projectId: number): void {
           @click="selectProject(project.id)"
         >
           <strong>{{ project.name }}</strong>
-          <span>{{ project.project_type }} · {{ project.created_at }}</span>
+          <span>{{ project.reid_model?.name || "模型待核验" }} · {{ project.project_type }} · {{ project.created_at }}</span>
         </button>
         <div v-if="!store.scenicProjects.length" class="empty-inline">暂无景区项目</div>
       </div>
@@ -67,7 +69,8 @@ function selectProject(projectId: number): void {
       <input v-model="projectForm.name" class="scenic-field" placeholder="景区名称" />
       <input v-model="projectForm.description" class="scenic-field" placeholder="项目描述" />
       <input v-model="projectForm.cameraSource" class="scenic-field" placeholder="默认相机源：设备 ID，如 0 或 entrance" />
-      <button class="scenic-button primary full-width" type="button" :disabled="!store.isAuthenticated" @click="createProject">
+      <ModelSelect v-model="reidModelId" scope="scenic" :open="open" />
+      <button class="scenic-button primary full-width" type="button" :disabled="!store.isAuthenticated || !reidModelId" @click="createProject">
         <FolderPlus :size="16" />
         <span>创建景区项目</span>
       </button>

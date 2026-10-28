@@ -13,8 +13,8 @@ x-backend-common: &backend-common
       read_only: true
       bind: {create_host_path: false}
     - type: bind
-      source: ./model/ViT-MSMT17-60.pth
-      target: /models/ViT-MSMT17-60.pth
+      source: ./model
+      target: /models/reid
       read_only: true
       bind: {create_host_path: false}
     - type: bind
@@ -43,7 +43,7 @@ services:
     environment:
       RUN_MIGRATIONS_ON_START: "1"
     ports:
-      - "127.0.0.1:${MYREID_API_PORT:-2889}:2889"
+      - "127.0.0.1:2889:2889"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:2889/api/v1/healthz', timeout=3).read()"]
       interval: 10s
@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: TauriFrontend/Dockerfile
     ports:
-      - "127.0.0.1:${STAFF_WEB_PORT:-15173}:80"
+      - "127.0.0.1:5173:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -109,7 +109,7 @@ services:
       context: .
       dockerfile: VisitorFrontend/Dockerfile
     ports:
-      - "127.0.0.1:${VISITOR_WEB_PORT:-15174}:80"
+      - "127.0.0.1:5174:80"
     depends_on:
       backend:
         condition: service_healthy

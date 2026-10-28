@@ -101,7 +101,7 @@ $env:PYTHONUTF8 = "1"
 $env:PYTHONUNBUFFERED = "1"
 & $Python -c "import socket,sys; s=socket.socket(); s.bind(('127.0.0.1',int(sys.argv[1]))); s.close()" $Port
 if ($LASTEXITCODE -ne 0) {
-    throw "Backend port $Port cannot be bound (busy or reserved by Windows). Set MYREID_API_PORT in .env.local to an available port and restart the frontend too."
+    throw "Backend port $Port cannot be bound (busy or reserved by Windows). Release the configured port and retry. The normal API port is fixed at 2889; do not change the frontend proxy or select another port."
 }
 Write-Host "[MyReID] Starting backend at http://127.0.0.1:$Port"
 $uvicornArgs = @("-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", [string]$Port)

@@ -183,7 +183,7 @@ onUnmounted(() => { ++cameraRequest; clearTimeout(cameraRefreshTimer); unsubscri
           <label><input v-model="showOthers" type="checkbox" /> 显示其他行人的灰框</label>
         </fieldset>
         <div class="actions">
-          <button class="primary-button" :disabled="!ready || active || busy" @click="start">开始识别</button>
+          <button class="primary-button" :disabled="!workbench.modelAvailable || !ready || active || busy" @click="start">开始识别</button>
           <button v-if="realtime.status === 'running'" class="ghost-button" @click="realtime.control('pause')">暂停</button>
           <button v-if="realtime.status === 'paused'" class="ghost-button" @click="realtime.control('resume')">继续</button>
           <button v-if="active" class="ghost-button" @click="reset(workbench.coreProjectId)">停止</button>

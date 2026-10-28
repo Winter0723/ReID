@@ -121,7 +121,7 @@ test("ordinary core users see current-project audit instead of global observabil
     } else if (path === "/api/v1/auth/me") {
       body = { username: "operator", role: "operator", email: "operator@example.test" };
     } else if (path === "/api/v1/projects") {
-      body = [{ id: 7, name: "审计项目", description: "", project_type: "media", owner_username: "operator", created_at: "2026-08-31" }];
+      body = [{ id: 7, name: "审计项目", description: "", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "media", owner_username: "operator", created_at: "2026-08-31" }];
     } else if (path === "/api/v1/projects/7/status") {
       body = { status: "ready", indexed_targets: 2 };
     } else if (path === "/api/v1/projects/7/preview") {

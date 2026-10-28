@@ -5,6 +5,8 @@ import { showConfirmDialog } from "vant";
 import { api, post, money, date, API, type Visit } from "../../shared/api";
 import VisitorEditor from "./VisitorEditor.vue";
 import { invokePayment, type Payment } from "../orders/wechat";
+import { useSession } from "../auth/session";
+const session = useSession();
 const route = useRoute(),
   visit = ref<Visit>(),
   error = ref(""),
@@ -108,6 +110,7 @@ async function load() {
     const next = await api<Visit>(`/visits/${route.params.id}`);
     if (alive) {
       visit.value = next;
+      session.rememberSite(next.project_id);
       error.value = "";
     }
   } catch (e) {
@@ -213,6 +216,7 @@ async function claim() {
 </script>
 <template>
   <RouterLink to="/visits" class="back">← 我的游览</RouterLink>
+  <RouterLink v-if="visit" :to="`/sites/${visit.project_id}`" class="back">返回本景区登记入口 →</RouterLink>
   <div v-if="error" class="notice error" role="alert">
     {{ error }}<button class="text-button" @click="load">重试</button>
   </div>

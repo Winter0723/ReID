@@ -1,5 +1,6 @@
 """Visitor-only DTOs and ownership checks; shared scenic business capabilities."""
 import base64
+import copy
 import hashlib
 import hmac
 import io
@@ -28,7 +29,7 @@ from app.services.asset_delivery import deliver_object, signed_asset_url, has_va
 from app.services.storage import storage, UploadTooLargeError
 from app.services.media_service import load_verified_rgb_image, ImagePixelLimitError
 from app.services.time_utils import utc_now, as_utc
-from app.services.visitor_auth import PREFIX, COOKIE, digest, establish_session, require_visitor, owned_visit, visitor_origin_allowed, require_browser_mode, validate_visitor_request
+from app.services.visitor_auth import PREFIX, COOKIE, digest, establish_session, require_visitor, owned_visit, visitor_origin_allowed, require_browser_mode, validate_visitor_request, account_provider
 from app.services.visitor_production import MESSAGES, output_complete
 from app.workers.scenic_editing import lock_path
 from filelock import FileLock, Timeout
@@ -52,6 +53,8 @@ def runtime():
         if getattr(settings, "visitor_" + kind + "_provider") == "test":
             require_test_mode(kind)
     return {"auth_provider": settings.visitor_auth_provider,
+        "browser_login_available": settings.visitor_auth_provider != "test",
+        "wechat_login_available": bool(settings.visitor_wechat_appid and settings.visitor_wechat_secret and visitor_origin_allowed(settings)),
         "payment_provider": settings.visitor_payment_provider,
         "testing": "test" in {settings.visitor_auth_provider, settings.visitor_payment_provider}}
 
@@ -68,16 +71,16 @@ def browser_login(payload: BrowserLogin, request: Request, response: ApiResponse
     token = request.cookies.get(COOKIE)
     previous = db.get(database.VisitorSession, digest(token)) if token else None
     account = db.get(database.VisitorAccount, previous.account_id) if previous and as_utc(previous.expires_at) > utc_now() else None
-    if account and account.appid == "visitor-browser":
+    if account and account.appid != "visitor-test":
         # Reuse the browser's identity across reloads and scenic projects.
-        return {"authenticated": True}
+        return {"authenticated": True, "auth_provider": account_provider(account)}
     account = database.VisitorAccount(appid="visitor-browser", openid=secrets.token_urlsafe(32))
     db.add(account)
     db.flush()
     if previous:
         db.delete(previous)
     establish_session(response, db, account)
-    return {"authenticated": True}
+    return {"authenticated": True, "auth_provider": account_provider(account)}
 
 
 class TestLogin(BaseModel):
@@ -110,7 +113,7 @@ def test_login(payload: TestLogin, request: Request, response: ApiResponse, db: 
     if old_token:
         db.query(database.VisitorSession).filter_by(token_hash=digest(old_token)).delete()
     establish_session(response, db, account)
-    return {"authenticated": True, "visitor": payload.visitor}
+    return {"authenticated": True, "auth_provider": "test", "visitor": payload.visitor}
 
 
 @router.post(PREFIX + "/payments/wechat/notify")
@@ -223,7 +226,7 @@ def oauth_callback(request: Request, code: str = "", state: str = "", db: Sessio
 
 @router.get(PREFIX + "/me")
 def me(account=Depends(require_visitor)):
-    return {"authenticated": True}
+    return {"authenticated": True, "auth_provider": account_provider(account)}
 
 
 @router.post(PREFIX + "/logout")
@@ -513,6 +516,28 @@ def visitor_save_draft(visit_id: int, payload: "DraftUpdate", account=Depends(re
         if visitor_draft_sources(row) is None:
             raise HTTPException(409, "匹配结果已变化，请重新挑选片段并编排")
         saved = json.loads(row.draft.data_json)
+        # Older automatic plans rounded to four decimal places. Snap only
+        # that sub-millisecond spill back to trusted source bounds before
+        # canonical validation (including tracking bounds), never widen them.
+        adjusted = copy.deepcopy(payload.data)
+        sources = {source["id"]: source for source in saved.get("sources", [])}
+        variants = adjusted.get("variants")
+        if isinstance(variants, dict):
+            for clips in variants.values():
+                if not isinstance(clips, list):
+                    continue
+                for clip in clips:
+                    if not isinstance(clip, dict):
+                        continue
+                    source = sources.get(str(clip.get("id", "")))
+                    if not source or source.get("kind") != "video":
+                        continue
+                    for field, bound_field in (("start_seconds", "available_start_seconds"), ("end_seconds", "available_end_seconds")):
+                        bound = source.get(bound_field, source[field])
+                        value = clip.get(field)
+                        if isinstance(value, (int, float)) and abs(value - bound) <= 0.0001:
+                            clip[field] = bound
+        payload = payload.model_copy(update={"data": adjusted})
         data = canonical_edit(payload.data, saved)
         for clips in data["variants"].values():
             for clip in clips:
@@ -556,7 +581,10 @@ def visitor_retry(visit_id: int, payload: VisitorRetryRequest | None = None, acc
                     retry_variant(row.vlog_id, variant.id, row.session.created_by_username, db)
             row.stage = "rendering"
         else:
-            row.stage, row.draft_id, row.vlog_id = "waiting", None, None
+            # Requests previously stopped at identity verification have not
+            # sealed their recordings yet. Resume the complete pipeline.
+            row.stage = "sealing" if row.reason == "identity_unverified" else "waiting"
+            row.draft_id, row.vlog_id = None, None
         row.reason, row.internal_error, row.requested_at = "", "", utc_now()
         db.commit()
         return visit_payload(row)

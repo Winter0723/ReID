@@ -11,9 +11,11 @@
 | 完整 Compose 开发栈 | `.env.example` | `docker-compose.yml` | API `2889` |
 | Compose 源码挂载开发 | `.env.dev.example` → `.env.dev` | 基础文件 + `docker-compose.dev.yml` | API `2889` |
 | 预发 / 通用生产 | `.env.staging.example` / `.env.prod.example` | 基础文件 + 对应 staging/prod 覆盖文件 | API `2889`；应放在 TLS 代理之后 |
-| Windows 本机 GPU 生产 | `.env.prod` | `scripts/run_production.ps1` | API `12889`，游客 H5 `15174` |
+| Windows 本机 GPU 生产 | `.env.prod` | `scripts/run_production.ps1` | API `2889`，游客 H5 `5174` |
 | 隔离游客联调 | `.env.visitor-test.example` → `.env.visitor-test` | `scripts/start-visitor-test.ps1` | API `22889`，游客 H5 `25174` |
 | 运营 / 游客前端开发 | 根目录 `MYREID_API_PORT` | 各前端的 `npm run dev` | 运营 `5173`，游客 `5174` |
+
+常规开发与生产统一使用 API `2889`、运营 `5173`、游客 `5174`，基础 Compose 直接固定映射，不受旧 `MYREID_API_PORT`、`STAFF_WEB_PORT`、`VISITOR_WEB_PORT` 端口覆盖影响。前端代理的 `MYREID_API_PORT` 保持 `2889`；只有明确启动隔离游客联调环境时才使用该环境专用配置。端口冲突时处理占用或保留原因，不自动换端口；开发前端与对应 Docker 前端不能同时启动。
 
 `visitor-web` 和 `visitor-coordinator` 属于 Compose 的 `visitor` profile。基础 Compose 默认不启动它们；本机生产和游客联调脚本已经包含 `--profile visitor`。本机生产和游客联调覆盖文件使用 `!override`，Compose 必须支持该语法；GPU 覆盖还使用 `gpus: all`。
 
@@ -107,7 +109,7 @@ Core 与 Scenic 必须使用不同数据库；这是部署约束，须结合 `sc
 | `SCENIC_DELIVERY_TOKEN_TTL_HOURS` | `720` | 领取链接有效期，按订单创建时间计算。 |
 | `PAYMENT_PROVIDER` | 空 | 工作人员 Native 支付适配器；开发模板 `fake_wechat`，真实模式 `wechat_native`。 |
 | `PAYMENT_PUBLIC_BASE_URL` | 空 | 工作人员微信通知的后端公网地址。 |
-| `VISITOR_AUTH_PROVIDER` | `wechat` | `wechat` 或 `test`，独立于工作人员登录。 |
+| `VISITOR_AUTH_PROVIDER` | `wechat` | `wechat` / `browser` / `test`。前两者均支持独立浏览器游客；微信配置就绪后可同时微信登录，独立于工作人员登录。 |
 | `VISITOR_PAYMENT_PROVIDER` | `wechat` | `wechat`（JSAPI）、`manual`（人工确认）、`test`；不继承 `PAYMENT_PROVIDER`。 |
 | `VISITOR_WECHAT_APPID` / `VISITOR_WECHAT_SECRET` | 空 | 公众号网页授权；仅存服务端。 |
 | `VISITOR_PUBLIC_BASE_URL` | 空 | 游客静态页、API、OAuth 回调的同源 origin，不带 `/visitor/`。 |

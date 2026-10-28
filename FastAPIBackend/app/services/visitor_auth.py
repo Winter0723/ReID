@@ -20,10 +20,14 @@ def digest(value):
     return hashlib.sha256(value.encode()).hexdigest()
 
 
+def account_provider(account):
+    return {"visitor-browser": "browser", "visitor-test": "test"}.get(account.appid, "wechat")
+
+
 def require_browser_mode():
     settings = get_settings()
-    if settings.visitor_auth_provider != "browser" or settings.app_env.strip().lower() not in {"development", "dev", "local", "test"}:
-        raise HTTPException(404, "浏览器演示入口未开放")
+    if settings.visitor_auth_provider == "test":
+        raise HTTPException(404, "测试环境请使用测试游客入口")
 
 
 def require_visitor(request: Request, db: Session = Depends(database.get_db)):
@@ -39,7 +43,7 @@ def require_visitor(request: Request, db: Session = Depends(database.get_db)):
         try:
             require_browser_mode()
         except HTTPException:
-            raise HTTPException(401, "浏览器演示登录已关闭，请从景区入口重新登录")
+            raise HTTPException(401, "浏览器登录已关闭，请从景区入口重新登录")
     if not account:
         raise HTTPException(401, "游客账号不存在")
     if request.method not in {"GET", "HEAD", "OPTIONS"} or request.url.path.endswith("/preview"):

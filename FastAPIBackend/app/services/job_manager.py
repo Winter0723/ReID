@@ -124,6 +124,13 @@ class RedisJobManager:
         return record
 
     def enqueue(self, job_id: str, task_path: str, *args) -> None:
+        if task_path in {"app.workers.tasks.process_media_index", "app.workers.tasks.process_scenic_media_index", "app.workers.tasks.rebuild_project_index"}:
+            from app.services.project_models import snapshot_for
+            scope = "scenic" if "scenic" in task_path else "core"
+            project_id = args[1] if task_path.endswith("rebuild_project_index") else args[2]
+            snapshot = snapshot_for(project_id, scope)
+            args = (task_path, scope, project_id, snapshot["embedding_space_id"], args)
+            task_path = "app.workers.tasks.run_bound_model_job"
         if self._can_try_redis():
             try:
                 self.queue.enqueue_call(func=task_path, args=args, job_id=job_id)

@@ -177,6 +177,8 @@ def v1_create_project(payload: ProjectCreate, username: str = Depends(get_curren
         camera_source=camera_source,
         owner_username=username,
     )
+    from app.services.model_registry import bind_project
+    bind_project(project, payload.reid_model_id)
     db.add(project)
     db.flush()
     _ensure_project_membership(db, project.id, username, "owner")
@@ -954,7 +956,8 @@ def v1_get_media_preview_content(
     if not media_exists or Path(filename).name != filename:
         raise HTTPException(status_code=404, detail="视频预览不存在")
     object_key = f"projects/{project_id}/media/{media_id}/previews/{filename}"
-    return deliver_object(object_key, filename=filename, content_type="video/mp4")
+    from app.services.asset_delivery import deliver_video_preview
+    return deliver_video_preview(object_key)
 
 
 @router.delete("/api/v1/media/{media_id}")
@@ -981,3 +984,9 @@ def v1_delete_media(media_id: int, username: str = Depends(get_current_username)
     _audit(db, username, "media.deleted", "media", str(media_id), json.dumps({"filename": media.filename, "deleted_ids": deleted_ids}, ensure_ascii=False))
     db.commit()
     return {"status": "success", "deleted": deleted_ids}
+
+
+@router.get("/api/v1/models")
+def list_models(username: str = Depends(get_current_username)):
+    from app.services.model_registry import public_models
+    return public_models()

@@ -36,7 +36,7 @@ def test_camera_waits_for_next_frame_if_cached_frame_was_already_consumed(monkey
     wait.assert_called_once()
 
 
-def test_remote_camera_startup_jitter_and_recovery_do_not_skip_fresh_frame(tmp_path, monkeypatch):
+def test_remote_camera_startup_jitter_and_recovery_do_not_skip_fresh_frame(tmp_path, monkeypatch, isolated_model_binding):
     from app.services import realtime, model_runtime, central_camera_service
 
     clock = [0.0]

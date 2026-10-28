@@ -47,6 +47,8 @@ def _bootstrap_legacy_database(config: Config, engine, metadata, scope: str) -> 
         )
         for table_name in sorted(required_tables & existing_tables)
     }
+    if "projects" in missing_columns:
+        missing_columns["projects"] = [c for c in missing_columns["projects"] if c not in {"reid_model_id", "embedding_space_id", "model_snapshot_json"}]
     # These additive visitor fields are applied after stamping the known legacy head.
     if scope == "scenic" and "visitor_visits" in missing_columns:
         missing_columns["visitor_visits"] = [c for c in missing_columns["visitor_visits"] if c not in {"verified_at", "verified_by"}]

@@ -15,6 +15,7 @@ async function load() {
   error.value = "";
   try {
     site.value = await api<Site>(`/sites/${route.params.id}`);
+    session.rememberSite(site.value.id);
   } catch (e) {
     error.value = (e as Error).message;
   }
@@ -29,7 +30,7 @@ async function start() {
       await session.testLogin(site.value.id, testVisitor.value, inviteCode.value);
       inviteCode.value = "";
       await router.push(`/sites/${site.value.id}/register`);
-    } else if (session.runtime?.auth_provider === "browser") {
+    } else if (session.runtime?.browser_login_available ?? session.runtime?.auth_provider === "browser") {
       await session.browserLogin(site.value.id);
       await router.push(`/sites/${site.value.id}/register`);
     } else if (await session.check())
@@ -74,7 +75,11 @@ onMounted(load);
     <button class="primary" :disabled="busy || !session.runtime" @click="start">
       {{ busy ? "正在登录…" : "开始登记" }}
     </button>
-    <p v-if="session.runtime?.auth_provider === 'browser'" class="caption center">无需微信授权，可直接使用浏览器登记。请用同一浏览器查看记录；清除 Cookie 或更换设备后无法找回。</p>
+    <button v-if="session.runtime?.wechat_login_available" class="secondary" :disabled="busy" @click="session.login(site.id)">
+      {{ session.authProvider === 'wechat' ? '重新微信登录' : '使用微信登录登记' }}
+    </button>
+    <p v-if="session.runtime?.wechat_login_available && session.authProvider === 'browser'" class="caption">微信与浏览器是不同游客身份，切换后原记录仍属于原身份。</p>
+    <p v-if="session.runtime?.browser_login_available ?? session.runtime?.auth_provider === 'browser'" class="caption center">无需微信授权，可直接使用浏览器登记。请用同一浏览器查看记录；清除 Cookie 或更换设备后无法找回。</p>
     <p v-else class="caption center">{{ session.runtime?.auth_provider === "test" ? "可在电脑浏览器登记；切换游客请返回本景区入口。" : "请在微信中打开，登记后可找回本次游览。" }}</p>
   </template>
   <p v-else-if="!error" role="status">正在读取景区信息…</p>

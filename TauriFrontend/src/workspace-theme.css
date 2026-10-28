@@ -344,3 +344,12 @@ input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.media-targets summary { cursor: pointer; padding: 8px 0; color: var(--accent, #80d9cd); font-size: 12px; }
+.media-target-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 320px; overflow-y: auto; padding: 4px; }
+.media-target-list button { display: grid; gap: 6px; padding: 8px; border: 1px solid #ffffff24; border-radius: 8px; background: #101b24; color: #e2e8f0; cursor: pointer; text-align: left; }
+.media-target-list button:focus-visible { outline: 2px solid #80d9cd; }
+.media-target-list button:disabled { opacity: .6; cursor: wait; }
+.media-target-list img { width: 100%; height: 100px; object-fit: contain; }
+.media-target-list small { display: block; color: #9badba; }
+.preview-loading { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 210; padding: 14px 22px; border-radius: 12px; background: #182c36; color: #e2e8f0; box-shadow: 0 8px 30px #0008; }

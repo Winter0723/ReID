@@ -57,7 +57,7 @@ test("commercial music previews decode, follow volume and persist to the submitt
     let body: unknown = { status: "ok" };
     if (path.endsWith("/readyz")) body = { status: "ready", queue_ready: true, queue_mode: "local" };
     else if (path.endsWith("/auth/me")) body = { username: "editor", role: "admin", email: "editor@example.test" };
-    else if (path === "/api/v1/scenic/projects") body = [{ id: 7, name: "青山景区", project_type: "scenic", owner_username: "editor" }];
+    else if (path === "/api/v1/scenic/projects") body = [{ id: 7, name: "青山景区", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "scenic", owner_username: "editor" }];
     else if (path.endsWith("/status")) body = { status: "ready", indexed_targets: 1 };
     else if (path.endsWith("/preview")) body = { previews: [] };
     else if (path.endsWith("/jobs")) body = { jobs: [] };

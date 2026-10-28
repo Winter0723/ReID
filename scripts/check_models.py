@@ -7,6 +7,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--registry", action="store_true", help="Inspect registered models without inference")
+    args = parser.parse_args()
+    if args.registry:
+        sys.path.insert(0, str(ROOT / "FastAPIBackend"))
+        from app.services.model_registry import public_models
+        rows = public_models()
+        print(json.dumps(rows, indent=2, ensure_ascii=False))
+        if not any(row["available"] for row in rows):
+            raise SystemExit("No compatible models available")
+        return
     for item in json.loads((ROOT / "model/checkpoints.json").read_text(encoding="utf-8")):
         path = ROOT / item["path"]
         if not path.is_file() or path.stat().st_size != item["bytes"]:

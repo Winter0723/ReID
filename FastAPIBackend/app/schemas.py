@@ -81,6 +81,7 @@ class UserOut(BaseModel):
 
 
 class ProjectCreate(CameraInput):
+    reid_model_id: Optional[str] = Field(default=None, max_length=64)
     name: str = Field(min_length=1, max_length=120)
     description: str = ""
     project_type: str = Field(default="media", pattern="^(media|camera)$")
@@ -88,11 +89,15 @@ class ProjectCreate(CameraInput):
 
 
 class ProjectUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: Optional[str] = Field(default=None, min_length=1, max_length=120)
     description: Optional[str] = None
 
 
 class ProjectOut(BaseModel):
+    reid_model_id: str = ""
+    embedding_space_id: str = ""
+    reid_model: Dict[str, Any] = Field(default_factory=dict)
     @field_serializer("camera_source")
     def public_source(self, value):
         from app.services.camera_policy import public_camera_source

@@ -504,7 +504,7 @@ def _video_preview_payload(
 
     ffmpeg = ffmpeg_executable()
     mode = "full" if full else f"clip_{start:.3f}_{duration:.3f}"
-    fingerprint = hashlib.sha256(f"v2:{media.object_key}:{media.size_bytes}:{mode}".encode("utf-8")).hexdigest()[:20]
+    fingerprint = hashlib.sha256(f"v3:{media.object_key}:{media.size_bytes}:{mode}".encode("utf-8")).hexdigest()[:20]
     filename = _safe_preview_filename(media, f"{'full' if full else 'clip'}_{fingerprint}")
     object_key = f"projects/{storage_project_id}/media/{media.id}/previews/{filename}"
     target_path = get_settings().object_storage_dir / object_key
@@ -642,7 +642,8 @@ def _fit_preview_video_frame(frame):
 
 
 def _open_preview_video_writer(path: Path, width: int, height: int, fps: float):
-    for codec in ("avc1", "H264", "mp4v"):
+    # MPEG-4 Part 2 (mp4v) creates valid MP4 files that Chromium cannot play.
+    for codec in ("avc1", "H264"):
         writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*codec), fps, (width, height))
         if writer.isOpened():
             return writer

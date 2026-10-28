@@ -64,8 +64,9 @@ async function setup(page: Page, scenic = false, streaming = false) {
     if (path.endsWith("/readyz")) body = { status: "ready", queue_mode: "local", queue_ready: true };
     else if (streaming && path.endsWith("/preview-stream")) { state.tickets++; body = { url: `/qa/camera.mjpeg?ticket=${state.tickets}`, expires_in: 300 }; }
     else if (path.endsWith("/auth/me")) body = { username: "operator", role: "operator" };
-    else if (path === "/api/v1/projects") body = [{ id: 7, name: "实时相机验证", project_type: "camera", camera_source: "0", owner_username: "operator" }];
-    else if (path === "/api/v1/scenic/projects") body = [{ id: 8, name: "景区相机验证", project_type: "scenic", owner_username: "operator" }];
+    else if (path.endsWith("/models")) body = [{ ...{ id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, default: true }];
+    else if (path === "/api/v1/projects") body = [{ id: 7, name: "实时相机验证", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "camera", camera_source: "0", owner_username: "operator" }];
+    else if (path === "/api/v1/scenic/projects") body = [{ id: 8, name: "景区相机验证", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "scenic", owner_username: "operator" }];
     else if (path.endsWith("/camera/start")) { state.coreRunning = true; body = coreStatus(); }
     else if (path.endsWith("/camera/stop")) { state.coreRunning = false; body = coreStatus(); }
     else if (path.endsWith("/camera/status")) { state.statusPolls++; if (state.coreRunning && request.searchParams.get("light") === "true") state.version++; body = coreStatus(); }
@@ -99,7 +100,7 @@ test("creating a project closes management and selects the new workspace", async
   const { errors } = await setup(page);
   let created = false;
   await page.route("**/api/v1/projects", async route => {
-    const project = { id: 19, name: "新建项目验证", project_type: "media", owner_username: "operator" };
+    const project = { id: 19, name: "新建项目验证", reid_model: { id: "clip", name: "CLIP-ReID", available: true, capabilities: { image: true, text: true } }, project_type: "media", owner_username: "operator" };
     if (route.request().method() === "POST") {
       created = true;
       await route.fulfill({ json: project });

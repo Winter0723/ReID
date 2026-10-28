@@ -126,6 +126,8 @@ export const useWorkbenchStore = defineStore("workbench", () => {
   const activeProjectId = computed(() => (mode.value === "core" ? coreProjectId.value : scenicProjectId.value));
   const activeProject = computed(() => activeProjects.value.find((project) => project.id === activeProjectId.value) || null);
   const activeStatus = computed(() => (mode.value === "core" ? coreProjectStatus.value : scenicProjectStatus.value));
+  const modelAvailable = computed(() => activeProject.value?.reid_model?.available ?? false);
+  const textSearchAvailable = computed(() => modelAvailable.value && !!activeProject.value?.reid_model?.capabilities?.text);
   const activeIsCameraProject = computed(() => mode.value === "core" && activeProject.value?.project_type === "camera");
   const auditRows = computed(() => (mode.value === "core" ? coreAuditRows.value : scenicAuditRows.value));
   const searchHistory = computed(() => (mode.value === "core" ? coreSearchHistory.value : scenicSearchHistory.value));
@@ -527,9 +529,9 @@ export const useWorkbenchStore = defineStore("workbench", () => {
     }
   }
 
-  async function createProject(scope: AuthScope, name: string, description: string, projectType = "media", cameraSource = "0"): Promise<void> {
+  async function createProject(scope: AuthScope, name: string, description: string, projectType = "media", cameraSource = "0", reidModelId?: string): Promise<void> {
     await runTask("创建项目", async () => {
-      const project = await projectsApi.create(scope, { name, description, project_type: projectType, camera_source: cameraSource });
+      const project = await projectsApi.create(scope, { name, description, project_type: projectType, camera_source: cameraSource, reid_model_id: reidModelId });
       if (scope === "core") coreProjectId.value = project.id;
       else scenicProjectId.value = project.id;
       await loadProjects(scope);
@@ -885,6 +887,7 @@ export const useWorkbenchStore = defineStore("workbench", () => {
   }
 
   async function initializeScenicCameras(projectId: number): Promise<void> {
+    if (scenicProjects.value.find(project => project.id === projectId)?.reid_model?.available === false) return;
     if (mode.value !== "scenic" || !scenicAccessToken.value || scenicProjectId.value !== projectId
       || scenicUser.value?.role === "viewer" || scenicCameraInitialization?.projectId === projectId) return;
     const initialization = { projectId };
@@ -990,6 +993,7 @@ export const useWorkbenchStore = defineStore("workbench", () => {
 
   async function prepareScenicCameraPreview(pointId: number, silent = false): Promise<void> {
     const projectId = scenicProjectId.value;
+    if (scenicProjects.value.find(project => project.id === projectId)?.reid_model?.available === false) return;
     if (mode.value !== "scenic" || !scenicAccessToken.value || !projectId || !pointId) return;
     const ticket = latestRequest.begin("scenic-camera-preview");
     scenicPreview = { projectId, pointId, refreshedAt: Date.now() };
@@ -1215,6 +1219,8 @@ export const useWorkbenchStore = defineStore("workbench", () => {
     activeProjects,
     activeProjectId,
     activeProject,
+    modelAvailable,
+    textSearchAvailable,
     activeStatus,
     activeIsCameraProject,
     activeJobs,

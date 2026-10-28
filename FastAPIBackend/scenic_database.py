@@ -73,6 +73,15 @@ class User(IntegerIdMixin, CreatedAtMixin, Base):
 
 class Project(IntegerIdMixin, TimestampMixin, Base):
     __tablename__ = "projects"
+    reid_model_id = Column(String(64), nullable=False, default="", server_default="")
+    embedding_space_id = Column(String(64), nullable=False, default="", server_default="")
+    model_snapshot_json = Column(Text, nullable=False, default="{}", server_default="{}")
+
+    @property
+    def reid_model(self):
+        from app.services.model_registry import project_model_info
+        return project_model_info(self)
+
 
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, default="", nullable=False)

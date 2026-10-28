@@ -10,7 +10,7 @@ npm ci
 npm run dev
 ```
 
-游客页面地址为 `http://127.0.0.1:5174/visitor/`，API 代理优先读取进程变量 `MYREID_API_PORT`，其次读取仓库根目录 Vite 环境配置（包含 `.env.local`），未配置时为 `2889`。本机 Docker 生产组合使用 `12889`，隔离游客测试组合使用 `22889`。按 [开发指南](DEVELOPMENT.md) 启动后端并完成迁移后，在仓库根目录的另一终端启动协调器：
+游客页面地址为 `http://127.0.0.1:5174/visitor/`，API 代理优先读取进程变量 `MYREID_API_PORT`，其次读取仓库根目录 Vite 环境配置（包含 `.env.local`），未配置时为 `2889`。本机 Docker 生产组合使用 `2889`，隔离游客测试组合使用 `22889`。按 [开发指南](DEVELOPMENT.md) 启动后端并完成迁移后，在仓库根目录的另一终端启动协调器：
 
 ```powershell
 cd FastAPIBackend
@@ -38,7 +38,7 @@ VISITOR_INDEX_WAIT_SECONDS=600
 
 | 参数 | 可选值 | 边界 |
 | --- | --- | --- |
-| `VISITOR_AUTH_PROVIDER` | `wechat`（代码默认）/ `test` / `browser` | 真实公众号授权、固定 A/B 测试身份，或本地演示的独立浏览器身份（无需微信及邀请码） |
+| `VISITOR_AUTH_PROVIDER` | `wechat`（代码默认）/ `test` / `browser` | `wechat` 和 `browser` 均支持独立浏览器身份，公众号配置就绪后同时支持微信授权；`test` 为固定 A/B 测试身份 |
 | `VISITOR_PAYMENT_PROVIDER` | `wechat`（代码默认）/ `manual` / `test` | JSAPI 支付、工作人员确认或联调收银台；与工作人员 `PAYMENT_PROVIDER` 独立 |
 
 真实 JSAPI 支付要求公众号身份和商户 AppID 配置匹配、支付通知及证书齐备；测试身份没有真实 OpenID。完整支付配置见 [配置参考](CONFIGURATION.md)。`VISITOR_PUBLIC_BASE_URL` 只填 origin，不附加 `/visitor/` 或 Hash 路由。
@@ -61,7 +61,7 @@ docker compose --env-file .env.prod -p myreid-production -f docker-compose.yml -
 
 `--env-file` 供 Compose 变量替换，`MYREID_ENV_FILE` 选择包括协调器在内的容器环境文件，两者都要匹配。Windows GPU 本机生产使用 `scripts/run_production.ps1 -Build`，脚本已包含 `visitor` profile 和相机桥接；不要与上面的 Linux 组合混用，详见 [部署指南](DEPLOYMENT.md)。
 
-`visitor-web` 默认只监听本机 `127.0.0.1:15174`。通过现有公网 HTTPS 反向代理将独立游客域名转发到该端口。提供的 Nginx 只放行游客静态目录及游客 API；内部运营、摄像头、数据库和存储 API 不通过游客入口暴露。TLS 证书、DNS、公众号域名与商户授权需由实际部署环境配置。
+`visitor-web` 默认只监听本机 `127.0.0.1:5174`。通过现有公网 HTTPS 反向代理将独立游客域名转发到该端口。提供的 Nginx 只放行游客静态目录及游客 API；内部运营、摄像头、数据库和存储 API 不通过游客入口暴露。TLS 证书、DNS、公众号域名与商户授权需由实际部署环境配置。
 
 生产必须保留 Secure Cookie，并且前端、OAuth 回调和 API 同源。游客登录 Cookie 为 HttpOnly、SameSite=Lax，数据库只存会话令牌散列，30 天有效，可退出撤销。公开入园二维码只选择景区；访问本人记录、预览、完整视频都要通过游客身份校验。
 
@@ -164,8 +164,10 @@ IP 变化时需同步修改微信后台和本地配置。
 ```powershell
 # 根目录；重建后端，并启动 worker、游客协调器与网页容器
 .\scripts\run_production.ps1 -Build
-# 另一终端运行局域网游客页面（5174），代理到12889
-$env:MYREID_API_PORT="12889"
+# Docker 网页与 Vite 都固定在 5174，先停止 Docker 网页再切换开发服务器
+docker compose --env-file .env.prod -p myreid-production -f docker-compose.yml -f docker-compose.local-production.yml --profile visitor stop visitor-web
+# 另一终端运行局域网游客页面（5174），代理到2889
+$env:MYREID_API_PORT="2889"
 cd VisitorFrontend
 npm run dev -- --host 0.0.0.0
 ```

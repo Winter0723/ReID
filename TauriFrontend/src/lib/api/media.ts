@@ -1,5 +1,14 @@
 import { apiRequest, type AuthScope } from "./http";
 
+export interface MediaTarget {
+  id: number;
+  media_id: number;
+  thumbnail_url: string;
+  source_info?: string;
+  timestamp?: string;
+  video_seek_seconds?: number;
+}
+
 export interface MediaItem {
   id: number;
   project_id?: number;
@@ -14,7 +23,7 @@ export interface MediaItem {
   object_url?: string;
   thumbnail_url?: string;
   target_count?: number;
-  targets?: unknown[];
+  targets?: MediaTarget[];
   created_at?: string;
 }
 

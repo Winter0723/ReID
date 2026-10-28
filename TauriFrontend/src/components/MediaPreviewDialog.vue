@@ -38,6 +38,7 @@ const previewError = ref("");
 const downloading = ref(false);
 let seekTimer: number | undefined;
 let seekAttempts = 0;
+let seekComplete = false;
 
 function clearSeekTimer(): void {
   if (seekTimer !== undefined) {
@@ -54,15 +55,30 @@ function scheduleSeek(): void {
 
 function seekVideo(): void {
   const element = video.value;
-  if (!element || activeSeekSeconds.value <= 0) return;
+  if (!element || seekComplete || element.readyState < 1 || element.seeking) return;
+  const destination = Number.isFinite(element.duration)
+    ? Math.min(activeSeekSeconds.value, Math.max(0, element.duration - 0.01))
+    : activeSeekSeconds.value;
   try {
-    element.currentTime = activeSeekSeconds.value;
+    element.currentTime = destination;
   } catch {
     // Browsers may reject an early seek until metadata is available.
   }
   seekAttempts += 1;
-  if (seekAttempts < 8 && Math.abs(element.currentTime - activeSeekSeconds.value) > 0.35) {
+  if (!seekComplete && seekAttempts < 8) {
     scheduleSeek();
+  }
+}
+
+function confirmSeek(): void {
+  const element = video.value;
+  if (!element || element.seeking) return;
+  const destination = Number.isFinite(element.duration)
+    ? Math.min(activeSeekSeconds.value, Math.max(0, element.duration - 0.01))
+    : activeSeekSeconds.value;
+  if (Math.abs(element.currentTime - destination) < 0.35) {
+    seekComplete = true;
+    clearSeekTimer();
   }
 }
 
@@ -78,6 +94,7 @@ function handleVideoError(): void {
     activeSource.value = fallback;
     activeSeekSeconds.value = Math.max(0, props.preview.fallbackSeekSeconds || 0);
     seekAttempts = 0;
+    seekComplete = false;
     void nextTick(scheduleSeek);
     return;
   }
@@ -110,6 +127,7 @@ watch(
     activeSeekSeconds.value = Math.max(0, Number(seekSeconds || 0));
     previewError.value = props.preview.error || "";
     seekAttempts = 0;
+    seekComplete = false;
     if (type === "video") {
       await nextTick();
       scheduleSeek();
@@ -157,6 +175,7 @@ onUnmounted(() => {
               @loadedmetadata="seekVideo"
               @loadeddata="seekVideo"
               @canplay="seekVideo"
+              @seeked="confirmSeek"
               @error="handleVideoError"
             ></video>
             <img v-else :src="preview.source" alt="" />

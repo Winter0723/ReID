@@ -85,7 +85,7 @@ function scenicDeviceEnabled(source: string): boolean {
     <div class="monitor-main">
       <div class="toolbar-row">
         <button class="scenic-button subtle" type="button" @click="store.syncScenicCameraPoints()"><RefreshCw :size="15" /><span>同步本机相机</span></button>
-        <button class="scenic-button primary" type="button" :disabled="ingestingCameraCount > 0 || activeCameraPointCount === 0" @click="store.toggleScenicCameraWall(true)"><Play :size="14" /><span>启动监控墙</span></button>
+        <button class="scenic-button primary" type="button" :disabled="!store.modelAvailable || ingestingCameraCount > 0 || activeCameraPointCount === 0" @click="store.toggleScenicCameraWall(true)"><Play :size="14" /><span>启动监控墙</span></button>
         <button class="scenic-button subtle" type="button" :disabled="ingestingCameraCount === 0" @click="store.toggleScenicCameraWall(false)"><Square :size="13" /><span>停止监控墙</span></button>
         <span class="toolbar-note">在线 {{ runningCameraCount }} · 已入库目标 {{ targetCount }}</span>
       </div>
@@ -137,7 +137,7 @@ function scenicDeviceEnabled(source: string): boolean {
       <div class="panel-head"><h3>录像导入</h3><Film :size="18" /></div>
       <p class="panel-copy">选择摄像头点位并导入录像，处理完成后即可用于游客画面匹配。</p>
       <select v-model.number="selectedSimulationPointId" class="scenic-field" aria-label="目标摄像头"><option :value="0">选择目标摄像头</option><option v-for="point in store.scenicCameraWall" :key="point.point_id || point.camera_source" :value="point.point_id || 0">{{ point.name || point.camera_source }}</option></select>
-      <label class="scenic-button primary full-width file-button"><Upload :size="15" /><span>选择并导入录像</span><input type="file" accept="video/*" aria-label="选择并导入录像" @change="uploadSimulationVideo" /></label>
+      <label class="scenic-button primary full-width file-button"><Upload :size="15" /><span>选择并导入录像</span><input :disabled="!store.modelAvailable" type="file" accept="video/*" aria-label="选择并导入录像" @change="uploadSimulationVideo" /></label>
       <div class="library-mini"><div><strong>入库状态</strong><span>{{ progressPercent(libraryProgress) }}</span></div><div class="progress-track"><div :style="{ width: progressPercent(libraryProgress) }"></div></div><p>{{ libraryDetailText }}</p></div>
       <div class="sim-preview"><video v-if="simulationPreviewUrl" :src="simulationPreviewUrl" controls muted></video><span v-else>视频预览</span></div>
       <div class="compact-list"><div v-for="job in store.jobs.slice(0, 3)" :key="job.id" class="list-row"><strong>{{ (job.type || job.job_type) === "media_index" ? "目标检测/特征" : (job.type || job.job_type || "任务") }} · {{ jobLabel(job.status) }}</strong><span>{{ progressPercent(jobProgress(job)) }}</span><small>{{ jobMessage(job) }}</small></div></div>

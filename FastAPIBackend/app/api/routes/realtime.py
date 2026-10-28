@@ -192,6 +192,8 @@ def delete_input(project_id: int, input_id: str, username=Depends(get_current_us
 @router.post("/sessions")
 def start_session(project_id: int, body: StartRequest, username=Depends(get_current_username), db=Depends(database.get_db)):
     _ensure_project_access(project_id, username, db, permission="write")
+    from app.services.project_models import snapshot_for
+    snapshot = snapshot_for(project_id)
     manager.start()
     with manager.lock:
         if any(s.thread.is_alive() for s in manager.sessions.values()):
@@ -223,6 +225,7 @@ def start_session(project_id: int, body: StartRequest, username=Depends(get_curr
                     manager.inputs.pop(item.id, None)
         session = Session(project_id, username, reference.path, body.crop, source,
                           body.source.camera is not None, body.show_others, cleanup)
+        session.embedding_space_id = snapshot["embedding_space_id"]
         for item in inputs:
             item.claimed = True
         manager.sessions[session.id] = session

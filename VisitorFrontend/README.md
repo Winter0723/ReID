@@ -13,7 +13,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-默认入口 `http://127.0.0.1:5174/visitor/#/sites/<景区ID>`。开发代理优先读取进程环境变量 `MYREID_API_PORT`，其次读取仓库根目录 Vite 环境配置（开发时包含 `.env.local`），未配置时使用 `2889`。连接本机 Docker 生产后端时设置为 `12889`，隔离游客测试后端设置为 `22889`，修改后重启 Vite。Docker 部署通过 Nginx 访问 `backend:2889`。
+默认入口 `http://127.0.0.1:5174/visitor/#/sites/<景区ID>`。开发代理优先读取进程环境变量 `MYREID_API_PORT`，其次读取仓库根目录 Vite 环境配置（开发时包含 `.env.local`），未配置时使用 `2889`。连接本机 Docker 生产后端时设置为 `2889`，隔离游客测试后端设置为 `22889`，修改后重启 Vite。Docker 部署通过 Nginx 访问 `backend:2889`。
 
 开发服务器固定使用 `5174`，默认监听 `0.0.0.0`，可通过电脑的局域网 IP 从手机访问；端口不可用时会直接报错，不会自动切换端口。后端 `VISITOR_PUBLIC_BASE_URL` 应与手机实际访问的 origin 一致（如 `http://192.168.5.252:5174`），以保证登录回调和 Origin 校验正常。已有配置使用 `5174` 时无需更换端口；修改该地址后需重启后端。仅本机开发可使用 `npm run dev -- --host 127.0.0.1`。
 
@@ -33,7 +33,7 @@ npm run test:e2e
 
 ## 联调前提
 
-局域网普通浏览器演示：后端设置 `APP_ENV=local`、`VISITOR_AUTH_PROVIDER=browser`，HTTP 使用 `VISITOR_COOKIE_SECURE=0`、`VISITOR_ALLOW_LAN_HTTP=1`，`VISITOR_PUBLIC_BASE_URL` 与手机实际访问的 origin 一致。打开 `/visitor/#/sites/<景区ID>` 后直接开始登记，无需微信信息或邀请码。同一浏览器 Cookie 保留身份 30 天；不同浏览器记录互相隔离，清除 Cookie 后无法找回。付款提供方单独配置，人工收款可使用 `VISITOR_PAYMENT_PROVIDER=manual`。正式部署仍使用 `wechat` 登录。
+普通浏览器游客入口：后端设置 `APP_ENV=local`、`VISITOR_AUTH_PROVIDER=browser`，HTTP 使用 `VISITOR_COOKIE_SECURE=0`、`VISITOR_ALLOW_LAN_HTTP=1`，`VISITOR_PUBLIC_BASE_URL` 与手机实际访问的 origin 一致。打开 `/visitor/#/sites/<景区ID>` 后直接开始登记，无需微信信息或邀请码。同一浏览器 Cookie 保留身份 30 天；不同浏览器记录互相隔离，清除 Cookie 后无法找回。付款提供方单独配置，人工收款可使用 `VISITOR_PAYMENT_PROVIDER=manual`。正式 HTTPS 部署也支持浏览器身份；配置公众号后同时显示微信登录。`VISITOR_REQUIRE_STAFF_VERIFICATION=0`（默认）支持登记后直接结束游览、匹配和选片；设为 `1` 可启用现场核验。
 
 前端开发服务不会启动后端任务。API 完成双库迁移后，还需运行 RQ Worker 和 `python -m app.workers.visitor` 协调器；三者共享数据库、队列和对象缓存。详细启动命令见 [开发指南](../docs/DEVELOPMENT.md)。无公众号或商户号时，可先在仓库根目录运行 `scripts/start-visitor-test.ps1`，使用隔离测试栈。
 
@@ -52,7 +52,7 @@ npm run test:e2e
 
 `npm run build` 已包含 `vue-tsc --noEmit`，输出到 `dist/`；本项目没有单独的 `typecheck` 脚本。测试覆盖前端交互契约，真实微信授权、支付、摄像头、匹配与 GPU 制作仍需现场联调。
 
-Compose 的 `visitor` profile 启动网页和协调器，默认网页端口 `127.0.0.1:15174`；隔离测试为 `25174`。Nginx 将 `/` 重定向到 `/visitor/`，仅代理游客 API，其他业务路径返回 404。
+Compose 的 `visitor` profile 启动网页和协调器，默认网页端口 `127.0.0.1:5174`；隔离测试为 `25174`。Nginx 将 `/` 重定向到 `/visitor/`，仅代理游客 API，其他业务路径返回 404。
 
 完整部署、微信配置、自助制作、运营接管和测试边界见 [游客端部署说明](../docs/VISITOR_H5.md)。
 

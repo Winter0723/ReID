@@ -482,21 +482,40 @@ def test_browser_login_reuses_identity_and_isolates_browsers(client, setup_visit
     assert client.get(PREFIX + "/me").status_code == 401
     assert client.post(PREFIX + "/auth/browser", headers=HEADERS, json=payload).status_code == 200
     monkeypatch.setattr(get_settings(), "visitor_auth_provider", "wechat")
+    assert client.post(PREFIX + "/auth/browser", headers=HEADERS, json=payload).status_code == 200
+    assert client.get(PREFIX + "/me").json()["auth_provider"] == "browser"
+    monkeypatch.setattr(get_settings(), "visitor_auth_provider", "test")
     assert client.post(PREFIX + "/auth/browser", headers=HEADERS, json=payload).status_code == 404
     assert client.get(PREFIX + "/me").status_code != 200
 
 
-@pytest.mark.parametrize("environment", ["production", "prod", "staging", "unknown"])
-def test_browser_login_rejected_outside_local(client, setup_visitor, monkeypatch, environment):
-    from app.core import config
-    settings = config.get_settings()
-    monkeypatch.setattr(settings, "visitor_auth_provider", "browser")
+@pytest.mark.parametrize("environment", ["production", "prod", "staging", "local"])
+@pytest.mark.parametrize("provider", ["browser", "wechat"])
+def test_browser_login_and_selfservice_in_deployed_environments(client, setup_visitor, monkeypatch, environment, provider):
+    from app.core.config import get_settings, Settings
+    from app.services.rate_limit import rate_limiter
+    # No Redis runs in this isolated suite; production correctly fails closed
+    # without it. This test targets authentication and self-service gates.
+    monkeypatch.setattr(rate_limiter, "enforce", lambda *args: None)
+    settings = get_settings()
+    monkeypatch.setattr(settings, "visitor_auth_provider", provider)
     monkeypatch.setattr(settings, "app_env", environment)
-    assert client.get(PREFIX + "/runtime").status_code == 404
-    assert client.post(PREFIX + "/auth/browser", headers=HEADERS, json={"project_id": setup_visitor[0]}).status_code == 404
-    monkeypatch.setattr(config, "Settings", lambda: settings)
-    with pytest.raises(RuntimeError, match="仅允许"):
-        config.get_settings.__wrapped__()
+    # Verify the code default, independently of conftest's environment override.
+    assert Settings.model_fields["visitor_require_staff_verification"].default is False
+    monkeypatch.setattr(settings, "visitor_require_staff_verification", False)
+    client.cookies.clear()
+    assert client.get(PREFIX + "/runtime").json()["browser_login_available"] is True
+    pid, _ = setup_visitor
+    response = client.post(PREFIX + "/auth/browser", headers=HEADERS, json={"project_id": pid})
+    assert response.status_code == 200
+    assert response.json()["auth_provider"] == "browser"
+    registration = register(client, pid)
+    assert registration.status_code == 200, registration.text
+    visit = registration.json()
+    result = client.post(f"{PREFIX}/visits/{visit['id']}/finish", headers=HEADERS)
+    assert result.status_code == 200
+    assert result.json()["stage"] == "sealing"
+    assert result.json()["identity_verified"] is False
 
 
 def test_test_login_isolation_and_request_guards(client, visitor_testing):
@@ -822,7 +841,8 @@ def selectable_visit(client, setup_visitor):
     return vid, pid, user
 
 
-def test_visitor_select_edit_render_staff_payment_download_flow(client, selectable_visit, monkeypatch):
+@pytest.mark.parametrize("identity", ["browser", "wechat"])
+def test_visitor_select_edit_render_staff_payment_download_flow(client, selectable_visit, monkeypatch, identity):
     import copy
     import scenic_database as d
     from app.core.config import get_settings
@@ -830,6 +850,29 @@ def test_visitor_select_edit_render_staff_payment_download_flow(client, selectab
     from app.services.storage import storage
     from app.services.visitor_production import production_step
     vid, pid, user = selectable_visit
+    from app.api.scenic import tourist_routes
+    from app.services import camera_stream
+    from app.services.visitor_production import prepare_visit_recordings
+    # Existing fixture segments stand in for model output; exercise the actual
+    # finish/seal/match state machine before accessing the visitor editor.
+    with d.SessionLocal() as db:
+        row = db.get(d.VisitorVisit, vid)
+        if identity == "browser":
+            db.get(d.VisitorAccount, row.account_id).appid = "visitor-browser"
+        row.stage = "visiting"
+        row.session.checked_out_at = None
+        assert row.verified_at is None
+        db.commit()
+    assert client.get(PREFIX + "/me").json()["auth_provider"] == identity
+    finished = client.post(f"{PREFIX}/visits/{vid}/finish", headers=HEADERS)
+    assert finished.json()["stage"] == "sealing"
+    matched = []
+    monkeypatch.setattr(camera_stream, "solidify_project_camera_recordings", lambda *args: None)
+    monkeypatch.setattr(tourist_routes, "v1_match_tourist_segments", lambda *args: matched.append(args[0]))
+    prepare_visit_recordings(vid)
+    production_step(vid)
+    assert len(matched) == 1
+    assert client.get(f"{PREFIX}/visits/{vid}").json()["stage"] == "selecting"
     monkeypatch.setattr(get_settings(), "visitor_payment_provider", "manual")
     queued = []
     monkeypatch.setattr(job_manager, "enqueue", lambda *args: queued.append(args))
@@ -990,3 +1033,84 @@ def test_legacy_camera_reference_recovers_only_original_timestamp(client, select
         assert all(segment.original_media_object_key==expected for segment in row.session.segments)
         fake.publish_path.assert_called_once_with(expected,alias.resolve(),'video/x-msvideo')
         assert db.query(d.AuditLog).filter_by(action='scenic.camera_source_recovered').count()==1
+
+
+def test_browser_entry_preserves_wechat_identity(client, setup_visitor, monkeypatch):
+    from app.core.config import get_settings
+    from app.services.visitor_auth import COOKIE
+    settings = get_settings()
+    monkeypatch.setattr(settings, "visitor_auth_provider", "browser")
+    monkeypatch.setattr(settings, "visitor_wechat_appid", "visitor-app")
+    monkeypatch.setattr(settings, "visitor_wechat_secret", "fixture-secret")
+    pid, _ = setup_visitor
+    runtime = client.get(PREFIX + "/runtime").json()
+    assert runtime["browser_login_available"] is True
+    assert runtime["wechat_login_available"] is True
+    assert client.get(PREFIX + "/me").json()["auth_provider"] == "wechat"
+    token = client.cookies.get(COOKIE)
+    result = client.post(PREFIX + "/auth/browser", headers=HEADERS, json={"project_id": pid})
+    assert result.json()["auth_provider"] == "wechat"
+    assert client.cookies.get(COOKIE) == token
+    client.cookies.clear()
+    result = client.post(PREFIX + "/auth/browser", headers=HEADERS, json={"project_id": pid})
+    assert result.json()["auth_provider"] == "browser"
+    assert client.get(PREFIX + "/me").json()["auth_provider"] == "browser"
+
+
+def test_unverified_visit_can_resume_selfservice_after_verification_becomes_optional(client, setup_visitor, monkeypatch):
+    from app.core.config import get_settings
+    settings = get_settings()
+    pid, _ = setup_visitor
+    monkeypatch.setattr(settings, "visitor_require_staff_verification", True)
+    visit = register(client, pid).json()
+    url = f"{PREFIX}/visits/{visit['id']}"
+    assert client.post(url + "/finish", headers=HEADERS).json()["stage"] == "review"
+    assert client.post(url + "/retry", headers=HEADERS).status_code == 403
+    monkeypatch.setattr(settings, "visitor_require_staff_verification", False)
+    result = client.post(url + "/retry", headers=HEADERS)
+    assert result.status_code == 200
+    assert result.json()["stage"] == "sealing"
+    assert result.json()["identity_verified"] is False
+
+
+def test_legacy_rounded_draft_can_save_and_render_without_widening_matches(client, selectable_visit, monkeypatch):
+    import copy
+    import scenic_database as d
+    from app.services.job_manager import job_manager
+    vid, _, _ = selectable_visit
+    url = f"{PREFIX}/visits/{vid}"
+    with d.SessionLocal() as db:
+        row = db.get(d.VisitorVisit, vid)
+        segment = sorted(row.session.segments, key=lambda item: item.start_seconds)[0]
+        segment.start_seconds, segment.end_seconds = 0.000024, 3.167476
+        db.commit()
+    editor = client.get(url + "/editor").json()
+    created = client.post(url + "/draft", headers=HEADERS, json={
+        "segment_ids": [editor["segments"][0]["id"]], "match_revision": editor["match_revision"],
+        "config": {"music_id": "none"}})
+    assert created.status_code == 200, created.text
+    # Reproduce already-persisted plans from before the precision fix.
+    with d.SessionLocal() as db:
+        draft = db.get(d.VisitorVisit, vid).draft
+        data = json.loads(draft.data_json)
+        for clips in data["variants"].values():
+            clips[0]["start_seconds"] = 0.0
+            clips[0]["end_seconds"] = 3.1675
+        draft.data_json = json.dumps(data)
+        db.commit()
+    public = client.get(url + "/editor").json()["draft"]
+    forged = copy.deepcopy(public["data"])
+    forged["variants"]["landscape"][0]["end_seconds"] = 3.2
+    forged["variants"]["landscape"][0]["available_end_seconds"] = 100
+    assert client.put(url + "/draft", headers=HEADERS, json={"revision": public["revision"], "data": forged}).status_code == 422
+    saved = client.put(url + "/draft", headers=HEADERS, json={"revision": public["revision"], "data": public["data"]})
+    assert saved.status_code == 200, saved.text
+    for clips in saved.json()["draft"]["data"]["variants"].values():
+        assert clips[0]["start_seconds"] == 0.000024
+        assert clips[0]["end_seconds"] == 3.167476
+    queued = []
+    monkeypatch.setattr(job_manager, "enqueue", lambda *args: queued.append(args))
+    rendered = client.post(url + "/render", headers=HEADERS, json={"revision": saved.json()["draft"]["revision"]})
+    assert rendered.status_code == 200, rendered.text
+    assert rendered.json()["stage"] == "rendering"
+    assert len(queued) == 2
