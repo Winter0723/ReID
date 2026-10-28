@@ -50,6 +50,9 @@ test('media targets and search results seek in the full video without rewinding'
   const video = page.locator('video');
   await expect(video).toBeVisible();
   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThanOrEqual(21);
+  // currentTime changes before the browser finishes its initial asynchronous
+  // seek. Wait for the decoded frame before simulating a second user seek.
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.seeking && v.readyState >= 2)).toBe(true);
   await video.evaluate((v: HTMLVideoElement) => { v.pause(); v.currentTime = 25; });
   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBe(25);
   await page.screenshot({ path: join(process.env.MYREID_QA_SCREENSHOT_DIR || tmpdir(), 'video-position.png') });

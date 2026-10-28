@@ -777,7 +777,7 @@
   },
   {
     "path": "TauriFrontend/e2e/media-preview.spec.ts",
-    "sha256": "15b10fbd65d290b37101ff9e1ebf49900b26f7263756832088d74dfecb3696d7"
+    "sha256": "23e03136296b87a96b89d13fd9a74977f8f3736545f0b2b5f0cfecd9cbb9ad0f"
   },
   {
     "path": "TauriFrontend/e2e/multi-model.spec.ts",
