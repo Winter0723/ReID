@@ -561,11 +561,11 @@
   },
   {
     "path": "FastAPIBackend/requirements.in",
-    "sha256": "507afed6f52045bda8794dbee6f3798bef18a9a5cc32b508ca143fd06de8534b"
+    "sha256": "ffe4f4b62a16a27af75907c70bfdae4adb32e238a5f7a543bd164cad5ef4b32e"
   },
   {
     "path": "FastAPIBackend/requirements.txt",
-    "sha256": "44bfe4a9488e5431d8dcb8ab177962efed727903b49bd92db580c189548f6b1c"
+    "sha256": "57d9b2e20d27d320f9dadd2e32f96a0a9143f2be153fec2602cec5c8cc96e78a"
   },
   {
     "path": "FastAPIBackend/scenic_database.py",
@@ -821,7 +821,7 @@
   },
   {
     "path": "TauriFrontend/package-lock.json",
-    "sha256": "d49ffb0f36dd3c228a5d21e6999a8cc0f46fe40f18debf75a9b0c836000732fd"
+    "sha256": "9e9d6203f68bea7aad20cfb2a59bb477e21459b30d24ddd155b10853654eed5b"
   },
   {
     "path": "TauriFrontend/package.json",
@@ -1301,7 +1301,7 @@
   },
   {
     "path": "VisitorFrontend/package-lock.json",
-    "sha256": "af5d1159ef2bf14e07c74554216e2eb406ced18debeea0eec6dcb6cd5e32efd7"
+    "sha256": "846258c9c4b6b362098b21e51fcd1c1af19a7575e650d6d2b13f591c900588bb"
   },
   {
     "path": "VisitorFrontend/package.json",

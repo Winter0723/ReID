@@ -4,7 +4,7 @@ torch==2.13.0
 pillow==13.0.0
 timm==1.0.27
 ftfy==6.3.1
-filelock==3.29.0
+filelock==4.2.1
 transformers==5.10.4
 sqlalchemy==2.0.50
 alembic==1.18.4
