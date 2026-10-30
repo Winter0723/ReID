@@ -194,3 +194,5 @@ jobs:
           MYREID_ENV_FILE=.env.staging.example docker compose -f docker-compose.yml -f docker-compose.staging.yml config --quiet
           MYREID_ENV_FILE=.env.prod.example docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
           docker compose -f docker-compose.yml -f docker-compose.e2e.yml config --quiet
+      - name: Check restart policies after Compose overrides
+        run: python3 -m unittest scripts.tests.test_compose_contract -v

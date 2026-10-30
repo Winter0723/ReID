@@ -45,7 +45,7 @@
   },
   {
     "path": ".github/workflows/ci.yml",
-    "sha256": "61c722cd51f478f14436292bbd27088f378724a866b50f9b8d04f81ba6797e82"
+    "sha256": "6397c75f77829b1450d96b22a90c61b90ca0acf5cb8b1f54e4dfa93bb641429d"
   },
   {
     "path": ".github/workflows/security.yml",
@@ -749,7 +749,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "6f0fd70aca0ae0e8cef59d1aa734be298e5fe0d10b3d12d2acd4a56a6b94a8d9"
+    "sha256": "754a1eed2ac328bd3c1b6489fbe432fc312c3f6436db1895cdd23a197bb48eaa"
   },
   {
     "path": "SECURITY.md",
@@ -1449,7 +1449,7 @@
   },
   {
     "path": "docker-compose.yml",
-    "sha256": "caa9c23956941d457e89e5ca6bcee55e3c5a9329fa4ff6a42624c6dcfae9af0d"
+    "sha256": "3f24b8b1948cb85346ed41b8b96e487674975d63c8beba06d336c2dec49fba73"
   },
   {
     "path": "docs/API.md",
@@ -1457,19 +1457,19 @@
   },
   {
     "path": "docs/ASSET_PROVENANCE.md",
-    "sha256": "1acd52e4441090dfe457aa76a47b04daa2c7b907c177b75ae1c7da8a85684c96"
+    "sha256": "303f11835cb2b72fe774459b84da231ee0413bca3829c7b1a2f4c8f9c029b3f1"
   },
   {
     "path": "docs/BACKUP_RESTORE.md",
-    "sha256": "8f292feffd17a98b7f844da9d9d28ff9db3735263b5596c494bcc4b769df7233"
+    "sha256": "d9e599fb67343301b6e0b400ebfa0f4e1624ed4147b70a35afc5690f48337cc2"
   },
   {
     "path": "docs/CONFIGURATION.md",
-    "sha256": "a9fbb14b91a101803393832c3c0a5f3a98fdac91381759e12e61cea93a0681f4"
+    "sha256": "f98c70f6dcfae6ec56daafea0c30396959eb80a6d080a31a0818cd7e36a459ac"
   },
   {
     "path": "docs/CONFIGURATION_REFERENCE.md",
-    "sha256": "201d063f0144764d063af99c085f3155c8d783dbebb50744c41ff84c48dc20fd"
+    "sha256": "17f72b183fdcd5c93565be60055b9c8088c36b2a9db41c96a4748ca9bb0b2290"
   },
   {
     "path": "docs/DATABASE_SPLIT_RUNBOOK.md",
@@ -1481,19 +1481,19 @@
   },
   {
     "path": "docs/DEPLOYMENT.md",
-    "sha256": "a0720bae4a9d7d08be746fef1eeeebb02677ddf71ff4d79ebfb66d7a7157702a"
+    "sha256": "2b630c902921c9be441b82566e8ae66fd0affbf774943a5c7bc32fa274c4cb43"
   },
   {
     "path": "docs/DEVELOPMENT.md",
-    "sha256": "f521df0850164f750e0d028856f22693aaaa2064cac5a1350127fcb38c7f5ff7"
+    "sha256": "f1e5272ef6bf0452c4a0fd39b5c718b2a5da768b829c60a6b19ca36d6b9fb940"
   },
   {
     "path": "docs/NEW_MACHINE_DEPLOYMENT.md",
-    "sha256": "6c3ab3a62d7275224726d6b5347bbbb215ae7d82be1ba8e202addf13070bf365"
+    "sha256": "24486454dc296b09818d08d3f193ab970639e3091c8631dd76b62604ca64f740"
   },
   {
     "path": "docs/OPEN_SOURCE_RELEASE.md",
-    "sha256": "ffb6e3f57c8095b6bf8145c4b89c6398e8bc788ec6796e92fe6a2e432c60f743"
+    "sha256": "660a76e2c6c99c506953109f57bb1f2ec084cfed7ecdfc0f5bc0e35ac4439ac5"
   },
   {
     "path": "docs/PROJECT_GUIDE.md",
@@ -1501,7 +1501,7 @@
   },
   {
     "path": "docs/README.md",
-    "sha256": "fb05dd7e73149b06fd6d314ddd89e1c43653f5ca5e018c8bdbe4c541652ca2bb"
+    "sha256": "a5a46b061680f8edd26c1d0e4460a14924a1a44421b9bd084272238bc6ee74b7"
   },
   {
     "path": "docs/SCENIC_EDITING.md",
@@ -1524,6 +1524,14 @@
     "sha256": "cc377ea718aa073cc65fb9e234a2701b315ff0d011b333ebfc71ad86e0309c07"
   },
   {
+    "path": "docs/assets/sponsorship/alipay.jpg",
+    "sha256": "60662107404a9d324a1d791963ff2d7ad4e0fb610ff067496a291c8ff01e5182"
+  },
+  {
+    "path": "docs/assets/sponsorship/wechat.png",
+    "sha256": "8f2c33d3304892d1b230473c2e3b036795cdf4e398a75e9efd6fcbc6e6159a2e"
+  },
+  {
     "path": "docs/camera-gateway.md",
     "sha256": "8b85878154117d8d9b3a9313e53a9e520fd259699db892267dc441882921dad2"
   },
@@ -1541,7 +1549,7 @@
   },
   {
     "path": "docs/local-production.md",
-    "sha256": "1ad1d4821adc049767a9aa99dd1fbcbdb7a39753d2952889406658e902cceda9"
+    "sha256": "89207164d14fbc250ba661fe0d2a51cec8ae9ec35cdd70f4a30885ef89c144a7"
   },
   {
     "path": "docs/multi-model-support-plan.md",
@@ -1713,7 +1721,7 @@
   },
   {
     "path": "model/README.md",
-    "sha256": "c231ba9f150e0ea3b035eda95b6212abcb15bb98a0bc1aae5907a1bf15ac44c1"
+    "sha256": "d128570e791ab91878ccb63786cd896249843c1184fb45c965f40d9cb88a20ce"
   },
   {
     "path": "model/__init__.py",
@@ -1938,6 +1946,10 @@
   {
     "path": "scripts/tests/test_camera_gateway.py",
     "sha256": "3569df381e7b884d0d716d48ad29e9bfc64f2988b6adfc15d99ea4d727b6eaf4"
+  },
+  {
+    "path": "scripts/tests/test_compose_contract.py",
+    "sha256": "9d6d1c36ef620cb5e9ce38c679b442ba715db23ce0ff2337b2fb497aed56fa2a"
   },
   {
     "path": "scripts/tests/test_deployment.py",

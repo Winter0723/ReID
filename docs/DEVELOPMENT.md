@@ -163,7 +163,7 @@ model/ViT-MSMT17-60.pth
 model/clip_weights/ViT-B-16.pt
 ```
 
-首次 clone 后需另行获取权重，模型更新后执行 `python scripts/check_models.py` 校验；Compose 会分别挂载为 `/models/yolov8n.pt`、`/models/ViT-MSMT17-60.pth` 和 `/workspace/model/clip_weights/ViT-B-16.pt`。
+首次 clone 后需另行获取权重，模型更新后执行 `python scripts/check_models.py` 校验；Compose 会分别挂载为 `/models/yolov8n.pt`、`/models/reid/ViT-MSMT17-60.pth` 和 `/workspace/model/clip_weights/ViT-B-16.pt`。
 
 相关变量：
 
@@ -196,35 +196,15 @@ VisitorFrontend/dist/
 
 这两个接口在 `APP_ENV=production`、`prod` 或 `staging` 时拒绝；真实支付适配器也拒绝生产环境的 fake provider。
 
-微信 Native 支付变量：
+通用 Docker local/prod/staging 模板使用 `PAYMENT_PROVIDER=manual`、`VISITOR_PAYMENT_PROVIDER=manual`，由工作人员核实收款。真实微信 Native/JSAPI 支付尚未完成接入验收，配置字段与后续接入要求统一见 [微信支付说明](WECHAT_PAYMENT_INTEGRATION.md)。基础 prod/staging Compose 不挂载支付证书；只有后续完成接入后额外叠加 `docker-compose.wechat.yml` 才提供相应 secret 挂载。
 
-| Variable | 说明 |
-| --- | --- |
-| `PAYMENT_PROVIDER` | 设置为 `wechat_native` 启用真实微信 Native 支付。 |
-| `PAYMENT_PUBLIC_BASE_URL` | 后端公网 HTTPS 地址，用于生成 `notify_url`。 |
-| `WECHAT_PAY_APPID` | 微信支付 appid。 |
-| `WECHAT_PAY_MCHID` | 商户号。 |
-| `WECHAT_PAY_API_V3_KEY` | API v3 密钥。 |
-| `WECHAT_PAY_MERCHANT_SERIAL_NO` | 商户证书序列号。 |
-| `WECHAT_PAY_MERCHANT_PRIVATE_KEY_PATH` | 商户私钥 PEM 路径。 |
-| `WECHAT_PAY_PLATFORM_PUBLIC_KEY_ID` | 微信平台公钥 ID 或证书序列。 |
-| `WECHAT_PAY_PLATFORM_PUBLIC_KEY_PATH` | 平台公钥 PEM 路径。 |
-
-`*_PATH` 是应用进程内可读取的路径。通用 prod/staging Compose 将证书挂到 API 的 `/run/secrets/`，`*_FILE` 只供 Compose 选择宿主机来源；本机 GPU 覆盖未配置这两项挂载。不要把宿主机路径写成容器路径。
-
-生产必须使用 HTTPS，并确保支付回调路径可公网访问：
-
-```text
-POST /api/v1/scenic/payments/wechat/notify
-```
-
-游客登录与支付单独配置：`VISITOR_AUTH_PROVIDER=wechat|test`、`VISITOR_PAYMENT_PROVIDER=wechat|manual|test`。JSAPI 通知入口为 `/api/v1/scenic/visitor/payments/wechat/notify`。人工模式由景区负责人或全局管理员确认游客待付款订单；无关项目、普通操作员和游客无此权限。工作人员创建的普通订单仍要求 Scenic admin 人工确认。
+游客登录与支付单独配置：`VISITOR_AUTH_PROVIDER=wechat|browser|test`、`VISITOR_PAYMENT_PROVIDER=wechat|manual|test`。JSAPI 通知入口为 `/api/v1/scenic/visitor/payments/wechat/notify`。人工模式由景区负责人或全局管理员确认游客待付款订单；无关项目、普通操作员和游客无此权限。工作人员创建的普通订单仍要求 Scenic admin 人工确认。
 
 工作人员订单金额来自 `SCENIC_ORDER_PRICE_CENTS` / `SCENIC_ORDER_CURRENCY`；游客订单金额在登记时从景区服务配置冻结。客户端传金额不能改价。详见 [游客业务](VISITOR_H5.md) 和 [API](API.md)。
 
 ## 6. 验证命令
 
-测试使用项目虚拟环境。后端测试会重建其测试库并清理测试对象目录；运行前确保终端没有导出业务 `DATABASE_URL`、`SCENIC_DATABASE_URL`、`OBJECT_STORAGE_DIR` 或 `MYREID_TEST_ROOT`。`conftest.py` 对部分变量使用 `setdefault`，不会替换已有业务连接。使用新的测试终端，并将 gallery 指向临时目录：
+测试使用项目虚拟环境。后端测试会重建其测试库并清理测试对象目录；运行前确保终端没有导出业务 `DATABASE_URL`、`SCENIC_DATABASE_URL`、`OBJECT_STORAGE_DIR` 或 `MYREID_TEST_ROOT`。`conftest.py` 会强制使用仓库 `tmp/pytest` 下的隔离数据库与对象目录，并禁止重置隔离目录外的数据库。仍建议使用新的测试终端；下例设置开发测试环境：
 
 ```powershell
 $env:APP_ENV="test"
@@ -380,25 +360,9 @@ CI 的 linux-dependency-lock 作业执行 Linux 解析检查，本地可运行 `
 
 ## 8. 备份与恢复
 
-脚本：
+完整命令统一见 [一致性备份与恢复](BACKUP_RESTORE.md)。`scripts/backup_restore.sh backup|restore SNAPSHOT_DIRECTORY` 要求明确快照目录，并在所有写入者及 Compose 服务停止后执行。它备份全部受管理命名卷，包括双库、媒体、Redis、Milvus、etcd 和内置 MinIO；恢复到独立项目的空卷，拒绝覆盖已有数据。
 
-```bash
-scripts/backup_restore.sh backup
-scripts/backup_restore.sh restore \
-  backups/myreid_core_db_YYYYmmdd_HHMMSS.sql.gz \
-  backups/myreid_scenic_db_YYYYmmdd_HHMMSS.sql.gz \
-  backups/myreid_assets_YYYYmmdd_HHMMSS.tar.gz
-```
-
-备份需要同时覆盖：
-
-- core 与 scenic 两个 PostgreSQL 数据库。
-- 容器 `/workspace/FastAPIBackend/gallery`。
-- 容器 `/workspace/FastAPIBackend/object_storage` 与 S3/MinIO bucket。
-- Milvus 集合及其依赖状态；不能把本地缓存归档当成外部对象/向量完整备份。
-- 外部保存的模型文件和生产 `.env` 不应直接进入备份包明文流转。
-
-使用自定义 Compose 项目时还需设置 `COMPOSE_PROJECT_NAME`、`MYREID_COMPOSE_ENV_FILE`、`MYREID_COMPOSE_FILES`。脚本不会停止写入，也不会清空目标数据库；恢复只对隔离空库演练。完整边界见 [部署指南](DEPLOYMENT.md)。
+使用实际部署的 `COMPOSE_PROJECT_NAME`、`COMPOSE_PROFILES`、`MYREID_ENV_FILE`、`MYREID_COMPOSE_ENV_FILE` 和 `MYREID_COMPOSE_FILES`。外部 S3、模型、私有配置和 bind mount 按备份手册单独保管。旧版 SQL gzip / assets 三文件恢复参数已不适用，不要对运行中的数据库试运行恢复。
 
 ## 9. 数据清理注意事项
 

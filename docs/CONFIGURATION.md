@@ -30,7 +30,7 @@
 
 `.env.prod`、`.env.staging`、`.env.visitor-test` 不在这个自动读取列表中，由 Compose 的 `env_file` 注入。配置缓存于进程内，改文件后需重启本机进程；容器要执行原 Compose 组合的 `up -d`，单独 `restart` 不会重新注入变量。
 
-- `run_backend.ps1` 把上述四个文件导入进程，并保护调用前已有的变量；`run_backend.sh` 会 `source` 根目录 `.env.local`，该文件可覆盖 shell 原值。
+- `run_backend.ps1` 把上述四个文件导入进程，并保护调用前已有的变量；`run_backend.sh` 使用 dotenv 解析同样四个文件，不执行 Shell 内容，并保留调用前已有的环境变量。
 - `run_backend_postgres.sh` / `run_worker.sh` 显式导出本机数据库等默认值。使用自定义地址时先设置 shell 变量；它们不会把全部 `.env.local` 项目导出。
 - `SCENIC_FONT_FILE`、`SCENIC_FONT_FAMILY`、`SCENIC_VIDEO_ENCODER`、`CLIP_CACHE_DIR`、`MYREID_CAMERA_BRIDGE_DIR`、`LOCAL_JOB_*` 等由模块直接读进程环境。直接运行 Python/worker 时，仅放进 Pydantic 的 dotenv 文件不一定生效，应显式导出或通过 Compose 注入。
 - Compose 有两层配置：`--env-file` 提供 `${...}` 插值，服务级 `env_file` 提供容器变量，`environment` 覆盖同名容器变量。`MYREID_ENV_FILE` 选择基础服务的 `env_file`；它不会替代 `--env-file`。启用游客 profile 时也要让协调器读取同一份配置。
@@ -60,7 +60,7 @@ Core 与 Scenic 必须使用不同数据库；这是部署约束，须结合 `sc
 | `MODEL_DEVICE` | `auto` | 自动按 CUDA → MPS → CPU 选择；可明确设为 `cpu`、`cuda`、`mps` 等 PyTorch 设备。指定设备前需验证可用性。 |
 | `WORKER_MODEL_DEVICE` | Compose / worker 脚本默认 `cpu` | 进程资源配置；本机 GPU 生产覆盖文件将 API、worker、协调器均设为 `cuda`。 |
 | `YOLO_MODEL_PATH` | `yolov8n.pt` | 本机解析到后端目录；Compose 模板使用 `/models/yolov8n.pt`。 |
-| `CLIPREID_MODEL_PATH` | `model/ViT-MSMT17-60.pth` | Compose 使用 `/models/ViT-MSMT17-60.pth`。 |
+| `CLIPREID_MODEL_PATH` | `model/ViT-MSMT17-60.pth` | Compose 使用 `/models/reid/ViT-MSMT17-60.pth`。 |
 | `CLIP_CACHE_DIR` | 未设置时使用 `model/clip_weights/` | CLIP 基础权重目录；容器挂载 `ViT-B-16.pt` 到该目录。 |
 | `EMBEDDING_DIMENSION` | `512` | 必须匹配实际模型和向量集合；换模型/预处理需按 [模型说明](../model/NOTICE.md) 重建并验证索引。 |
 | `OBJECT_STORAGE_MODE` | `local` | 可选 `local`、`minio`、`s3`。 |
@@ -107,7 +107,7 @@ Core 与 Scenic 必须使用不同数据库；这是部署约束，须结合 `sc
 | `EMAIL_CODE_TTL_MINUTES` / `EMAIL_CODE_DEV_MODE` | `10` / `0` | 本机模板开启调试验证码；预发/生产必须关闭。 |
 | `SCENIC_ORDER_PRICE_CENTS` / `SCENIC_ORDER_CURRENCY` | `990` / `CNY` | 工作人员订单使用服务端定价；生产模板示例为 `19900`，预发/生产要求显式设置。 |
 | `SCENIC_DELIVERY_TOKEN_TTL_HOURS` | `720` | 领取链接有效期，按订单创建时间计算。 |
-| `PAYMENT_PROVIDER` | 空 | 工作人员 Native 支付适配器；开发模板 `fake_wechat`，真实模式 `wechat_native`。 |
+| `PAYMENT_PROVIDER` | 空 | 工作人员支付模式；通用 Docker local/prod/staging 模板均为 `manual`。自动微信支付尚未完成接入验收，见 [支付说明](WECHAT_PAYMENT_INTEGRATION.md)。 |
 | `PAYMENT_PUBLIC_BASE_URL` | 空 | 工作人员微信通知的后端公网地址。 |
 | `VISITOR_AUTH_PROVIDER` | `wechat` | `wechat` / `browser` / `test`。前两者均支持独立浏览器游客；微信配置就绪后可同时微信登录，独立于工作人员登录。 |
 | `VISITOR_PAYMENT_PROVIDER` | `wechat` | `wechat`（JSAPI）、`manual`（人工确认）、`test`；不继承 `PAYMENT_PROVIDER`。 |
@@ -119,7 +119,7 @@ Core 与 Scenic 必须使用不同数据库；这是部署约束，须结合 `sc
 | `VISITOR_INDEX_WAIT_SECONDS` | `600` | 等待相关索引任务的超时，30–3600 秒；超时进入可处理的异常状态。 |
 | `VISITOR_AUTO_PUBLISH` / `VISITOR_AUTO_SIMILARITY` | `0` / `0.9` | 保留的旧流程配置；当前自助链路由游客选片、确认制作，成功双版自动进入 `ready`。 |
 
-真实支付使用 `WECHAT_PAY_APPID`、`WECHAT_PAY_MCHID`、`WECHAT_PAY_API_V3_KEY`、`WECHAT_PAY_MERCHANT_SERIAL_NO`、`WECHAT_PAY_MERCHANT_PRIVATE_KEY_PATH`、`WECHAT_PAY_PLATFORM_PUBLIC_KEY_ID`、`WECHAT_PAY_PLATFORM_PUBLIC_KEY_PATH`。通用 prod/staging Compose 的 `*_FILE` 是宿主机 secret 来源，`*_PATH` 是容器内路径；本机 GPU 覆盖文件未配置这些 secret 挂载。游客 JSAPI 还需公众号身份与支付 appid 匹配，回调路径见 [游客说明](VISITOR_H5.md)。
+真实支付使用 `WECHAT_PAY_APPID`、`WECHAT_PAY_MCHID`、`WECHAT_PAY_API_V3_KEY`、`WECHAT_PAY_MERCHANT_SERIAL_NO`、`WECHAT_PAY_MERCHANT_PRIVATE_KEY_PATH`、`WECHAT_PAY_PLATFORM_PUBLIC_KEY_ID`、`WECHAT_PAY_PLATFORM_PUBLIC_KEY_PATH`。仅额外叠加 `docker-compose.wechat.yml` 时，`*_FILE` 才是宿主机 secret 来源，`*_PATH` 是容器内路径；本机 GPU 覆盖文件未配置这些 secret 挂载。游客 JSAPI 还需公众号身份与支付 appid 匹配，回调路径见 [游客说明](VISITOR_H5.md)。
 
 游客售价来自景区 `visitor-service` 配置，登记时冻结；已有订单绑定原支付模式及成片版本，修改 provider 不转换旧订单。人工确认不需要商户支付配置，但真实微信登录仍需公众号配置。
 

@@ -8,6 +8,8 @@
 | --- | --- |
 | `backend` | HTTP、实时 WebSocket、相机入库、录像封存/发布、保留清理；单个 Uvicorn 进程持有相机与会话状态。 |
 | `worker` | RQ 离线索引与精剪渲染；队列、双数据库和对象目录与 API 一致。 |
+| `maintenance` | 恢复过期任务并执行运行数据保留清理；与 API 共享配置和对象目录。 |
+| `staff-web` | Nginx 运营网页与同源 API 代理；属于 `staff` profile，监听 `127.0.0.1:5173`。 |
 | `visitor-coordinator` | 每秒调度持久化游客请求，推进匹配和制作结果检查；属于 `visitor` profile。 |
 | `visitor-web` | Nginx 静态 H5 与游客 API 同源代理；属于 `visitor` profile，默认监听宿主机 `127.0.0.1:5174`。 |
 | PostgreSQL / `database-init` | Core、Scenic 两库 / 幂等建库；游客表位于 Scenic 库。 |
@@ -19,14 +21,14 @@ API、worker、协调器共享 `backend_objects`、`backend_gallery` 卷；对�
 | --- | --- | --- |
 | 开发 | `docker-compose.yml` | PostgreSQL + Redis + MinIO + Milvus 完整栈。 |
 | 挂载源码开发 | 基础 + `docker-compose.dev.yml` | API/worker 使用本地对象和 JSON 向量；基础依赖服务仍启动。 |
-| 预发 / 通用生产 | 基础 + `docker-compose.staging.yml` / `docker-compose.prod.yml` | 生产校验、支付证书与重启策略。 |
+| 预发 / 通用生产 | 基础 + `docker-compose.staging.yml` / `docker-compose.prod.yml` | 生产校验与重启策略；支付采用人工确认。 |
 | Windows GPU 生产 | 基础 + `docker-compose.local-production.yml` | `myreid-production` 项目；脚本管理桥接和游客 profile。 |
 | 游客联调 | 基础 + `docker-compose.visitor-test.yml` | `myreid-visitor-test` 独立项目/卷；API `22889`、H5 `25174`。 |
 | HTTP 冒烟 | 基础 + `docker-compose.e2e.yml` | 对隔离环境执行真实 HTTP 业务脚本。 |
 
 ## 模型与依赖
 
-源码和 Docker 镜像均不包含模型权重。按[模型说明](../model/README.md)取得三个兼容模型后，先校验，再由 Compose 只读挂载：
+源码和 Docker 镜像均不包含模型权重。按[模型说明](../model/README.md)取得默认 DSCL-ReID 所需的三个文件；需要 MGD-DPM 时另放 `model/Market2MSMT.pth`。先校验，再由 Compose 只读挂载：
 
 ```bash
 python scripts/check_models.py
@@ -35,14 +37,14 @@ python scripts/check_models.py
 | 仓库文件 | 容器位置 |
 | --- | --- |
 | `FastAPIBackend/yolov8n.pt` | `/models/yolov8n.pt` |
-| `model/ViT-MSMT17-60.pth` | `/models/ViT-MSMT17-60.pth` |
-| `model/clip_weights/ViT-B-16.pt` | `/workspace/model/clip_weights/ViT-B-16.pt` |
+| `model/`（权重与 `*.model.json`） | `/models/reid/`，包括 `/models/reid/ViT-MSMT17-60.pth` 和可选的 `Market2MSMT.pth` |
+| `model/clip_weights/ViT-B-16.pt` | 注册模型使用 `/models/reid/clip_weights/ViT-B-16.pt`；兼容路径同时挂载为 `/workspace/model/clip_weights/ViT-B-16.pt` |
 
 文件非空不等于权重已下载，LFS 指针同样非空。容器入口拒绝缺失文件及以 `version https://git-lfs.github.com/spec/` 开头的指针。替换要求见 [模型说明](../model/NOTICE.md)。两种 Dockerfile 均使用 Python 3.11、带哈希的依赖锁、FFmpeg/FFprobe 和 Noto CJK；GPU 版本另装 CUDA PyTorch，还需主机驱动与容器 GPU 访问能力。基础依赖已含 `lap`，景区人物分析仍需显式开启。
 
 ## 通用生产与预发
 
-首次部署复制 `.env.prod.example` 为 `.env.prod`，填写真实数据库、对象存储、SMTP、管理员邮箱、随机签名密钥和 metrics token；已有部署保留现有配置。Core/Scenic 使用不同非 SQLite 数据库，关闭本地任务 fallback、开发验证码和旧 API，并显式配置订单金额和币种。
+首次部署按[空白机器部署](NEW_MACHINE_DEPLOYMENT.md)用配置生成器创建 `.env.prod`，再填写真实 SMTP、管理员邮箱、域名和业务参数；生成器提供数据库、对象存储及签名所需的随机密钥，已有部署保留现有配置。Core/Scenic 使用不同非 SQLite 数据库，关闭本地任务 fallback、开发验证码和旧 API，并显式配置订单金额和币种。
 
 通用 prod/staging 使用人工收款确认，不要求微信支付证书。`docker-compose.wechat.yml` 单独声明微信支付 PEM secret；真实微信支付仍需完成[支付接入与验收](WECHAT_PAYMENT_INTEGRATION.md)，不得仅凭配置文件判断已经可用。
 
@@ -50,21 +52,21 @@ python scripts/check_models.py
 
 ```bash
 export MYREID_ENV_FILE=.env.prod
-docker compose --env-file .env.prod -p myreid-production \
-  -f docker-compose.yml -f docker-compose.prod.yml config --quiet
-docker compose --env-file .env.prod -p myreid-production \
-  -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose --env-file .env.prod -p myreid-prod \
+  -f docker-compose.yml -f docker-compose.prod.yml --profile staff --profile visitor config --quiet
+docker compose --env-file .env.prod -p myreid-prod \
+  -f docker-compose.yml -f docker-compose.prod.yml --profile staff --profile visitor up --build -d
 ```
 
-`--env-file` 提供数据库密码、MinIO、secret 路径等 `${...}` 插值，`MYREID_ENV_FILE` 为基础服务选择同一份容器环境文件，也可写进 `.env.prod`。只设置服务级 `env_file` 不会更新 Compose 插值。预发使用独立配置与项目：
+`--env-file` 提供数据库密码、MinIO 等 `${...}` 插值，`MYREID_ENV_FILE` 为基础服务选择同一份容器环境文件，也可写进 `.env.prod`。只设置服务级 `env_file` 不会更新 Compose 插值。上述通用生产项目名为 `myreid-prod`；Windows GPU 脚本仍使用 `myreid-production`，已有部署须沿用实际项目名。预发使用独立配置与项目：
 
 ```bash
 export MYREID_ENV_FILE=.env.staging
 docker compose --env-file .env.staging -p myreid-staging \
-  -f docker-compose.yml -f docker-compose.staging.yml up --build -d
+  -f docker-compose.yml -f docker-compose.staging.yml --profile staff --profile visitor up --build -d
 ```
 
-基础 API 默认绑定 `127.0.0.1:2889`，对外访问应通过 HTTPS 代理。同机运行多套环境需分配不同宿主机端口。Prometheus 抓取 `/metrics` 必须发送 `Authorization: Bearer <METRICS_TOKEN>`。
+基础 API 默认绑定 `127.0.0.1:2889`，对外访问应通过 HTTPS 代理。教程使用固定宿主机端口，同机切换环境前先停止原栈，保留其数据卷。Prometheus 抓取 `/metrics` 必须发送 `Authorization: Bearer <METRICS_TOKEN>`。
 
 ## 游客 H5 与桌面包
 
@@ -72,12 +74,12 @@ docker compose --env-file .env.staging -p myreid-staging \
 
 ```bash
 export MYREID_ENV_FILE=.env.prod
-docker compose --env-file .env.prod -p myreid-production \
+docker compose --env-file .env.prod -p myreid-prod \
   -f docker-compose.yml -f docker-compose.prod.yml \
-  --profile visitor up --build -d
+  --profile staff --profile visitor up --build -d
 ```
 
-游客 HTTPS 域名转发到 `127.0.0.1:5174`。附带 Nginx 只提供 `/visitor/` 与 `/api/v1/scenic/visitor/`，运营 API、`/docs` 和相机预览不经游客入口开放。页面、API、OAuth 回调同源。游客 JSAPI 通知路径为 `/api/v1/scenic/visitor/payments/wechat/notify`；人工支付无需商户配置，真实微信登录仍需公众号配置，见 [游客说明](VISITOR_H5.md)。
+游客 HTTPS 域名转发到 `127.0.0.1:5174`。附带 Nginx 只提供 `/visitor/` 与 `/api/v1/scenic/visitor/`，运营 API、`/docs` 和相机预览不经游客入口开放。页面、API、OAuth 回调同源。当前发布流程保持 `PAYMENT_PROVIDER=manual`、`VISITOR_PAYMENT_PROVIDER=manual`，由工作人员核实实际收款后确认订单；微信自动支付尚未完成接入验收。浏览器游客不需要公众号，选择微信登录时才需真实公众号配置，见 [游客说明](VISITOR_H5.md)。
 
 Windows 本机生产直接运行 `scripts/run_production.ps1 -Build`，已包含游客 profile、CUDA 镜像和宿主机桥接初始化。不要用裸 `docker compose up` 替代该生命周期入口。
 
@@ -99,43 +101,24 @@ VITE_MYREID_API_BASE_URL=https://api.example.com npm run tauri:build
 4. 核对模型设备、双库、队列消费、相机及业务流程。最新 head 和手动升级见 [数据库手册](DATABASE_SPLIT_RUNBOOK.md)。
 
 ```bash
-docker compose --env-file .env.prod -p myreid-production \
-  -f docker-compose.yml -f docker-compose.prod.yml --profile visitor ps -a
-docker compose --env-file .env.prod -p myreid-production \
-  -f docker-compose.yml -f docker-compose.prod.yml --profile visitor \
-  logs --tail 100 backend worker visitor-coordinator
+docker compose --env-file .env.prod -p myreid-prod \
+  -f docker-compose.yml -f docker-compose.prod.yml --profile staff --profile visitor ps -a
+docker compose --env-file .env.prod -p myreid-prod \
+  -f docker-compose.yml -f docker-compose.prod.yml --profile staff --profile visitor \
+  logs --tail 100 backend worker maintenance visitor-coordinator
 ```
 
 `database-init` 显示 `Exited (0)` 正常。容器 healthcheck 只访问 `healthz`，还要检查 `/api/v1/readyz` 内容；`queue_mode=redis` 不证明 worker 已在消费。再完成一次核心上传/索引/检索和一次游客登记/选片/双版制作/付款/领取，硬件、微信和跨设备下载应记录实际验收结果。
 
 ## 备份与恢复
 
-`scripts/backup_restore.sh` 为 Bash 工具。Windows 可在已配置 Docker 访问的 WSL/Bash 使用；必须选择与部署相同的项目和文件：
+按[一致性备份与恢复](BACKUP_RESTORE.md)执行。当前 `scripts/backup_restore.sh backup|restore SNAPSHOT_DIRECTORY` 是**整栈停机后的全部 Compose 命名卷快照**，包含双库所在 PostgreSQL 卷、媒体目录、Redis、Milvus、etcd 和内置 MinIO；不再接受旧版 SQL gzip 与 assets 三文件恢复参数。
 
-```bash
-export COMPOSE_PROJECT_NAME=myreid-production
-export MYREID_ENV_FILE=.env.prod
-export MYREID_COMPOSE_ENV_FILE=.env.prod
-export MYREID_COMPOSE_FILES='docker-compose.yml;docker-compose.prod.yml'
-scripts/backup_restore.sh backup
-```
-
-本机 GPU 部署将文件组合改为 `docker-compose.yml;docker-compose.local-production.yml`。输出默认在 `backups/`：两个 SQL gzip dump 加容器内 `gallery`、`object_storage` 归档，实际目录为 `/workspace/FastAPIBackend/`。它不备份远端 S3/MinIO bucket、Milvus/etcd、Redis、secret 或外部模型，也不暂停写入或提供跨双库/文件的原子快照。
-
-恢复先选择隔离目标、准备空库及可写资源卷：脚本用普通 `psql` 导入，不会清库，不是覆盖/合并工具。PostgreSQL 与 backend 容器需可供 `exec` 使用；避免 backend 提前迁移建表后再导入同一库，必要时用维护容器恢复资源。确认目标后执行：
-
-```bash
-scripts/backup_restore.sh restore \
-  backups/myreid_core_db_TIMESTAMP.sql.gz \
-  backups/myreid_scenic_db_TIMESTAMP.sql.gz \
-  backups/myreid_assets_TIMESTAMP.tar.gz
-```
-
-随后恢复外部对象与向量，核对行数、订单金额和引用，完成检索与领取验收再切换服务。不要对正在服务的库试运行恢复。SQLite 开发备份及 PostgreSQL 原生 dump 方式见数据库手册。
+备份前必须停止同一项目所有 profile 的服务与其他写入者，使用实际部署的 project、env-file 和完整 Compose 文件组合（启用 HTTPS 时也包括 Caddy 卷）。恢复到新项目的空卷，脚本先验证校验和并拒绝覆盖非空卷。外部 S3、bind mount、模型、配置和密钥需按备份手册单独保管；不能把内置 MinIO 卷快照当作远端 S3 备份。恢复完成后验证登录、检索、成片和领取，再切换服务。
 
 ## 停止与保留数据
 
-普通 Compose 使用原参数 `stop` 或 `down`，不加 `-v` 时保留命名卷；包含游客容器时保留 `--profile visitor`。Windows 本机生产使用 `scripts/stop_production.ps1`，先给后端封存时间再释放摄像头并停止容器。关闭前端窗口不会停止后台采集和制作。
+普通 Compose 使用原参数 `stop` 或 `down`，不加 `-v` 时保留命名卷；保留原有 `staff` / `visitor` profiles。Windows 本机生产使用 `scripts/stop_production.ps1`，先给后端封存时间再停止业务容器，独立摄像头网关仍运行；需要同时释放摄像头时加 `-StopCameraGateway`。关闭前端窗口不会停止后台采集和制作。
 
 
 ## 多模型升级

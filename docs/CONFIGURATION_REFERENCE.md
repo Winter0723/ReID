@@ -20,11 +20,11 @@
 
 `CAMERA_SOURCES` 为 JSON 对象，例如 `CAMERA_SOURCES={"0":"0","entrance":"rtsp://user:password@192.0.2.10/live"}`。这只是文档示意，真实密码只放私有配置；界面填写 `entrance`。注册表由部署管理员控制，业务用户不能新增连接地址。授权地址仍需防火墙/出站访问控制；不要把不受信任用户可修改的 DNS 名放入允许列表。
 
-生产需要 `VISITOR_COOKIE_SECURE=1`、`VISITOR_ALLOW_LAN_HTTP=0`；LAN HTTP 仅用于隔离开发环境。默认开启现场核验，普通注册默认 viewer。`VISITOR_OPERATIONS_PER_HOUR` 限制账号重型操作，`VISITOR_PROJECT_OPERATIONS_PER_HOUR` 限制项目登记及已有游览的制作、预览等操作；生产 Redis 不可用时限流失败关闭。
+生产需要 `VISITOR_COOKIE_SECURE=1`、`VISITOR_ALLOW_LAN_HTTP=0`；LAN HTTP 仅用于隔离开发环境。`VISITOR_REQUIRE_STAFF_VERIFICATION=0` 默认不要求现场核验，设为 `1` 可开启；普通注册默认 viewer。`VISITOR_OPERATIONS_PER_HOUR` 限制账号重型操作，`VISITOR_PROJECT_OPERATIONS_PER_HOUR` 限制项目登记及已有游览的制作、预览等操作；生产 Redis 不可用时限流失败关闭。
 
 `S3_PUBLIC_BASE_URL` 仅为旧配置兼容保留，不再生成公开媒体链接；S3 一律返回短期签名 URL。部署者仍须关闭已有桶的公开读取策略。
 
-`PAYMENT_PROVIDER=manual`、`VISITOR_PAYMENT_PROVIDER=manual` 保留人工核实收款；真实支付当前不可直接启用，见 `WECHAT_PAYMENT_INTEGRATION.md`。`VISITOR_AUTO_PUBLISH` / `VISITOR_AUTO_SIMILARITY` 为旧流程兼容选项，现行流程仍由游客选择和确认制作，不绕过现场核验。
+`PAYMENT_PROVIDER=manual`、`VISITOR_PAYMENT_PROVIDER=manual` 保留人工核实收款；真实支付当前不可直接启用，见 `WECHAT_PAYMENT_INTEGRATION.md`。`VISITOR_AUTO_PUBLISH` / `VISITOR_AUTO_SIMILARITY` 为旧流程兼容选项，现行流程由游客选择和确认制作；开启现场核验时才要求先完成核验。
 
 ## 后端配置清单
 

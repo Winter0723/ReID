@@ -1,12 +1,15 @@
 # 空白机器部署：必填配置与完整启动流程
 
+第一次接触项目，先按[根目录上手攻略](../README.md)完成本机试用；本文展开配置、正式部署与验收细节。
+
 本文针对新安装机器和全新数据卷。源码、下文的私有环境文件、另行下载的模型包准备好后，
 Docker 会创建 PostgreSQL 两个数据库、Redis、MinIO、etcd、Milvus、API、RQ worker、恢复服务、
 游客协调器、管理端网页和游客 H5。**不需要预先安装数据库、Node、Rust、FFmpeg 或中文字体**；
 这些运行依赖由对应镜像安装。配置生成/检查工具只需要宿主机 Python 3.11+，不用安装 Python 包。
 
-“production 能启动”“管理人员能注册”“游客能微信登录”“能接入摄像头”是不同验收条件。
-真实 SMTP、域名/DNS、微信 OAuth、相机地址必须由部署者提供；这些无法用通用示例代替。
+“production 能启动”“管理人员能注册”“游客能浏览器登记/微信登录”“能接入摄像头”是不同验收条件。
+真实 SMTP、域名/DNS、相机地址必须由部署者提供；使用微信授权还需提供真实 OAuth 配置。
+当前 production 全栈预检仍要求微信配置，具体要求与浏览器登记的区别见第 5.2 节。
 真实微信支付仍未接通，本文整套流程采用**工作人员核实收款**，见 [支付接入限制](WECHAT_PAYMENT_INTEGRATION.md)。
 
 ## 1. 选择版本
@@ -42,7 +45,8 @@ Docker 内数据库/队列/存储应分别使用 `postgres`、`redis`、`minio`�
 
 ## 3. 单独下载模型包
 
-模型包由项目发布者另行提供链接；源码仓库不附带权重，也不绑定某个私人下载地址。
+模型下载入口统一见[模型获取说明](../model/README.md)：提供夸克和百度网盘，百度提取码为 `y26r`。
+源码仓库不附带权重；取得可信且兼容的权重后才能继续，不能用任意同名文件替代。
 建议模型压缩包保留以下目录结构，**解压到源码根目录**，不要额外套一层模型包目录：
 
 ```text
@@ -60,17 +64,27 @@ python scripts/check_models.py
 全部显示 Verified 才继续。长度及 SHA256 以 `model/checkpoints.json` 为准；新模型版本必须同步
 更新清单并验证兼容性，不能仅改文件名。Linux 文件应允许容器 UID 10001 读取。
 模型缺失时 Compose 会报错，不会自动创建同名空目录。权重不进入镜像或源码包。
+上述三份文件是默认 DSCL-ReID 路径的必需文件。可选的 MGD-DPM 权重放在
+`model/Market2MSMT.pth`，不在这份三文件校验清单中；未安装时该模型显示不可用，
+仍可选择已就绪的 DSCL-ReID。模型来源、目录结构与注册方法见[模型说明](../model/README.md)。
 
 容器里的模型配置保持模板值：
 
 | 参数 | Docker 值 | 含义 |
 | --- | --- | --- |
 | `YOLO_MODEL_PATH` | `/models/yolov8n.pt` | 人物检测模型 |
-| `CLIPREID_MODEL_PATH` | `/models/ViT-MSMT17-60.pth` | ReID 模型 |
-| `CLIP_CACHE_DIR` | 留空 | 使用已挂载的 `/workspace/model/clip_weights` |
+| `REID_MODEL_DIR` | `/models/reid` | 宿主机 `model/` 的只读挂载；包含权重、`*.model.json` 和 `clip_weights/` |
+| `REID_DEFAULT_MODEL_ID` | `clipreid-msmt17` | 新项目默认选择 DSCL-ReID，已有项目保持创建时的模型 |
+| `REID_MODEL_CACHE_SIZE` | `2` | 每进程模型缓存容量，活动任务持有的模型不会被淘汰 |
+| `CLIPREID_MODEL_PATH` | `/models/reid/ViT-MSMT17-60.pth` | 与默认模型配套的兼容路径 |
+| `CLIP_CACHE_DIR` | 留空 | 兼容加载路径使用 `/workspace/model/clip_weights` 的挂载；项目模型使用注册目录内的 `clip_weights/` |
 | `MODEL_DEVICE` / `WORKER_MODEL_DEVICE` | `cpu` | 通用新机器路径；不要在普通镜像中直接改成 cuda |
 | `EMBEDDING_BACKEND` / `DETECTION_BACKEND` | `clipreid` / `yolo` | 与模型包配套 |
 | `EMBEDDING_DIMENSION` | `512` | 不随意修改；变更模型需重建索引 |
+
+`*.model.json` 中的 `weights` 相对于 `REID_MODEL_DIR` 解析。模型列表及项目绑定由这个目录管理，
+只改 `CLIPREID_MODEL_PATH` 不会给项目注册新模型。增加模型时在宿主机目录写入权重和描述，
+不要在只读挂载的容器目录中运行注册写入操作；具体命令见[添加模型](../model/README.md#添加多个-mgd-dpm-权重)。
 
 ## 4. Docker local：不需要外部服务账号
 
@@ -125,7 +139,7 @@ python scripts/prepare_deployment.py production
 | `SECRET_KEY`、`METRICS_TOKEN` | 生成器已设置，每项独立随机值，至少 32 字符 | 默认占位符会阻止生产启动 |
 | `POSTGRES_PASSWORD`、`MINIO_ROOT_PASSWORD` | 生成器已设置；数据库及 S3 引用会同步 | 密码不一致导致连接失败 |
 | `BOOTSTRAP_ADMIN_EMAIL` | 自己能收信的管理员邮箱 | 无法完成首个生产管理员注册 |
-| `SMTP_HOST` | 邮件服务商的真实 SMTP 主机名 | 无法发送注册/登录/改密验证码 |
+| `SMTP_HOST` | 邮件服务商的真实 SMTP 主机名 | 无法发送注册或邮箱登录验证码 |
 | `SMTP_PORT` | 按服务商填写，例如 587 或 465 | 连接失败 |
 | `SMTP_USERNAME`、`SMTP_PASSWORD` | 真实发件账号及 SMTP 授权码/密码 | 邮件认证失败 |
 | `SMTP_FROM` | 服务商允许该账号使用的发件地址 | 邮件被拒绝或退信 |
@@ -150,10 +164,19 @@ docker compose --env-file .env.prod -p myreid-prod -f docker-compose.yml -f dock
 
 ### 5.2 游客整套流程额外必需
 
+当前 `wechat` 和 `browser` 模式都允许无邮箱、无微信授权的浏览器登记；微信配置就绪后，
+入口还提供微信登录。浏览器记录只属于当前 Cookie 身份，清除 Cookie 或换设备后不能找回。
+`VISITOR_AUTH_PROVIDER=wechat` 不表示强制微信登录，`test` 才是使用邀请码的独立测试入口。
+
+下面配置同时满足当前 `check_deployment.py` 的 production 全栈预检：它无论选择
+`wechat` 还是 `browser`，都要求 `VISITOR_WECHAT_APPID`、`VISITOR_WECHAT_SECRET` 和 HTTPS 游客地址。
+因此“浏览器登记在运行时不依赖微信”与“当前全栈预检要求微信配置”需要分开理解。
+`--staff-only` 仅检查管理端前提，不能视为游客完整部署验收。
+
 | 参数 / 外部设置 | 必填内容 |
 | --- | --- |
-| `VISITOR_AUTH_PROVIDER` | `wechat`；production 禁止 `test` |
-| `VISITOR_WECHAT_APPID`、`VISITOR_WECHAT_SECRET` | 具有对应网页授权能力的微信应用配置，和支付配置是两件事 |
+| `VISITOR_AUTH_PROVIDER` | 保留模板 `wechat`；也支持 `browser`，两者均有浏览器登记；production 禁止 `test` |
+| `VISITOR_WECHAT_APPID`、`VISITOR_WECHAT_SECRET` | 当前全栈预检必填；来自具有对应网页授权能力的微信应用，与支付配置不同 |
 | `VISITOR_PUBLIC_BASE_URL` | 真实游客站点 HTTPS 根地址，例如 `https://visit.example.com`，不带 `/visitor`、fragment 或查询参数 |
 | 微信网页授权回调域名 | 按应用平台要求配置游客站点域名；程序回调路径是 `/api/v1/scenic/visitor/auth/callback` |
 | `PAYMENT_PROVIDER`、`VISITOR_PAYMENT_PROVIDER` | 保持 `manual/manual`；真实收款在系统外确认 |
@@ -161,6 +184,9 @@ docker compose --env-file .env.prod -p myreid-prod -f docker-compose.yml -f dock
 | `ACME_EMAIL` | 使用自动 HTTPS 时必填：证书通知邮箱 |
 | `REALTIME_ORIGINS` | 保留需要的现有来源，并追加管理端完整来源，例如 `https://staff.example.com`，否则实时 WebSocket 会被拒绝 |
 | `SCENIC_PUBLIC_BASE_URL` | 工作人员订单交付链接使用的 HTTPS 管理端基址，例如 `https://staff.example.com` |
+
+`VISITOR_REQUIRE_STAFF_VERIFICATION` 保持模板默认 `0` 时，游客可自行匹配和选片；
+设为 `1` 才会要求工作人员核验后继续。单人照片检测及相似度不等于确认照片属于上传者本人。
 
 将两个域名的 DNS A/AAAA 指向服务器，开放 TCP 80/443（HTTP/3 可选 UDP 443），确保没有
 其他服务占用端口。若使用本仓库 HTTPS 网关，无需先手工准备证书：
@@ -213,9 +239,11 @@ NVIDIA 驱动及 Docker GPU 支持。仅改变 `MODEL_DEVICE=cuda` 不能使 CPU
    仅能打开首页或 `/healthz` 不能证明业务已就绪。
 3. local 获取 debug_code 注册；production 必须收到真实邮件。分别注册核心/景区管理员；
    创建项目，上传一份合成或获授权素材，等待入库完成，执行一次检索。
-4. 景区后台打开游客自助服务，填写说明、授权文本、价格并保存；使用生成的项目入口二维码。
-   local 用邀请码登录，production 必须在微信内完成真实 OAuth 登录。
-5. 登记本人照片和授权，工作人员核验本人、账号、票据与照片；采集或准备属于本次游览的素材，
+4. 新建景区默认已启用游客服务；在后台确认开放状态，填写说明、授权文本、价格并保存，
+   使用生成的项目入口二维码。local 用邀请码登录；production 可浏览器登记。
+   若使用微信登录，还应在微信内单独验收真实 OAuth 回调。
+5. 登记本人照片和授权；仅当 `VISITOR_REQUIRE_STAFF_VERIFICATION=1` 时，先由工作人员核验
+   本人、账号、票据与照片。采集或准备属于本次游览的素材，
    结束游览，选择片段，确认制作，检查横竖版预览。没有匹配素材不能验证出片效果。
 6. 游客提交人工付款请求，具有管理权限的工作人员核实收款并确认，游客下载、领取。
    测试支付成功提示不等于发生了微信扣款。
@@ -261,10 +289,11 @@ Compose 使用健康依赖等待存储就绪，模型挂载禁止隐式创建目
 外部 SMTP 投递、真实 DNS/证书签发、微信授权资质、真实摄像头和 GPU 兼容性必须在目标机器验收。
 不能把配置预检通过表述为这些外部集成已通过。
 
-### 2026-10-18 实测范围
+### 2026-10-18 历史实测范围
 
+以下保留当时的验收记录，不代表当前版本或本次文档调整已完成相同实测。
 在 Windows Docker Desktop 的 Linux x86-64 引擎中，以 CPU 模式分别创建两组独立空数据卷，
-使用本次源码构建的镜像和另行放置的模型包进行了以下验证：
+使用当时源码构建的镜像和另行放置的模型包进行了以下验证：
 
 | 验证 | 结果 |
 | --- | --- |

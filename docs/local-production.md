@@ -88,7 +88,7 @@ if (!(Test-Path .env.prod)) { Copy-Item .env.prod.example .env.prod }
 .\scripts\run_production.ps1 -Build
 ```
 
-已有镜像时不加 -Build 即可。修改后端代码或依赖后需重新构建；仅改 `.env.prod`，重新执行普通启动命令即可更新容器环境。单独 `docker restart` 不会读取新的 env 文件。
+普通启动命令也会使用 Docker 构建缓存同步源码；`-Build` 保留兼容。修改代码、依赖或 `.env.prod` 后重新运行启动脚本即可构建并更新容器。单独 `docker restart` 不会读取新的 env 文件。
 
 ### 手机局域网 HTTP 联调
 
@@ -98,7 +98,7 @@ if (!(Test-Path .env.prod)) { Copy-Item .env.prod.example .env.prod }
 
 正式 HTTPS 部署使用 `APP_ENV=production`、`VISITOR_AUTH_PROVIDER=wechat`、`VISITOR_COOKIE_SECURE=1`、`VISITOR_ALLOW_LAN_HTTP=0`，并设置对应的 HTTPS 游客入口。`wechat` 和 `browser` 均支持正式环境的独立浏览器游客，配置公众号后同时提供微信登录入口。`VISITOR_REQUIRE_STAFF_VERIFICATION=0` 为自助流程，设为 `1` 可启用现场核验。启动脚本会在构建和启动网关之前检查模式与 Cookie 配置是否冲突；不要仅把 HTTP 环境的 Cookie 改为 Secure，否则手机不能发送登录 Cookie。
 
-部署组合固定为 `docker-compose.yml` + `docker-compose.local-production.yml`，项目名 `myreid-production`，脚本已启用 `visitor` profile，并先启动独立的 `myreid-camera` 摄像头网关。启动时始终用 Docker 构建缓存核对 backend 与 visitor-web 的源码，worker 和协调器复用后端镜像，避免新前端连接旧后端；源码未变化时复用缓存层。`-Build` 参数保留兼容旧命令。不要只运行裸的 `docker compose up`，它使用的配置、端口和项目名可能不同。`docker-compose.prod.yml` 是另一套包含支付证书的部署覆盖文件，不是本指南使用的组合。
+部署组合固定为 `docker-compose.yml` + `docker-compose.local-production.yml`，项目名 `myreid-production`，脚本已启用 `visitor` profile，并先启动独立的 `myreid-camera` 摄像头网关。启动时始终用 Docker 构建缓存核对 backend 与 visitor-web 的源码，worker 和协调器复用后端镜像，避免新前端连接旧后端；源码未变化时复用缓存层。`-Build` 参数保留兼容旧命令。不要只运行裸的 `docker compose up`，它使用的配置、端口和项目名可能不同。`docker-compose.prod.yml` 是另一套通用生产覆盖文件，默认同样为人工收款且不挂载支付证书，不是本指南使用的组合。
 
 Docker Compose 必须支持覆盖文件中的 `!override` 和 `gpus`。宿主机还需 PATH 中的 FFmpeg、Python（含 pythonw.exe）及桌面应用摄像头权限，详见 [Windows 摄像头桥接](windows-camera-bridge.md)。
 
@@ -133,7 +133,7 @@ Docker Compose 必须支持覆盖文件中的 `!override` 和 `gpus`。宿主机
 | MODEL_DEVICE | cuda；本机覆盖文件为 API、worker 和协调器指定 cuda |
 | EMBEDDING_DIMENSION | 512 |
 | YOLO_MODEL_PATH | /models/yolov8n.pt |
-| CLIPREID_MODEL_PATH | /models/ViT-MSMT17-60.pth |
+| CLIPREID_MODEL_PATH | /models/reid/ViT-MSMT17-60.pth |
 | CLIPREID_IMAGE_HEIGHT / CLIPREID_IMAGE_WIDTH | 336 / 160 |
 | GALLERY_DIR / OBJECT_STORAGE_DIR | /workspace/FastAPIBackend/gallery / /workspace/FastAPIBackend/object_storage |
 | SCENIC_VIDEO_ENCODER | h264_nvenc，Worker 覆盖文件已配置 |
@@ -148,7 +148,7 @@ URL 中的数据库密码若包含特殊字符，需要 URL 编码；首次生�
 
 GPU 需要 Docker Desktop 能访问 NVIDIA 驱动。历史 CUDA/NVENC 实测见文末；换机器或重建依赖后重新验证。8GB 显存部署保持单 Worker、单路实时识别；同时运行多个推理任务时仍需留意显存。
 
-启用游客业务还需设置公众号授权、游客同源地址和付款方式；配置 `VISITOR_PAYMENT_PROVIDER=manual` 时由景区负责人或管理员确认付款，无需支付商户证书。真实登录仍需公众号配置，游客售价在运营端的景区服务面板设置，详见 [游客 H5](VISITOR_H5.md)。仅启动容器不会自动开放景区服务。
+启用游客业务需设置游客同源地址和付款方式；选择微信登录时另需公众号授权配置；配置 `VISITOR_PAYMENT_PROVIDER=manual` 时由景区负责人或管理员确认付款，无需支付商户证书。浏览器登记无需公众号，微信登录需要公众号配置；游客售价在运营端的景区服务面板设置，详见 [游客 H5](VISITOR_H5.md)。新建景区默认开放游客服务，部署者应在服务面板核对说明、授权文本、价格和启用状态。
 
 ## 4. 原来的邮件能否继续使用
 
@@ -190,7 +190,7 @@ docker exec myreid-production-backend-1 python -c "from app.core.config import g
 1. 将 `.env.prod` 的 BOOTSTRAP_ADMIN_EMAIL 设置为你实际控制、能收到邮件的邮箱。
 2. 按第 4 节配置 SMTP，再重新运行生产启动脚本。
 3. 在前端退出旧登录状态，进入注册页面，使用该邮箱接收验证码并注册。
-4. 当前代码在注册时将与 BOOTSTRAP_ADMIN_EMAIL 匹配的邮箱分配为 admin；其他邮箱注册为 operator。该参数不会自动创建账号，也不会自动提升已有账号权限。
+4. 当前代码在注册时将与 BOOTSTRAP_ADMIN_EMAIL 匹配的邮箱分配为 admin；其他邮箱按 `PUBLIC_REGISTRATION_ROLE` 分配角色，模板默认 viewer。该参数不会自动创建账号，也不会自动提升已有账号权限。
 5. 后续可使用注册时的账号/邮箱和密码登录，密码登录不依赖每次发送验证码。
 
 基础系统与景区系统使用不同数据库、认证入口及会话，账号不会因为在另一模块注册过就自动存在。旧 SQLite 用户也不会自动出现于 PostgreSQL。需要保留旧数据时应另做迁移，不能通过切换开发模式代替迁移。
@@ -225,7 +225,7 @@ docker @ComposeArgs logs --tail 100 backend worker visitor-coordinator visitor-w
 | 发码 502 | 检查容器网络、465/587 配置及 SMTP 授权码，查看后端日志 |
 | 前端连接失败 | 先检查 2889 的 healthz，再检查 5173/api/v1/healthz，核对前端端口配置并重启前端 |
 | 修改 env 后没生效 | 用生产启动脚本重新创建有配置变化的容器，不是仅 docker restart |
-| 找不到 myreid:production-gpu | 首次运行附加 -Build |
+| 找不到 myreid:production-gpu | 运行启动脚本并检查构建日志，普通启动也会构建所需镜像 |
 | 模型列表 404 或旧路径权重加载失败 | 旧镜像没有多模型接口。更新代码后运行启动脚本，会先构建同步镜像。实际 `.env.prod` 应设置 `REID_MODEL_DIR=/models/reid`、`CLIPREID_MODEL_PATH=/models/reid/ViT-MSMT17-60.pth`。模型文件与 `.model.json` 一起挂载。 |
 | 镜像 Built，但 backend unhealthy，日志提示 Production requires VISITOR_COOKIE_SECURE | 生产模式与 HTTP 联调配置冲突，按上文选择完整的一组环境、Cookie 和入口配置 |
 | 摄像头接入后报 object_storage 或 gallery PermissionError | 检查旧命名卷所有者；当前镜像用户为 10001:10001，旧 root 所有目录需一次性修正为该用户。不要删除数据卷或使用 chmod 777 |

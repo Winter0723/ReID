@@ -1,6 +1,7 @@
 # 文档导航
 
-首次安装请阅读 [空白机器部署与必填配置](NEW_MACHINE_DEPLOYMENT.md)：包含 Docker local、production、模型包、HTTPS、账号注册及验收步骤。
+首次使用从[根目录上手攻略](../README.md)开始，按获取源码、放置模型、Docker 启动、配置邮箱及使用功能的顺序操作。
+需要配置详情、正式部署或 HTTPS 时，再阅读[空白机器部署与必填配置](NEW_MACHINE_DEPLOYMENT.md)。
 
 本目录以 `allinone` 分支的 FastAPI 后端、Tauri 运营工作台和游客 H5 为维护范围。带日期的性能、硬件和验收记录仅描述当时的环境，不代表当前机器或新部署已经通过验收。
 
@@ -9,7 +10,9 @@
 | 要做什么 | 文档 |
 | --- | --- |
 | 第一次了解项目、找到代码和运行产物 | [项目总指南](PROJECT_GUIDE.md) |
-| 用最短命令启动项目 | [根目录 README](../README.md) |
+| 从零试用、启动、配置邮箱和使用功能 | [根目录上手攻略](../README.md) |
+| 准备模型文件、检查模型及注册可选模型 | [模型说明](../model/README.md) |
+| 配置 Docker local / production、HTTPS 及新机器验收 | [空白机器部署](NEW_MACHINE_DEPLOYMENT.md) |
 | 选择配置模板、排查变量优先级和端口 | [配置参考](CONFIGURATION.md) |
 | 安装依赖、修改代码、运行测试 | [开发指南](DEVELOPMENT.md) |
 | 部署服务、升级、备份与恢复 | [部署指南](DEPLOYMENT.md) |

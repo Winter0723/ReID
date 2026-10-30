@@ -9,3 +9,5 @@
 - 配乐保持原来源与授权记录，见 `FastAPIBackend/assets/scenic_music/LICENSE_SOURCES.md`，
   运行测试会核对 catalog、校验值与分发文件，第三方音乐遵守各自许可。
 - 模型词表及上游代码保留原许可；模型权重不随源码发行。
+
+- `docs/assets/sponsorship/alipay.jpg` 与 `wechat.png`：项目维护者提供并授权公开的赞助收款码，原图复制，未重绘或修改二维码。仅用于项目赞助展示，不作为应用内业务订单付款入口。
